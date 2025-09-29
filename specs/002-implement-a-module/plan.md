@@ -1,7 +1,7 @@
-# Implementation Plan: PDF Text Extraction Module
+# Implementation Plan: Image VLM Text Description Module
 
-**Branch**: `001-a-simple-python` | **Date**: 2025-09-28 | **Spec**: [spec.md](./spec.md)
-**Input**: Feature specification from `/specs/001-a-simple-python/spec.md`
+**Branch**: `002-implement-a-module` | **Date**: 2025-09-28 | **Spec**: spec.md
+**Input**: Feature specification from `/specs/002-implement-a-module/spec.md`
 
 ## Execution Flow (/plan command scope)
 
@@ -33,19 +33,19 @@
 
 ## Summary
 
-A Python module for extracting text content from PDF files with streaming support for large files, progress tracking, and both programmatic API and command-line interfaces. The module handles files of varying sizes efficiently, with special handling for large files (>20 pages) via streaming and provides clear error handling for edge cases.
+Implement a modular image processing system that takes image files and generates descriptive text using Vision Language Models (VLM) via the mlx-vlm library. The module must follow the same quality, modularity, and architectural patterns as the existing PDF extraction feature, including structured results, progress tracking, error handling, and batch processing capabilities.
 
 ## Technical Context
 
-**Language/Version**: Python 3.8+ (for compatibility with standard library features)
-**Primary Dependencies**: PyPDF2 or pdfplumber for PDF parsing (minimal external dependencies per constitution)
-**Storage**: File system input only (PDF files)
-**Testing**: pytest for unit and integration testing
-**Target Platform**: Cross-platform (Linux, macOS, Windows)
-**Project Type**: single - Python module with CLI interface
-**Performance Goals**: Stream processing for files >20 pages, memory-efficient page-by-page processing
-**Constraints**: <250 lines per file (constitution), minimal dependencies, handle files up to memory limits via streaming
-**Scale/Scope**: Internal API consumption, CLI testing interface, handle various PDF sizes and formats
+**Language/Version**: Python 3.13 (per project requirements)
+**Primary Dependencies**: mlx-vlm (VLM processing), PIL/Pillow (image handling)
+**Storage**: File system (image files), no persistent storage required
+**Testing**: pytest (following existing project pattern)
+**Target Platform**: macOS (MLX framework requirement)
+**Project Type**: single - Python module following existing pdf_extractor pattern
+**Performance Goals**: Process images efficiently with progress tracking for large files
+**Constraints**: <250 lines per file (constitution), minimal dependencies, composition-first architecture
+**Scale/Scope**: Single/batch image processing, modular design for podcast content pipeline integration
 
 ## Constitution Check
 
@@ -53,33 +53,33 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 **Composition-First Check**:
 
-- [x] All components are independently functional and testable (PDF reader, progress tracker, CLI interface as separate modules)
-- [x] No monolithic structures proposed (modular design with clear separation)
-- [x] Complexity emerges through composition, not component complexity (simple modules combined for complete functionality)
+- [x] All components are independently functional and testable
+- [x] No monolithic structures proposed
+- [x] Complexity emerges through composition, not component complexity
 
 **250-Line Rule Check**:
 
-- [x] No single file planned exceeds 250 lines (each module <250 lines: reader, progress, CLI, exceptions)
-- [x] Large modules identified for modular breakdown (PDF processing split into core reader + streaming handler)
-- [x] Clear refactoring strategy for size violations (split by responsibility: reading, streaming, progress, CLI)
+- [x] No single file planned exceeds 250 lines (including comments/whitespace)
+- [x] Large modules identified for modular breakdown
+- [x] Clear refactoring strategy for size violations
 
 **Minimal Dependencies Check**:
 
-- [x] All dependencies justified with clear rationale (PyPDF2/pdfplumber for PDF parsing - no standard library alternative)
-- [x] Standard library solutions preferred over external packages (using argparse, json, sys from stdlib)
-- [x] Dependency audit plan included (single PDF parsing dependency evaluation)
+- [x] All dependencies justified with clear rationale (mlx-vlm for VLM, PIL for image handling)
+- [x] Standard library solutions preferred over external packages
+- [x] Dependency audit plan included
 
 **Experimental Mindset Check**:
 
-- [x] Learning objectives documented (explore PDF processing patterns, streaming architectures, CLI design)
-- [x] Quick iteration approach planned (start with basic reader, add streaming, then CLI)
-- [x] Breaking changes acceptable for architectural improvements (experimental project allows refactoring)
+- [x] Learning objectives documented (VLM integration patterns, MLX framework usage)
+- [x] Quick iteration approach planned
+- [x] Breaking changes acceptable for architectural improvements
 
 **Modular Architecture Check**:
 
-- [x] Single responsibility per module (reader, progress tracker, CLI, error handling separate)
-- [x] Clear interface definitions between modules (defined APIs for each component)
-- [x] Modules designed for replaceability (progress tracking can be swapped, PDF library can be changed)
+- [x] Single responsibility per module
+- [x] Clear interface definitions between modules
+- [x] Modules designed for replaceability
 
 ## Project Structure
 
@@ -97,30 +97,37 @@ specs/[###-feature]/
 
 ### Source Code (repository root)
 
+<!--
+  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
+  for this feature. Delete unused options and expand the chosen structure with
+  real paths (e.g., apps/admin, packages/something). The delivered plan must
+  not include Option labels.
+-->
+
 ```
-pdf_extractor/
-├── __init__.py          # Module interface
-├── __main__.py          # CLI entry point (python -m pdf_extractor)
-├── reader.py            # Core PDF text extraction
-├── streaming.py         # Streaming/pagination for large files
-├── progress.py          # Progress tracking functionality
-├── cli.py               # Command line interface logic
-└── exceptions.py        # Custom exception classes
+image_processor/           # New module following pdf_extractor pattern
+├── __init__.py           # Public API exports
+├── models.py             # Data models (ImageDocument, DescriptionResult, etc.)
+├── processor.py          # Core VLM processing functionality
+├── streaming.py          # Streaming/batch processing
+├── exceptions.py         # Custom exception types
+├── progress.py          # Progress tracking utilities
+└── cli.py               # Command line interface
 
 tests/
-├── contract/
-│   └── test_api.py      # Contract tests for module interface
-├── integration/
-│   ├── test_cli.py      # CLI integration tests
-│   └── test_workflows.py # End-to-end processing tests
-└── unit/
-    ├── test_reader.py   # PDF reading unit tests
-    ├── test_streaming.py # Streaming logic tests
-    ├── test_progress.py # Progress tracking tests
-    └── test_exceptions.py # Exception handling tests
+├── contract/            # API contract tests
+│   └── test_api.py
+├── integration/         # End-to-end workflow tests
+│   └── test_workflows.py
+└── unit/               # Individual component tests
+    ├── test_models.py
+    ├── test_processor.py
+    ├── test_streaming.py
+    ├── test_exceptions.py
+    └── test_progress.py
 ```
 
-**Structure Decision**: Single Python module structure chosen. The `pdf_extractor/` directory contains all core functionality split into focused modules (each <250 lines per constitution). CLI interface accessible via `python -m pdf_extractor`. Tests organized by type (contract, integration, unit) following TDD approach.
+**Structure Decision**: Single project structure following existing pdf_extractor module pattern. New image_processor module will be added alongside pdf_extractor with identical architectural patterns for consistency and maintainability.
 
 ## Phase 0: Outline & Research
 
@@ -192,21 +199,42 @@ _This section describes what the /tasks command will do - DO NOT execute during 
 
 - Load `.specify/templates/tasks-template.md` as base
 - Generate tasks from Phase 1 design docs (contracts, data model, quickstart)
-- Each contract API function → contract test task [P]
-- Each entity (PDFDocument, TextContent, etc.) → model creation task [P]
-- Each CLI command → integration test task
-- Each exception type → error handling test task [P]
-- Implementation tasks ordered by dependency
-- Constitution compliance verification tasks
+- Each entity in data-model.md → model creation task [P]
+- Each contract function → contract test task [P]
+- Each CLI command → CLI test task
+- Implementation tasks following TDD pattern to make tests pass
+- Integration tasks based on user scenarios from spec
 
 **Ordering Strategy**:
 
-- TDD order: Contract tests → Entity tests → Implementation → Integration tests
-- Dependency order: Exceptions → Models → Core logic → Streaming → CLI
-- Mark [P] for parallel execution (independent modules per constitution)
-- Group by constitutional file size limits (<250 lines each)
+- TDD order: Contract tests → Models → Core processors → Streaming → CLI → Integration tests
+- Dependency order:
+  1. Models and exceptions (independent) [P]
+  2. Core processor (depends on models)
+  3. Streaming processor (depends on core)
+  4. Progress tracking (depends on streaming)
+  5. CLI interface (depends on all core components)
+  6. Integration tests (validates complete workflows)
+- Mark [P] for parallel execution (independent files under 250 lines each)
 
-**Estimated Output**: 18-22 numbered, ordered tasks in tasks.md focusing on modular, testable components
+**Specific Task Categories**:
+
+- **Models**: ImageDocument, DescriptionResult, ProcessingResult, ProcessingConfig (4 tasks) [P]
+- **Exceptions**: Custom exception hierarchy with proper inheritance (1 task)
+- **Core Processing**: MLX-VLM integration, image validation, single image processing (3 tasks)
+- **Batch Processing**: Streaming interface, progress tracking, memory management (3 tasks)
+- **CLI Interface**: Argument parsing, output formatting, file path expansion (3 tasks)
+- **Testing**: Contract tests for all public APIs (6 tasks)
+- **Integration**: End-to-end workflow tests matching user scenarios (4 tasks)
+
+**Constitution Compliance Strategy**:
+
+- Each file limited to 250 lines maximum
+- Modular components with single responsibilities
+- Clear interfaces between all modules
+- Minimal external dependencies (mlx-vlm, PIL only)
+
+**Estimated Output**: 24-26 numbered, ordered tasks in tasks.md
 
 **IMPORTANT**: This phase is executed by the /tasks command, NOT by /plan
 
@@ -243,9 +271,9 @@ _This checklist is updated during execution flow_
 **Gate Status**:
 
 - [x] Initial Constitution Check: PASS
-- [x] Post-Design Constitution Check: PASS (all modules <250 lines, composition-first design, minimal dependencies)
+- [x] Post-Design Constitution Check: PASS
 - [x] All NEEDS CLARIFICATION resolved
-- [x] Complexity deviations documented (none required)
+- [x] Complexity deviations documented
 
 ---
 

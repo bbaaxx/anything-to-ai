@@ -7,23 +7,24 @@ import sys
 from pathlib import Path
 
 MAX_LINES = 250
-SOURCE_DIR = "pdf_extractor"
+SOURCE_DIRS = ["pdf_extractor", "image_processor"]
 
 def check_file_lengths():
     """Check all Python files for line count compliance."""
     violations = []
 
-    if not Path(SOURCE_DIR).exists():
-        print(f"Directory {SOURCE_DIR} not found")
-        return False
+    for source_dir in SOURCE_DIRS:
+        if not Path(source_dir).exists():
+            print(f"Directory {source_dir} not found, skipping")
+            continue
 
-    for python_file in Path(SOURCE_DIR).rglob("*.py"):
-        with open(python_file, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-            line_count = len([line for line in lines if line.strip()])  # Count non-empty lines
+        for python_file in Path(source_dir).rglob("*.py"):
+            with open(python_file, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+                line_count = len([line for line in lines if line.strip()])  # Count non-empty lines
 
-            if line_count > MAX_LINES:
-                violations.append((python_file, line_count))
+                if line_count > MAX_LINES:
+                    violations.append((python_file, line_count))
 
     if violations:
         print("❌ File length violations found:")
