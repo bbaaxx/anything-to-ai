@@ -1,6 +1,5 @@
 """Contract tests for error message formatting."""
 
-import pytest
 from image_processor.exceptions import (
     ImageNotFoundError,
     UnsupportedFormatError,

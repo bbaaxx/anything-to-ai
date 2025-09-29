@@ -1,6 +1,5 @@
 """Contract tests for CLI main() function."""
 
-import pytest
 from unittest.mock import patch
 from image_processor.cli import main
 

@@ -1,6 +1,5 @@
 """Contract tests for exception hierarchy."""
 
-import pytest
 from image_processor.exceptions import (
     ImageProcessingError,
     ImageNotFoundError,

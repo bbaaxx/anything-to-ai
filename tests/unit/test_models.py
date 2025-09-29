@@ -1,6 +1,5 @@
 """Unit tests for model validation."""
 
-import pytest
 from image_processor.models import ImageDocument, DescriptionResult, ProcessingResult, ProcessingConfig
 
 

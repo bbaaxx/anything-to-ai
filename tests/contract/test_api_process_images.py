@@ -2,7 +2,7 @@
 
 import pytest
 from image_processor import process_images, ProcessingConfig, ProcessingResult
-from image_processor.exceptions import ValidationError, ProcessingError
+from image_processor.exceptions import ValidationError
 
 
 class TestProcessImagesContract:
