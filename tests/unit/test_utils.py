@@ -1,10 +1,9 @@
 """Unit tests for utility functions."""
 
-import pytest
 import tempfile
 import os
 from PIL import Image
-from image_processor.processor import VLMProcessor, SUPPORTED_FORMATS
+from image_processor.processor import SUPPORTED_FORMATS
 from image_processor.progress import ProgressTracker
 from image_processor.cli import expand_image_paths, format_output
 from image_processor.models import ProcessingResult, DescriptionResult

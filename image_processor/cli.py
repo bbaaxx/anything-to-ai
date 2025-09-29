@@ -2,7 +2,7 @@
 
 import argparse
 from typing import List, Optional
-from .models import ProcessingResult
+from .models import ProcessingResult, DescriptionResult
 
 
 def create_cli_parser() -> argparse.ArgumentParser:
@@ -41,10 +41,18 @@ Examples:
 def main(args: Optional[List[str]] = None) -> int:
     """Main CLI entry point."""
     import sys
+    import os
 
     try:
         parser = create_cli_parser()
         parsed_args = parser.parse_args(args)
+
+        # Check for VLM environment configuration
+        if not os.getenv('VISION_MODEL'):
+            print("Error: VISION_MODEL environment variable not set.", file=sys.stderr)
+            print("Please configure a VLM model:", file=sys.stderr)
+            print("  export VISION_MODEL=google/gemma-3-4b", file=sys.stderr)
+            return 1
 
         # Expand image paths
         image_paths = expand_image_paths(parsed_args.images)
@@ -55,18 +63,30 @@ def main(args: Optional[List[str]] = None) -> int:
 
         # Create configuration
         from . import create_config, process_images
+        from .vlm_exceptions import VLMConfigurationError
 
         def progress_handler(current, total):
             if parsed_args.verbose and not parsed_args.quiet:
                 print(f"Processing {current}/{total} images...", file=sys.stderr)
 
-        config = create_config(
-            description_style=parsed_args.style,
-            max_length=parsed_args.max_length,
-            batch_size=parsed_args.batch_size,
-            progress_callback=progress_handler if parsed_args.verbose else None
-        )
-        config.timeout_seconds = parsed_args.timeout
+        try:
+            config = create_config(
+                description_style=parsed_args.style,
+                max_length=parsed_args.max_length,
+                batch_size=parsed_args.batch_size,
+                progress_callback=progress_handler if parsed_args.verbose else None
+            )
+            config.timeout_seconds = parsed_args.timeout
+
+        except VLMConfigurationError as e:
+            print(f"VLM Configuration Error: {e}", file=sys.stderr)
+            if hasattr(e, 'suggested_fix') and e.suggested_fix:
+                print(f"Suggestion: {e.suggested_fix}", file=sys.stderr)
+            return 1
+
+        # Show VLM model info in verbose mode
+        if parsed_args.verbose and not parsed_args.quiet:
+            print(f"Using VLM model: {config.model_name}", file=sys.stderr)
 
         # Process images
         results = process_images(image_paths, config)
@@ -108,7 +128,11 @@ def format_output(result: ProcessingResult, format_type: str) -> str:
                     "confidence_score": r.confidence_score,
                     "processing_time": r.processing_time,
                     "model_used": r.model_used,
-                    "success": r.success
+                    "success": r.success,
+                    # Enhanced VLM fields
+                    "technical_metadata": getattr(r, 'technical_metadata', None),
+                    "vlm_processing_time": getattr(r, 'vlm_processing_time', None),
+                    "model_version": getattr(r, 'model_version', None)
                 }
                 for r in result.results
             ]
@@ -121,17 +145,27 @@ def format_output(result: ProcessingResult, format_type: str) -> str:
         output = io.StringIO()
         writer = csv.writer(output)
 
-        # Write header
-        writer.writerow(["image_path", "description", "confidence_score", "processing_time", "success"])
+        # Write enhanced header
+        writer.writerow([
+            "image_path", "description", "confidence_score", "processing_time", "success",
+            "format", "width", "height", "file_size", "model_used", "model_version"
+        ])
 
         # Write data rows
         for r in result.results:
+            tech_meta = getattr(r, 'technical_metadata', {}) or {}
             writer.writerow([
                 r.image_path,
                 r.description.replace('\n', ' ').replace('\r', ''),
                 r.confidence_score or "",
                 r.processing_time,
-                r.success
+                r.success,
+                tech_meta.get('format', ''),
+                tech_meta.get('dimensions', [0, 0])[0] if tech_meta.get('dimensions') else '',
+                tech_meta.get('dimensions', [0, 0])[1] if tech_meta.get('dimensions') else '',
+                tech_meta.get('file_size', ''),
+                r.model_used,
+                getattr(r, 'model_version', '')
             ])
 
         return output.getvalue()
@@ -148,7 +182,64 @@ def format_output(result: ProcessingResult, format_type: str) -> str:
             lines.append(f"{status} {r.image_path}")
             if r.success and r.description:
                 lines.append(f"   {r.description}")
+
+                # Add technical metadata in plain format
+                tech_meta = getattr(r, 'technical_metadata', {}) or {}
+                if tech_meta:
+                    dims = tech_meta.get('dimensions', [0, 0])
+                    lines.append(f"   Format: {tech_meta.get('format', 'Unknown')}, "
+                               f"Size: {dims[0]}x{dims[1]}, "
+                               f"{tech_meta.get('file_size', 0)} bytes")
             lines.append("")
+
+        return "\n".join(lines)
+
+
+def format_single_result(result: DescriptionResult, format_type: str) -> str:
+    """Format single processing result for CLI output."""
+    if format_type == "json":
+        import json
+        data = {
+            "image_path": result.image_path,
+            "description": result.description,
+            "confidence_score": result.confidence_score,
+            "processing_time": result.processing_time,
+            "model_used": result.model_used,
+            "success": result.success,
+            # Enhanced VLM fields
+            "technical_metadata": result.technical_metadata,
+            "vlm_processing_time": result.vlm_processing_time,
+            "model_version": result.model_version
+        }
+        return json.dumps(data, indent=2)
+
+    elif format_type == "csv":
+        tech_meta = result.technical_metadata or {}
+        dims = tech_meta.get('dimensions', [0, 0])
+        return (f"{result.image_path},{result.description},{result.confidence_score},"
+                f"{result.processing_time},{result.success},{tech_meta.get('format', '')},"
+                f"{dims[0]},{dims[1]},{tech_meta.get('file_size', 0)},"
+                f"{result.model_used},{result.model_version}")
+
+    else:  # plain format
+        lines = [f"Image: {result.image_path}"]
+        if result.success:
+            lines.append(f"Description: {result.description}")
+            if result.confidence_score is not None:
+                lines.append(f"Confidence: {result.confidence_score:.2f}")
+            lines.append(f"Processing time: {result.processing_time:.2f}s")
+            if result.model_used:
+                lines.append(f"Model: {result.model_used}")
+
+            # Add technical metadata if available
+            if result.technical_metadata:
+                tech_meta = result.technical_metadata
+                dims = tech_meta.get('dimensions', [0, 0])
+                lines.append(f"Format: {tech_meta.get('format', 'Unknown')}, "
+                           f"Size: {dims[0]}x{dims[1]}, "
+                           f"{tech_meta.get('file_size', 0)} bytes")
+        else:
+            lines.append("Status: Failed")
 
         return "\n".join(lines)
 

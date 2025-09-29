@@ -1,6 +1,5 @@
 """Contract tests for get_supported_formats() API function."""
 
-import pytest
 from image_processor import get_supported_formats
 
 

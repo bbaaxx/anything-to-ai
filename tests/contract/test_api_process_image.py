@@ -2,7 +2,7 @@
 
 import pytest
 from image_processor import process_image, ProcessingConfig, DescriptionResult
-from image_processor.exceptions import ImageNotFoundError, UnsupportedFormatError, ProcessingError
+from image_processor.exceptions import ImageNotFoundError, UnsupportedFormatError
 
 
 class TestProcessImageContract:

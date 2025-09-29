@@ -1,13 +1,24 @@
 """Image VLM Text Description Module.
 
 A module for processing images with Vision Language Models (VLM) to generate
-descriptive text. Compatible with MLX framework for Apple Silicon optimization.
+descriptive text. Features real VLM integration using MLX framework for Apple
+Silicon optimization.
 
-IMPORTANT: This is currently a MOCK IMPLEMENTATION for testing system architecture.
-The actual VLM integration is not yet implemented - it returns placeholder text
-based on image metadata rather than AI-generated descriptions.
+This implementation provides:
+- Real VLM processing with configurable models via VISION_MODEL environment variable
+- Enhanced results combining AI descriptions with technical metadata
+- Backward-compatible API preserving existing interfaces
+- Comprehensive error handling with VLM-specific exception types
+- Batch processing with automatic memory cleanup
 
-Real implementation would use mlx-vlm for actual image analysis.
+Environment Configuration:
+    VISION_MODEL: Required - VLM model identifier (e.g., google/gemma-3-4b)
+    VLM_TIMEOUT_BEHAVIOR: Optional - Timeout behavior (error/fallback/continue)
+    VLM_AUTO_DOWNLOAD: Optional - Auto-download models (true/false)
+
+Example:
+    export VISION_MODEL=google/gemma-3-4b
+    python -m image_processor image.jpg --format json
 """
 
 from .models import ImageDocument, DescriptionResult, ProcessingResult, ProcessingConfig
@@ -17,8 +28,16 @@ from .exceptions import (
     UnsupportedFormatError,
     CorruptedImageError,
     ProcessingError,
-    ValidationError
+    ValidationError,
+    # VLM-specific exceptions
+    VLMConfigurationError,
+    VLMModelLoadError,
+    VLMProcessingError,
+    VLMTimeoutError,
+    VLMModelNotFoundError
 )
+# Import VLM model validation functions
+from .model_loader import validate_model_availability, get_available_models
 
 # Global processor instances
 _processor = None
@@ -124,9 +143,17 @@ def get_image_info(file_path: str) -> dict:
 
 __version__ = "0.1.0"
 __all__ = [
+    # Core models and data structures
     "ImageDocument", "DescriptionResult", "ProcessingResult", "ProcessingConfig",
+    # Exception hierarchy
     "ImageProcessingError", "ImageNotFoundError", "UnsupportedFormatError",
     "CorruptedImageError", "ProcessingError", "ValidationError",
+    # VLM-specific exceptions
+    "VLMConfigurationError", "VLMModelLoadError", "VLMProcessingError",
+    "VLMTimeoutError", "VLMModelNotFoundError",
+    # Core processing functions
     "process_image", "process_images", "validate_image", "get_supported_formats",
-    "process_images_streaming", "create_config", "get_image_info"
+    "process_images_streaming", "create_config", "get_image_info",
+    # VLM-specific functions
+    "validate_model_availability", "get_available_models"
 ]

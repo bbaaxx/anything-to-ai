@@ -2,7 +2,7 @@
 
 import os
 import time
-from typing import Any
+from typing import Any, Dict
 from PIL import Image
 from .models import ImageDocument, DescriptionResult, ProcessingConfig
 from .exceptions import (
@@ -13,6 +13,10 @@ from .exceptions import (
     ProcessingError,
     ProcessingTimeoutError,
 )
+from .vlm_exceptions import VLMConfigurationError, VLMModelLoadError, VLMProcessingError
+from .vlm_config import load_vlm_configuration, merge_processing_config_with_vlm
+from .vlm_processor import get_global_vlm_processor
+from .model_loader import get_global_model_loader
 
 # Supported image formats
 SUPPORTED_FORMATS = {"JPEG", "JPG", "PNG", "GIF", "BMP", "WEBP"}
@@ -22,19 +26,24 @@ class VLMProcessor:
     """Core processor for VLM image description generation."""
 
     def __init__(self):
-        self._model = None
-        self._model_name = None
+        self._vlm_processor = get_global_vlm_processor()
+        self._model_loader = get_global_model_loader()
+        self._current_config = None
 
     def load_model(self, model_name: str) -> None:
         """Load MLX-VLM model for processing."""
         try:
-            # For now, simulate model loading
-            # In real implementation, would load MLX-VLM model here
-            self._model_name = model_name
-            self._model = f"mock_model_{model_name}"
-            time.sleep(0.1)  # Simulate loading time
-        except Exception as e:
+            # Use the VLM configuration system
+            vlm_config = load_vlm_configuration()
+            self._current_config = vlm_config
+
+            # Validate and load model through model loader
+            self._model_loader.validate_and_load_model(vlm_config)
+
+        except (VLMConfigurationError, VLMModelLoadError) as e:
             raise ModelLoadError(model_name, str(e))
+        except Exception as e:
+            raise ModelLoadError(model_name, f"Unexpected error: {str(e)}")
 
     def validate_image(self, file_path: str) -> ImageDocument:
         """Validate image file and extract metadata."""
@@ -93,22 +102,29 @@ class VLMProcessor:
         start_time = time.time()
 
         try:
-            # Ensure model is loaded
-            if not self._model:
+            # Ensure VLM configuration is loaded
+            if self._current_config is None:
                 self.load_model(config.model_name)
+
+            # Merge VLM configuration with processing config
+            vlm_config = self._current_config
+            merge_processing_config_with_vlm(config, vlm_config)
 
             # Preprocess image
             self.preprocess_image(image_document)
 
-            # Simulate VLM processing time
-            processing_delay = min(0.5, config.timeout_seconds / 2)
-            time.sleep(processing_delay)
-
-            # Generate mock description based on config
+            # Generate prompt
             prompt = config.prompt_template.format(style=config.description_style)
-            description = self._generate_mock_description(
-                image_document, config.description_style, config.max_description_length
+
+            # Process with real VLM
+            vlm_result = self._vlm_processor.process_image_with_vlm(
+                image_document.file_path,
+                prompt,
+                vlm_config
             )
+
+            # Create technical metadata
+            technical_metadata = self._create_technical_metadata(image_document)
 
             processing_time = time.time() - start_time
 
@@ -120,14 +136,21 @@ class VLMProcessor:
 
             return DescriptionResult(
                 image_path=image_document.file_path,
-                description=description,
-                confidence_score=0.85,  # Mock confidence
+                description=vlm_result["description"],
+                confidence_score=vlm_result.get("confidence_score"),
                 processing_time=processing_time,
-                model_used=self._model_name,
+                model_used=vlm_result["model_info"]["name"],
                 prompt_used=prompt,
                 success=True,
+                # Enhanced VLM fields
+                technical_metadata=technical_metadata,
+                vlm_processing_time=vlm_result["processing_time"],
+                model_version=vlm_result["model_info"]["version"]
             )
 
+        except (VLMProcessingError, VLMConfigurationError) as e:
+            processing_time = time.time() - start_time
+            raise ProcessingError(image_document.file_path, str(e))
         except Exception as e:
             processing_time = time.time() - start_time
             if isinstance(e, (ProcessingTimeoutError, ProcessingError)):
@@ -135,31 +158,22 @@ class VLMProcessor:
             else:
                 raise ProcessingError(image_document.file_path, str(e))
 
-    def _generate_mock_description(
-        self, image_doc: ImageDocument, style: str, max_length: int
-    ) -> str:
-        """Generate mock description for testing purposes."""
-        base_descriptions = {
-            "detailed": f"This is a {image_doc.format.lower()} image with dimensions "
-            f"{image_doc.width}x{image_doc.height} pixels. The image contains visual "
-            f"content that would be processed by a Vision Language Model to generate "
-            f"a comprehensive description of the scene, objects, colors, and elements.",
-            "brief": f"A {image_doc.format.lower()} image ({image_doc.width}x{image_doc.height}) "
-            f"containing visual content.",
-            "technical": f"Image file: {image_doc.format} format, resolution "
-            f"{image_doc.width}x{image_doc.height}, file size {image_doc.file_size} "
-            f"bytes. Technical analysis would identify image properties and artifacts.",
+    def _create_technical_metadata(self, image_doc: ImageDocument) -> Dict[str, Any]:
+        """Create technical metadata from image document."""
+        return {
+            "format": image_doc.format,
+            "dimensions": [image_doc.width, image_doc.height],
+            "file_size": image_doc.file_size,
+            "is_large_image": image_doc.is_large_image
         }
 
-        description = base_descriptions.get(style, base_descriptions["detailed"])
-
-        # Truncate to max length
-        if len(description) > max_length:
-            description = description[: max_length - 3] + "..."
-
-        return description
+    def process_with_vlm(self, image_path: str, config: ProcessingConfig) -> DescriptionResult:
+        """Public method to process image with VLM (for backward compatibility)."""
+        image_doc = self.validate_image(image_path)
+        return self.process_single_image(image_doc, config)
 
     def cleanup(self) -> None:
         """Clean up model resources."""
-        self._model = None
-        self._model_name = None
+        if self._vlm_processor:
+            self._vlm_processor.cleanup()
+        self._current_config = None
