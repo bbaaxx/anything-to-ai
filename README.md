@@ -71,10 +71,34 @@ uv run pytest
 
 # Code formatting and linting
 uv run ruff check .
+uv run ruff format .
+
+# Pre-commit hooks (auto-run on git commit)
+uv run pre-commit install        # Install hooks (one-time setup)
+uv run pre-commit run --all-files # Run manually on all files
 
 # Check file length compliance
 uv run python check_file_lengths.py
 ```
+
+### Development Workflow
+
+Pre-commit hooks automatically run linting and formatting checks when you commit. These hooks:
+- Fix simple issues automatically (imports, whitespace, formatting)
+- Report complex issues that require manual fixes (complexity, undefined names)
+
+**When to bypass hooks** (use `git commit --no-verify`):
+- Emergency hotfixes that need immediate deployment
+- Pre-commit tool malfunction or configuration issues
+- Work-in-progress commits during local experimentation
+- Dependency updates that may temporarily break checks
+
+**When NOT to bypass hooks**:
+- To avoid fixing legitimate linting errors
+- To skip required code quality checks
+- To save time during normal development
+
+Note: CI will enforce all checks regardless of local bypass, making this a safe escape hatch for edge cases.
 
 ## Module Features
 
