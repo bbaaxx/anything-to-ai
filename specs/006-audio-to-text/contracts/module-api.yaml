@@ -1,0 +1,308 @@
+# Audio Processor Module API Contract
+# Defines the public API surface following functional requirements
+
+module_name: audio_processor
+version: 0.1.0
+
+# Core processing functions
+functions:
+  process_audio:
+    description: Process single audio file and generate transcribed text
+    signature: (file_path: str, config: TranscriptionConfig = None) -> TranscriptionResult
+    parameters:
+      file_path:
+        type: str
+        required: true
+        description: Path to audio file
+      config:
+        type: TranscriptionConfig
+        required: false
+        default: null
+        description: Processing configuration (uses defaults if not provided)
+    returns:
+      type: TranscriptionResult
+      description: Transcription result with text and metadata
+    raises:
+      - AudioNotFoundError: Audio file not found or inaccessible
+      - UnsupportedFormatError: Audio format not supported
+      - CorruptedAudioError: Audio file corrupted or unreadable
+      - DurationExceededError: Audio exceeds 2-hour limit
+      - ModelLoadError: Whisper model failed to load
+      - ProcessingTimeoutError: Processing exceeded timeout
+    source: FR-001, FR-003, FR-004, FR-005, FR-006
+
+  process_audio_batch:
+    description: Process multiple audio files in batch
+    signature: (file_paths: List[str], config: TranscriptionConfig = None) -> ProcessingResult
+    parameters:
+      file_paths:
+        type: List[str]
+        required: true
+        description: List of audio file paths
+      config:
+        type: TranscriptionConfig
+        required: false
+        default: null
+        description: Processing configuration
+    returns:
+      type: ProcessingResult
+      description: Aggregate results with statistics
+    raises:
+      - ValidationError: Empty file_paths list
+    source: FR-008, FR-009
+
+  validate_audio:
+    description: Validate audio file and extract metadata
+    signature: (file_path: str) -> AudioDocument
+    parameters:
+      file_path:
+        type: str
+        required: true
+        description: Path to audio file
+    returns:
+      type: AudioDocument
+      description: Audio metadata document
+    raises:
+      - AudioNotFoundError: File not found
+      - UnsupportedFormatError: Format not supported
+      - CorruptedAudioError: File corrupted
+      - DurationExceededError: Duration exceeds limit
+    source: FR-011, FR-014
+
+  create_config:
+    description: Create transcription configuration with validation
+    signature: (model: str = "medium", quantization: str = "4bit", batch_size: int = 12, language: str = None, output_format: str = "plain", timeout_seconds: int = 600, progress_callback: Callable = None, verbose: bool = False, max_duration_seconds: int = 7200) -> TranscriptionConfig
+    parameters:
+      model:
+        type: str
+        required: false
+        default: "medium"
+        valid_values: [tiny, small, distil-small.en, base, medium, distil-medium.en, large, large-v2, distil-large-v2, large-v3, distil-large-v3]
+      quantization:
+        type: str
+        required: false
+        default: "4bit"
+        valid_values: [none, 4bit, 8bit]
+      batch_size:
+        type: int
+        required: false
+        default: 12
+        constraints: "1 <= batch_size <= 128"
+      language:
+        type: Optional[str]
+        required: false
+        default: null
+        description: ISO 639-1 language code (auto-detect if null)
+      output_format:
+        type: str
+        required: false
+        default: "plain"
+        valid_values: [plain, json]
+      timeout_seconds:
+        type: int
+        required: false
+        default: 600
+        constraints: "timeout_seconds > 0"
+      progress_callback:
+        type: Optional[Callable[[int, int], None]]
+        required: false
+        default: null
+      verbose:
+        type: bool
+        required: false
+        default: false
+      max_duration_seconds:
+        type: int
+        required: false
+        default: 7200
+        constraints: "0 < max_duration_seconds <= 7200"
+    returns:
+      type: TranscriptionConfig
+      description: Validated configuration object
+    raises:
+      - ValidationError: Invalid parameter value
+    source: FR-012, FR-020
+
+  get_supported_formats:
+    description: Get list of supported audio formats
+    signature: () -> List[str]
+    returns:
+      type: List[str]
+      description: Sorted list of supported formats (e.g., ["m4a", "mp3", "wav"])
+    source: FR-002
+
+  get_audio_info:
+    description: Get audio file metadata without processing
+    signature: (file_path: str) -> Dict[str, Any]
+    parameters:
+      file_path:
+        type: str
+        required: true
+    returns:
+      type: Dict[str, Any]
+      description: Dictionary with audio metadata (file_path, format, duration, sample_rate, file_size, channels)
+    raises:
+      - AudioNotFoundError: File not found
+      - UnsupportedFormatError: Format not supported
+    source: FR-014
+
+# Data models
+models:
+  AudioDocument:
+    fields:
+      file_path: str
+      format: str
+      duration: float
+      sample_rate: int
+      file_size: int
+      channels: int
+    validation:
+      - format must be in [mp3, wav, m4a]
+      - duration > 0 and duration <= 7200
+      - sample_rate > 0
+      - file_size > 0
+      - channels > 0
+
+  TranscriptionResult:
+    fields:
+      audio_path: str
+      text: str
+      confidence_score: Optional[float]
+      processing_time: float
+      model_used: str
+      quantization: str
+      detected_language: Optional[str]
+      success: bool
+      error_message: Optional[str]
+    validation:
+      - 0.0 <= confidence_score <= 1.0 (if present)
+      - processing_time >= 0
+      - success = True if error_message is None
+
+  TranscriptionConfig:
+    fields:
+      model: str
+      quantization: str
+      batch_size: int
+      language: Optional[str]
+      output_format: str
+      timeout_seconds: int
+      progress_callback: Optional[Callable]
+      verbose: bool
+      max_duration_seconds: int
+    defaults:
+      model: "medium"
+      quantization: "4bit"
+      batch_size: 12
+      language: null
+      output_format: "plain"
+      timeout_seconds: 600
+      verbose: false
+      max_duration_seconds: 7200
+
+  ProcessingResult:
+    fields:
+      success: bool
+      results: List[TranscriptionResult]
+      total_files: int
+      successful_count: int
+      failed_count: int
+      total_processing_time: float
+      average_processing_time: float
+      error_summary: Optional[Dict[str, int]]
+    validation:
+      - total_files == len(results)
+      - successful_count + failed_count == total_files
+      - total_processing_time >= 0
+
+# Exception hierarchy
+exceptions:
+  AudioProcessingError:
+    base: Exception
+    description: Base exception for all audio processing errors
+    fields:
+      message: str
+      audio_path: Optional[str]
+
+  AudioNotFoundError:
+    base: AudioProcessingError
+    description: Audio file not found or inaccessible
+    source: FR-010
+
+  UnsupportedFormatError:
+    base: AudioProcessingError
+    description: Audio format not supported
+    source: FR-002, FR-010
+
+  CorruptedAudioError:
+    base: AudioProcessingError
+    description: Audio file corrupted or unreadable
+    source: FR-010
+
+  TranscriptionError:
+    base: AudioProcessingError
+    description: Whisper transcription failed
+    source: FR-010
+
+  NoSpeechDetectedError:
+    base: AudioProcessingError
+    description: No speech content detected in audio
+    source: FR-010
+
+  DurationExceededError:
+    base: AudioProcessingError
+    description: Audio duration exceeds maximum limit
+    source: FR-023
+
+  ValidationError:
+    base: AudioProcessingError
+    description: Input validation failed
+    fields:
+      parameter_name: Optional[str]
+    source: FR-012
+
+  ModelLoadError:
+    base: AudioProcessingError
+    description: Whisper model failed to load
+    fields:
+      model_name: str
+    source: FR-013
+
+  ProcessingTimeoutError:
+    base: AudioProcessingError
+    description: Processing exceeded timeout limit
+    fields:
+      timeout_seconds: int
+    source: FR-012
+
+  ProcessingInterruptedError:
+    base: AudioProcessingError
+    description: Processing interrupted by user or system
+    fields:
+      files_processed: int
+      total_files: int
+    source: FR-010
+
+# Module exports
+exports:
+  - AudioDocument
+  - TranscriptionResult
+  - TranscriptionConfig
+  - ProcessingResult
+  - AudioProcessingError
+  - AudioNotFoundError
+  - UnsupportedFormatError
+  - CorruptedAudioError
+  - TranscriptionError
+  - NoSpeechDetectedError
+  - DurationExceededError
+  - ValidationError
+  - ModelLoadError
+  - ProcessingTimeoutError
+  - ProcessingInterruptedError
+  - process_audio
+  - process_audio_batch
+  - validate_audio
+  - create_config
+  - get_supported_formats
+  - get_audio_info

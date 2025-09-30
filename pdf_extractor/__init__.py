@@ -21,6 +21,12 @@ from .exceptions import (
     PDFPasswordProtectedError,
     PDFNoTextError,
     ProcessingInterruptedError,
+    # Enhanced exceptions
+    ImageExtractionError,
+    VLMConfigurationError,
+    VLMServiceError,
+    EnhancedExtractionError,
+    ConfigurationValidationError,
 )
 
 # Progress tracking
@@ -46,6 +52,11 @@ __all__ = [
     "PDFPasswordProtectedError",
     "PDFNoTextError",
     "ProcessingInterruptedError",
+    "ImageExtractionError",
+    "VLMConfigurationError",
+    "VLMServiceError",
+    "EnhancedExtractionError",
+    "ConfigurationValidationError",
     # Progress tracking
     "ProgressInfo",
 ]

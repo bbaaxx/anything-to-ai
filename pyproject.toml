@@ -5,6 +5,7 @@ description = "PDF text extraction module with streaming support"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "lightning-whisper-mlx>=0.0.10",
     "mlx-vlm>=0.3.3",
     "pdfplumber>=0.11.7",
     "pillow>=11.3.0",

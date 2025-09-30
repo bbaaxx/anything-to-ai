@@ -1,0 +1,242 @@
+# Audio Processor CLI Interface Contract
+# Defines command-line interface following FR-007, FR-015, FR-016, FR-017, FR-018
+
+cli_name: audio_processor
+invocation: python -m audio_processor
+
+# Command structure
+command:
+  description: Process audio files with Whisper to generate text transcriptions
+  usage: python -m audio_processor [audio_files] [options]
+
+# Arguments
+arguments:
+  positional:
+    audio_files:
+      description: Audio file paths (supports multiple files and glob patterns)
+      type: List[str]
+      required: true
+      example: ["audio.mp3", "*.wav", "recordings/"]
+
+  options:
+    --format:
+      description: Output format
+      type: str
+      choices: [plain, json]
+      default: plain
+      short: -f
+      source: FR-015
+
+    --model:
+      description: Whisper model selection (controls transcription quality/speed)
+      type: str
+      choices: [tiny, small, distil-small.en, base, medium, distil-medium.en, large, large-v2, distil-large-v2, large-v3, distil-large-v3]
+      default: medium
+      short: -m
+      source: FR-016
+
+    --quantization:
+      description: Model quantization level (reduces memory usage)
+      type: str
+      choices: [none, 4bit, 8bit]
+      default: 4bit
+      short: -q
+      source: FR-012
+
+    --batch-size:
+      description: Whisper decoder batch size (advanced option)
+      type: int
+      default: 12
+      constraints: "1 <= batch_size <= 128"
+      short: -b
+      source: FR-012
+
+    --language:
+      description: Language hint (ISO 639-1 code, e.g., 'en', 'es', 'fr'); auto-detects if not specified
+      type: str
+      required: false
+      short: -l
+      source: FR-022
+
+    --output:
+      description: Output file path (prints to stdout if not specified)
+      type: str
+      required: false
+      short: -o
+      source: FR-017
+
+    --timeout:
+      description: Processing timeout per file in seconds
+      type: int
+      default: 600
+      constraints: "timeout > 0"
+      short: -t
+      source: FR-012
+
+    --verbose:
+      description: Enable verbose progress output
+      flag: true
+      default: false
+      short: -v
+      source: FR-018
+
+    --quiet:
+      description: Suppress all output except results
+      flag: true
+      default: false
+      conflicts_with: [--verbose]
+      short: -q
+      source: FR-018
+
+# Output formats
+output_formats:
+  plain:
+    description: Human-readable plain text format
+    structure: |
+      Processed N files
+      Successful: X, Failed: Y
+      Total time: Z.ZZs
+
+      ✓ /path/to/audio1.mp3
+         Transcribed text content here...
+         Duration: 120.5s, Model: medium (4bit)
+
+      ✗ /path/to/audio2.mp3
+         Error: No speech detected
+
+    example: |
+      Processed 2 files
+      Successful: 1, Failed: 1
+      Total time: 45.23s
+
+      ✓ sample.mp3
+         This is the transcribed text from the audio file.
+         Duration: 120.5s, Model: medium (4bit), Language: en
+
+      ✗ silence.wav
+         Error: No speech detected in audio
+
+  json:
+    description: Structured JSON format with full metadata
+    structure:
+      success: bool
+      total_files: int
+      successful_count: int
+      failed_count: int
+      total_processing_time: float
+      results:
+        - audio_path: str
+          text: str
+          confidence_score: Optional[float]
+          processing_time: float
+          model_used: str
+          quantization: str
+          detected_language: Optional[str]
+          success: bool
+          error_message: Optional[str]
+    example: |
+      {
+        "success": true,
+        "total_files": 1,
+        "successful_count": 1,
+        "failed_count": 0,
+        "total_processing_time": 45.23,
+        "results": [
+          {
+            "audio_path": "sample.mp3",
+            "text": "This is the transcribed text from the audio file.",
+            "confidence_score": 0.95,
+            "processing_time": 45.23,
+            "model_used": "medium",
+            "quantization": "4bit",
+            "detected_language": "en",
+            "success": true,
+            "error_message": null
+          }
+        ]
+      }
+
+# Exit codes
+exit_codes:
+  0: Success - all files processed successfully
+  1: Failure - one or more files failed or error occurred
+
+# Examples
+examples:
+  - description: Process single audio file with defaults
+    command: python -m audio_processor audio.mp3
+    output_format: plain
+
+  - description: Process with JSON output
+    command: python -m audio_processor audio.mp3 --format json
+    output_format: json
+
+  - description: Process with specific model and quantization
+    command: python -m audio_processor audio.mp3 --model large-v3 --quantization 8bit
+    output_format: plain
+
+  - description: Process with language hint
+    command: python -m audio_processor audio.mp3 --language es --format json
+    output_format: json
+
+  - description: Batch process multiple files
+    command: python -m audio_processor *.mp3 --verbose --output results.json
+    output_format: json
+
+  - description: Process directory of audio files
+    command: python -m audio_processor recordings/ --format json -o transcriptions.json
+    output_format: json
+
+  - description: Quiet mode with output file
+    command: python -m audio_processor audio.mp3 --quiet --output transcript.txt
+    output_format: plain
+
+# Error handling
+error_messages:
+  file_not_found:
+    message: "Error: Audio file not found: {file_path}"
+    exit_code: 1
+
+  unsupported_format:
+    message: "Error: Unsupported audio format: {file_path}"
+    exit_code: 1
+
+  no_speech_detected:
+    message: "Error: No speech detected in audio: {file_path}"
+    exit_code: 1
+
+  duration_exceeded:
+    message: "Error: Audio duration exceeds 2-hour limit: {file_path}"
+    exit_code: 1
+
+  model_load_failed:
+    message: "Error: Failed to load Whisper model: {model_name}"
+    exit_code: 1
+
+  processing_timeout:
+    message: "Error: Processing timeout exceeded: {file_path}"
+    exit_code: 1
+
+  validation_error:
+    message: "Error: Invalid {parameter}: {details}"
+    exit_code: 1
+
+  no_files_provided:
+    message: "Error: No audio files provided"
+    exit_code: 1
+
+# Progress output (verbose mode)
+progress_format:
+  batch_start: "Processing {total} audio files..."
+  file_progress: "[{current}/{total}] Processing {file_path}..."
+  file_complete: "[{current}/{total}] ✓ {file_path} ({duration}s)"
+  file_failed: "[{current}/{total}] ✗ {file_path}: {error}"
+  batch_complete: "Completed {successful}/{total} files in {time}s"
+
+# Source requirements
+source_requirements:
+  - FR-007: CLI interface with argument parsing
+  - FR-015: Output format flags (--format plain|json)
+  - FR-016: Model selection parameter
+  - FR-017: Output file specification (--output)
+  - FR-018: Verbose and quiet modes
