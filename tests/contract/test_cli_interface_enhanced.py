@@ -6,11 +6,9 @@ All tests should FAIL initially until implementation is complete.
 
 import pytest
 import argparse
-from unittest.mock import Mock, patch
-from typing import Dict, Any, List
+from unittest.mock import patch
 
 # Import the actual CLI implementation
-from pdf_extractor.cli import create_parser, format_output
 
 
 class TestEnhancedCLIInterfaceContract:

@@ -3,9 +3,7 @@ Contract tests for audio_processor module API.
 Tests FR-019, FR-020: Public API functions and configuration factory.
 """
 
-import pytest
 import inspect
-from typing import Callable, List, Dict, Any
 
 
 class TestAudioModuleAPIContract:

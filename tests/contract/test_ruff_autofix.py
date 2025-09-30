@@ -8,7 +8,6 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-import pytest
 
 
 def test_ruff_check_command_available():

@@ -3,7 +3,6 @@
 These tests verify that pytest-cov correctly enforces coverage requirements.
 """
 
-import subprocess
 from pathlib import Path
 
 import pytest

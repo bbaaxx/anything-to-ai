@@ -4,7 +4,6 @@ Tests FR-010, FR-023: Error detection and handling.
 """
 
 import pytest
-from pathlib import Path
 
 
 class TestAudioErrorWorkflows:

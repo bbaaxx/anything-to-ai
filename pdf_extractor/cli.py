@@ -2,7 +2,6 @@
 import argparse
 import json
 import sys
-import os
 from .reader import extract_text, get_pdf_info
 from .streaming import extract_text_streaming
 from .models import ExtractionConfig

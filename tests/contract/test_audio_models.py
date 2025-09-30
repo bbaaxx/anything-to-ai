@@ -3,7 +3,6 @@ Contract tests for audio_processor data models.
 Tests FR-001, FR-003, FR-012: Data model classes.
 """
 
-import pytest
 from dataclasses import fields
 
 

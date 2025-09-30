@@ -2,7 +2,6 @@
 Whisper model loading and caching.
 """
 
-from typing import Optional
 from audio_processor.exceptions import ModelLoadError
 
 

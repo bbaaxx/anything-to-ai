@@ -6,7 +6,6 @@ import sys
 import json
 import argparse
 from typing import List
-from pathlib import Path
 from audio_processor.config import create_config
 from audio_processor.streaming import process_audio_batch
 from audio_processor.models import ProcessingResult

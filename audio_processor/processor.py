@@ -16,9 +16,7 @@ from audio_processor.exceptions import (
     UnsupportedFormatError,
     CorruptedAudioError,
     DurationExceededError,
-    TranscriptionError,
-    NoSpeechDetectedError,
-    ProcessingTimeoutError
+    NoSpeechDetectedError
 )
 from audio_processor.model_loader import get_model_loader
 
@@ -216,7 +214,7 @@ def process_audio(
         # Detect no speech
         if not text or len(text) < 5:  # Threshold for "no speech"
             raise NoSpeechDetectedError(
-                f"No speech detected in audio",
+                "No speech detected in audio",
                 audio_path=file_path
             )
 

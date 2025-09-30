@@ -5,7 +5,7 @@ Contract tests must validate these CLI behaviors before implementation.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 import argparse
 
 

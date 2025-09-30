@@ -7,7 +7,6 @@ All tests should FAIL initially until implementation is complete.
 import pytest
 from typing import Iterator
 from unittest.mock import Mock
-from dataclasses import dataclass
 
 from pdf_extractor.enhanced_models import (
     EnhancedExtractionConfig,
@@ -19,9 +18,6 @@ from pdf_extractor.enhanced_models import (
     validate_enhanced_page_result,
     validate_enhanced_extraction_result
 )
-from pdf_extractor.image_integration import PDFImageProcessor
-from pdf_extractor.image_extractor import ImageExtractor
-from pdf_extractor.circuit_breaker import VLMCircuitBreaker
 
 
 class TestEnhancedExtractionConfigContract:
@@ -134,7 +130,6 @@ class TestEnhancedPageResultContract:
 
     def test_enhanced_page_result_structure(self):
         """Test that EnhancedPageResult extends PageResult with image fields."""
-        from pdf_extractor.models import PageResult
 
         result = EnhancedPageResult(
             page_number=1,

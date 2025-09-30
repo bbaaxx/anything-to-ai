@@ -5,7 +5,7 @@ All tests should FAIL initially until implementation is complete.
 """
 
 import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 
 class TestStreamingProgress:

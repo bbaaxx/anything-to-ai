@@ -4,8 +4,6 @@ Tests FR-003, FR-012: Single audio processing with default settings.
 """
 
 import pytest
-import os
-from pathlib import Path
 
 
 class TestSingleAudioIntegration:

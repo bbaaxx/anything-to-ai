@@ -6,7 +6,6 @@ All tests should FAIL initially until implementation is complete.
 """
 
 import pytest
-import os
 from unittest.mock import Mock, patch
 
 # Test fixtures

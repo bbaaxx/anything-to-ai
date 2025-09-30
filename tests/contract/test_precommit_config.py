@@ -4,7 +4,6 @@ These tests verify that .pre-commit-config.yaml is correctly configured
 with all required hooks and settings.
 """
 
-import os
 from pathlib import Path
 
 import pytest

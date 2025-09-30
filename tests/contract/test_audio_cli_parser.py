@@ -3,8 +3,6 @@ Contract tests for audio_processor CLI parser.
 Tests FR-015, FR-016, FR-017, FR-018: CLI arguments and options.
 """
 
-import pytest
-import argparse
 
 
 class TestAudioCliParserContract:

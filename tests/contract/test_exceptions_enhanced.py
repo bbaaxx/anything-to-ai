@@ -5,7 +5,6 @@ All tests should FAIL initially until implementation is complete.
 """
 
 import pytest
-from typing import Optional, Dict, Any
 
 from pdf_extractor.exceptions import (
     ImageExtractionError,

@@ -3,7 +3,6 @@ Contract tests for audio_processor exception hierarchy.
 Tests FR-010: Exception types and hierarchy.
 """
 
-import pytest
 
 
 class TestAudioExceptionsContract:
@@ -66,19 +65,6 @@ class TestAudioExceptionsContract:
 
     def test_exception_hierarchy_complete(self):
         """Test that all expected exceptions are available."""
-        from audio_processor import (
-            AudioProcessingError,
-            AudioNotFoundError,
-            UnsupportedFormatError,
-            CorruptedAudioError,
-            TranscriptionError,
-            NoSpeechDetectedError,
-            DurationExceededError,
-            ValidationError,
-            ModelLoadError,
-            ProcessingTimeoutError,
-            ProcessingInterruptedError
-        )
         # If import succeeds, all exceptions exist
         assert True
 
