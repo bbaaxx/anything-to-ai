@@ -23,86 +23,85 @@ from .exceptions import (
 class CLICommands:
     """Command line interface contract implementation."""
 
+    @staticmethod
+    def _create_progress_callback(progress: bool):
+        """Create progress callback function."""
+        if not progress:
+            return None
 
-def _create_progress_callback(progress: bool):
-    """Create progress callback function."""
-    if not progress:
-        return None
+        def progress_callback(current, total):
+            percentage = (current / total) * 100
+            print(f"Progress: {current}/{total} ({percentage:.1f}%)", file=sys.stderr)
 
-    def progress_callback(current, total):
-        percentage = (current / total) * 100
-        print(f"Progress: {current}/{total} ({percentage:.1f}%)", file=sys.stderr)
-
-    return progress_callback
-
-
-def _create_image_config(image_style: str):
-    """Create image processing configuration."""
-    try:
-        from image_processor.config import ProcessingConfig
-
-        return ProcessingConfig(style=image_style)
-    except ImportError:
-        # Fallback if image_processor config not available
-        return None
-
-
-def _extract_with_images(file_path: str, enhanced_config, stream: bool, progress: bool):
-    """Extract PDF with image processing."""
-    processor = PDFImageProcessor()
-
-    if stream:
-        # Enhanced streaming mode
-        enhanced_pages = []
-        for enhanced_page in processor.extract_with_images_streaming(file_path, enhanced_config):
-            enhanced_pages.append(enhanced_page)
-            if progress:
-                print(f"Page {enhanced_page.page_number}: {enhanced_page.images_found} images found", file=sys.stderr)
-
-        OutputFormatter.print_enhanced_output(enhanced_pages, enhanced_config.output_format, file_path, streaming=True)
-    else:
-        # Enhanced non-streaming mode
-        result = processor.extract_with_images(file_path, enhanced_config)
-        OutputFormatter.print_enhanced_result(result, enhanced_config.output_format, file_path)
-
-
-def _extract_regular(file_path: str, config, stream: bool):
-    """Extract PDF without image processing."""
-    if stream:
-        pages = []
-        for page_result in extract_text_streaming(file_path, config):
-            pages.append(page_result)
-
-        OutputFormatter.print_regular_output(pages, config.output_format, file_path, streaming=True)
-    else:
-        result = extract_text(file_path, config)
-        OutputFormatter.print_regular_result(result, config.output_format, file_path)
-
-
-def _handle_extraction_errors(e: Exception, file_path: str) -> int:
-    """Handle extraction errors and return appropriate exit codes."""
-    import sys
-
-    error_map = {
-        VLMConfigurationError: (7, "Error: {e}"),
-        ConfigurationValidationError: (8, "Error: {e}"),
-        PDFNotFoundError: (1, f"Error: PDF file not found: {file_path}"),
-        PDFCorruptedError: (2, f"Error: PDF file is corrupted: {file_path}"),
-        PDFPasswordProtectedError: (3, f"Error: PDF file is password protected: {file_path}"),
-        PDFNoTextError: (4, f"Error: PDF contains no extractable text: {file_path}"),
-        ProcessingInterruptedError: (5, f"Error: PDF processing was interrupted: {file_path}"),
-    }
-
-    for error_type, (code, template) in error_map.items():
-        if isinstance(e, error_type):
-            print(template.format(e=str(e)), file=sys.stderr)
-            return code
-
-    # Default case for unexpected errors
-    print(f"Error: Unexpected error: {e}", file=sys.stderr)
-    return 6
+        return progress_callback
 
     @staticmethod
+    def _create_image_config(image_style: str):
+        """Create image processing configuration."""
+        try:
+            from image_processor.config import ProcessingConfig
+
+            return ProcessingConfig(style=image_style)
+        except ImportError:
+            # Fallback if image_processor config not available
+            return None
+
+    @staticmethod
+    def _extract_with_images(file_path: str, enhanced_config, stream: bool, progress: bool):
+        """Extract PDF with image processing."""
+        processor = PDFImageProcessor()
+
+        if stream:
+            # Enhanced streaming mode
+            enhanced_pages = []
+            for enhanced_page in processor.extract_with_images_streaming(file_path, enhanced_config):
+                enhanced_pages.append(enhanced_page)
+                if progress:
+                    print(f"Page {enhanced_page.page_number}: {enhanced_page.images_found} images found", file=sys.stderr)
+
+            OutputFormatter.print_enhanced_output(enhanced_pages, enhanced_config.output_format, file_path, streaming=True)
+        else:
+            # Enhanced non-streaming mode
+            result = processor.extract_with_images(file_path, enhanced_config)
+            OutputFormatter.print_enhanced_result(result, enhanced_config.output_format, file_path)
+
+    @staticmethod
+    def _extract_regular(file_path: str, config, stream: bool):
+        """Extract PDF without image processing."""
+        if stream:
+            pages = []
+            for page_result in extract_text_streaming(file_path, config):
+                pages.append(page_result)
+
+            OutputFormatter.print_regular_output(pages, config.output_format, file_path, streaming=True)
+        else:
+            result = extract_text(file_path, config)
+            OutputFormatter.print_regular_result(result, config.output_format, file_path)
+
+    @staticmethod
+    def _handle_extraction_errors(e: Exception, file_path: str) -> int:
+        """Handle extraction errors and return appropriate exit codes."""
+        import sys
+
+        error_map = {
+            VLMConfigurationError: (7, "Error: {e}"),
+            ConfigurationValidationError: (8, "Error: {e}"),
+            PDFNotFoundError: (1, f"Error: PDF file not found: {file_path}"),
+            PDFCorruptedError: (2, f"Error: PDF file is corrupted: {file_path}"),
+            PDFPasswordProtectedError: (3, f"Error: PDF file is password protected: {file_path}"),
+            PDFNoTextError: (4, f"Error: PDF contains no extractable text: {file_path}"),
+            ProcessingInterruptedError: (5, f"Error: PDF processing was interrupted: {file_path}"),
+        }
+
+        for error_type, (code, template) in error_map.items():
+            if isinstance(e, error_type):
+                print(template.format(e=str(e)), file=sys.stderr)
+                return code
+
+        # Default case for unexpected errors
+        print(f"Error: Unexpected error: {e}", file=sys.stderr)
+        return 6
+
     @staticmethod
     def extract(
         file_path: str,
@@ -133,12 +132,12 @@ def _handle_extraction_errors(e: Exception, file_path: str) -> int:
             Exit code (0 for success, non-zero for error)
         """
         try:
-            progress_callback = _create_progress_callback(progress)
+            progress_callback = CLICommands._create_progress_callback(progress)
 
             # Use enhanced extraction if images are requested
             if include_images:
                 # Create image processing configuration
-                image_config = _create_image_config(image_style)
+                image_config = CLICommands._create_image_config(image_style)
 
                 enhanced_config = EnhancedExtractionConfig(
                     streaming_enabled=stream,
@@ -151,17 +150,17 @@ def _handle_extraction_errors(e: Exception, file_path: str) -> int:
                     image_batch_size=batch_size,
                 )
 
-                _extract_with_images(file_path, enhanced_config, stream, progress)
+                CLICommands._extract_with_images(file_path, enhanced_config, stream, progress)
             else:
                 # Regular extraction (backward compatibility)
                 config = ExtractionConfig(streaming_enabled=stream, progress_callback=progress_callback, output_format=format_type)
 
-                _extract_regular(file_path, config, stream)
+                CLICommands._extract_regular(file_path, config, stream)
 
             return 0
 
         except Exception as e:
-            return _handle_extraction_errors(e, file_path)
+            return CLICommands._handle_extraction_errors(e, file_path)
 
     @staticmethod
     def info(file_path: str) -> int:
