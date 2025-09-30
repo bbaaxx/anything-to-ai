@@ -1,4 +1,5 @@
 """Command line interface logic."""
+
 import argparse
 import json
 import sys
@@ -22,6 +23,86 @@ from .exceptions import (
 class CLICommands:
     """Command line interface contract implementation."""
 
+
+def _create_progress_callback(progress: bool):
+    """Create progress callback function."""
+    if not progress:
+        return None
+
+    def progress_callback(current, total):
+        percentage = (current / total) * 100
+        print(f"Progress: {current}/{total} ({percentage:.1f}%)", file=sys.stderr)
+
+    return progress_callback
+
+
+def _create_image_config(image_style: str):
+    """Create image processing configuration."""
+    try:
+        from image_processor.config import ProcessingConfig
+
+        return ProcessingConfig(style=image_style)
+    except ImportError:
+        # Fallback if image_processor config not available
+        return None
+
+
+def _extract_with_images(file_path: str, enhanced_config, stream: bool, progress: bool):
+    """Extract PDF with image processing."""
+    processor = PDFImageProcessor()
+
+    if stream:
+        # Enhanced streaming mode
+        enhanced_pages = []
+        for enhanced_page in processor.extract_with_images_streaming(file_path, enhanced_config):
+            enhanced_pages.append(enhanced_page)
+            if progress:
+                print(f"Page {enhanced_page.page_number}: {enhanced_page.images_found} images found", file=sys.stderr)
+
+        OutputFormatter.print_enhanced_output(enhanced_pages, enhanced_config.output_format, file_path, streaming=True)
+    else:
+        # Enhanced non-streaming mode
+        result = processor.extract_with_images(file_path, enhanced_config)
+        OutputFormatter.print_enhanced_result(result, enhanced_config.output_format, file_path)
+
+
+def _extract_regular(file_path: str, config, stream: bool):
+    """Extract PDF without image processing."""
+    if stream:
+        pages = []
+        for page_result in extract_text_streaming(file_path, config):
+            pages.append(page_result)
+
+        OutputFormatter.print_regular_output(pages, config.output_format, file_path, streaming=True)
+    else:
+        result = extract_text(file_path, config)
+        OutputFormatter.print_regular_result(result, config.output_format, file_path)
+
+
+def _handle_extraction_errors(e: Exception, file_path: str) -> int:
+    """Handle extraction errors and return appropriate exit codes."""
+    import sys
+
+    error_map = {
+        VLMConfigurationError: (7, "Error: {e}"),
+        ConfigurationValidationError: (8, "Error: {e}"),
+        PDFNotFoundError: (1, f"Error: PDF file not found: {file_path}"),
+        PDFCorruptedError: (2, f"Error: PDF file is corrupted: {file_path}"),
+        PDFPasswordProtectedError: (3, f"Error: PDF file is password protected: {file_path}"),
+        PDFNoTextError: (4, f"Error: PDF contains no extractable text: {file_path}"),
+        ProcessingInterruptedError: (5, f"Error: PDF processing was interrupted: {file_path}"),
+    }
+
+    for error_type, (code, template) in error_map.items():
+        if isinstance(e, error_type):
+            print(template.format(e=str(e)), file=sys.stderr)
+            return code
+
+    # Default case for unexpected errors
+    print(f"Error: Unexpected error: {e}", file=sys.stderr)
+    return 6
+
+    @staticmethod
     @staticmethod
     def extract(
         file_path: str,
@@ -32,7 +113,7 @@ class CLICommands:
         image_style: str = "detailed",
         image_fallback: str = "[Image: processing failed]",
         max_images: int = None,
-        batch_size: int = 4
+        batch_size: int = 4,
     ) -> int:
         """
         CLI extract command with optional image processing.
@@ -52,91 +133,35 @@ class CLICommands:
             Exit code (0 for success, non-zero for error)
         """
         try:
-            def progress_callback(current, total):
-                if progress:
-                    percentage = (current / total) * 100
-                    print(f"Progress: {current}/{total} ({percentage:.1f}%)", file=sys.stderr)
+            progress_callback = _create_progress_callback(progress)
 
             # Use enhanced extraction if images are requested
             if include_images:
                 # Create image processing configuration
-                try:
-                    from image_processor.config import ProcessingConfig
-                    image_config = ProcessingConfig(style=image_style)
-                except ImportError:
-                    # Fallback if image_processor config not available
-                    image_config = None
+                image_config = _create_image_config(image_style)
 
                 enhanced_config = EnhancedExtractionConfig(
                     streaming_enabled=stream,
-                    progress_callback=progress_callback if progress else None,
+                    progress_callback=progress_callback,
                     output_format=format_type,
                     include_images=True,
                     image_processing_config=image_config,
                     image_fallback_text=image_fallback,
                     max_images_per_page=max_images,
-                    image_batch_size=batch_size
+                    image_batch_size=batch_size,
                 )
 
-                processor = PDFImageProcessor()
-
-                if stream:
-                    # Enhanced streaming mode
-                    enhanced_pages = []
-                    for enhanced_page in processor.extract_with_images_streaming(file_path, enhanced_config):
-                        enhanced_pages.append(enhanced_page)
-                        if progress:
-                            print(f"Page {enhanced_page.page_number}: {enhanced_page.images_found} images found", file=sys.stderr)
-
-                    OutputFormatter.print_enhanced_output(enhanced_pages, format_type, file_path, streaming=True)
-                else:
-                    # Enhanced non-streaming mode
-                    result = processor.extract_with_images(file_path, enhanced_config)
-                    OutputFormatter.print_enhanced_result(result, format_type, file_path)
+                _extract_with_images(file_path, enhanced_config, stream, progress)
             else:
                 # Regular extraction (backward compatibility)
-                config = ExtractionConfig(
-                    streaming_enabled=stream,
-                    progress_callback=progress_callback if progress else None,
-                    output_format=format_type
-                )
+                config = ExtractionConfig(streaming_enabled=stream, progress_callback=progress_callback, output_format=format_type)
 
-                if stream:
-                    pages = []
-                    for page_result in extract_text_streaming(file_path, config):
-                        pages.append(page_result)
-
-                    OutputFormatter.print_regular_output(pages, format_type, file_path, streaming=True)
-                else:
-                    result = extract_text(file_path, config)
-                    OutputFormatter.print_regular_result(result, format_type, file_path)
+                _extract_regular(file_path, config, stream)
 
             return 0
 
-        except VLMConfigurationError as e:
-            print(f"Error: {e}", file=sys.stderr)
-            return 7
-        except ConfigurationValidationError as e:
-            print(f"Error: {e}", file=sys.stderr)
-            return 8
-        except PDFNotFoundError:
-            print(f"Error: PDF file not found: {file_path}", file=sys.stderr)
-            return 1
-        except PDFCorruptedError:
-            print(f"Error: PDF file is corrupted: {file_path}", file=sys.stderr)
-            return 2
-        except PDFPasswordProtectedError:
-            print(f"Error: PDF file is password protected: {file_path}", file=sys.stderr)
-            return 3
-        except PDFNoTextError:
-            print(f"Error: PDF contains no extractable text: {file_path}", file=sys.stderr)
-            return 4
-        except ProcessingInterruptedError:
-            print(f"Error: PDF processing was interrupted: {file_path}", file=sys.stderr)
-            return 5
         except Exception as e:
-            print(f"Error: Unexpected error: {e}", file=sys.stderr)
-            return 6
+            return _handle_extraction_errors(e, file_path)
 
     @staticmethod
     def info(file_path: str) -> int:
@@ -178,38 +203,16 @@ def main():
     # Extract command
     extract_parser = subparsers.add_parser("extract", help="Extract text from PDF")
     extract_parser.add_argument("file_path", help="Path to PDF file")
-    extract_parser.add_argument(
-        "--stream", action="store_true", help="Enable streaming mode for large files"
-    )
-    extract_parser.add_argument(
-        "--format", choices=["plain", "json", "csv"], default="plain",
-        help="Output format (default: plain)"
-    )
-    extract_parser.add_argument(
-        "--progress", action="store_true", help="Show progress information"
-    )
+    extract_parser.add_argument("--stream", action="store_true", help="Enable streaming mode for large files")
+    extract_parser.add_argument("--format", choices=["plain", "json", "csv"], default="plain", help="Output format (default: plain)")
+    extract_parser.add_argument("--progress", action="store_true", help="Show progress information")
 
     # Enhanced image processing options
-    extract_parser.add_argument(
-        "--include-images", action="store_true",
-        help="Include AI-generated descriptions of images found in PDF"
-    )
-    extract_parser.add_argument(
-        "--image-style", choices=["brief", "detailed", "technical"], default="detailed",
-        help="Style of image descriptions (default: detailed)"
-    )
-    extract_parser.add_argument(
-        "--image-fallback", default="[Image: processing failed]",
-        help="Fallback text when image processing fails"
-    )
-    extract_parser.add_argument(
-        "--max-images", type=int,
-        help="Maximum number of images to process per page"
-    )
-    extract_parser.add_argument(
-        "--batch-size", type=int, default=4,
-        help="Batch size for image processing (1-10, default: 4)"
-    )
+    extract_parser.add_argument("--include-images", action="store_true", help="Include AI-generated descriptions of images found in PDF")
+    extract_parser.add_argument("--image-style", choices=["brief", "detailed", "technical"], default="detailed", help="Style of image descriptions (default: detailed)")
+    extract_parser.add_argument("--image-fallback", default="[Image: processing failed]", help="Fallback text when image processing fails")
+    extract_parser.add_argument("--max-images", type=int, help="Maximum number of images to process per page")
+    extract_parser.add_argument("--batch-size", type=int, default=4, help="Batch size for image processing (1-10, default: 4)")
 
     # Info command
     info_parser = subparsers.add_parser("info", help="Show PDF information")
@@ -231,7 +234,7 @@ def main():
             image_style=args.image_style,
             image_fallback=args.image_fallback,
             max_images=args.max_images,
-            batch_size=args.batch_size
+            batch_size=args.batch_size,
         )
     elif args.command == "info":
         return CLICommands.info(args.file_path)
