@@ -25,11 +25,22 @@ testpaths = ["tests"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
-addopts = ["-v", "--tb=short"]
+addopts = [
+    "-v",
+    "--tb=short",
+    "--cov=pdf_extractor",
+    "--cov=audio_processor",
+    "--cov=image_processor",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-fail-under=70",
+]
 
 [dependency-groups]
 dev = [
     "pytest>=8.4.2",
+    "pytest-cov>=6.0.0",
+    "pre-commit>=4.0.0",
     "ruff>=0.13.2",
 ]
 
@@ -58,3 +69,32 @@ max-line-length = 250
 quote-style = "double"
 # Indent with 4 spaces
 indent-style = "space"
+
+[tool.coverage.run]
+source = ["pdf_extractor", "audio_processor", "image_processor"]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/__init__.py",
+    "*/conftest.py",
+    "*/.venv/*",
+    "*/__main__.py",
+]
+
+[tool.coverage.report]
+fail_under = 70
+precision = 2
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
