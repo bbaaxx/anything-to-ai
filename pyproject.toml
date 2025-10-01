@@ -5,6 +5,7 @@ description = "PDF text extraction module with streaming support"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "httpx>=0.27.0",
     "lightning-whisper-mlx>=0.0.10",
     "mlx-vlm>=0.3.3",
     "pdfplumber>=0.11.7",
@@ -31,6 +32,7 @@ addopts = [
     "--cov=pdf_extractor",
     "--cov=audio_processor",
     "--cov=image_processor",
+    "--cov=llm_client",
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-fail-under=70",
@@ -71,7 +73,7 @@ quote-style = "double"
 indent-style = "space"
 
 [tool.coverage.run]
-source = ["pdf_extractor", "audio_processor", "image_processor"]
+source = ["pdf_extractor", "audio_processor", "image_processor", "llm_client"]
 branch = true
 omit = [
     "*/tests/*",

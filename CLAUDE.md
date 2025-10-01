@@ -13,6 +13,8 @@ Auto-generated from all feature plans. Last updated: 2025-09-28
 - File system (audio files: mp3, wav, m4a), no persistent storage required (006-audio-to-text)
 - Python 3.13 + pre-commit (hook framework), ruff (linting/formatting), pytest (testing), pytest-cov (coverage measurement) (007-add-linting-and)
 - N/A (configuration files only) (007-add-linting-and)
+- Python 3.13 + Standard library (urllib, json), OpenAI-compatible client libraries (to be researched - potentially openai SDK or httpx for direct API calls) (008-utility-module-to)
+- In-memory caching for model listings, no persistent storage (008-utility-module-to)
 
 ## Project Structure
 ```
@@ -42,9 +44,9 @@ uv run python -m audio_processor <audio_files> [--format plain|json] [--model ti
 Python 3.8+ (for compatibility with standard library features): Follow standard conventions
 
 ## Recent Changes
+- 008-utility-module-to: Added Python 3.13 + Standard library (urllib, json), OpenAI-compatible client libraries (to be researched - potentially openai SDK or httpx for direct API calls)
 - 007-add-linting-and: Added Python 3.13 + pre-commit (hook framework), ruff (linting/formatting), pytest (testing), pytest-cov (coverage measurement)
 - 006-audio-to-text: Added Python 3.13 + lightning-whisper-mlx (MLX-optimized Whisper for Apple Silicon), audio transcription module with support for mp3/wav/m4a formats, multilingual support, batch processing with progress callbacks
-- 005-augment-pdf-extraction: Added Python 3.13 (per project requirements) + pdfplumber (PDF parsing), mlx-vlm (VLM processing), PIL/Pillow (image handling), existing pdf_extractor and image_processor modules
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->
