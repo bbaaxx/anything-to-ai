@@ -3,11 +3,13 @@
 Script to enforce 250-line limit per constitutional requirement.
 Checks all Python files in pdf_extractor/ directory.
 """
+
 import sys
 from pathlib import Path
 
 MAX_LINES = 250
-SOURCE_DIRS = ["pdf_extractor", "image_processor"]
+SOURCE_DIRS = ["pdf_extractor", "image_processor", "llm_client"]
+
 
 def check_file_lengths():
     """Check all Python files for line count compliance."""
@@ -19,7 +21,7 @@ def check_file_lengths():
             continue
 
         for python_file in Path(source_dir).rglob("*.py"):
-            with open(python_file, 'r', encoding='utf-8') as f:
+            with open(python_file, "r", encoding="utf-8") as f:
                 lines = f.readlines()
                 line_count = len([line for line in lines if line.strip()])  # Count non-empty lines
 
@@ -34,6 +36,7 @@ def check_file_lengths():
     else:
         print("✅ All files comply with 250-line limit")
         return True
+
 
 if __name__ == "__main__":
     success = check_file_lengths()
