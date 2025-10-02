@@ -309,7 +309,7 @@ class TestConfigurationValidation:
             from pdf_extractor.exceptions import ConfigurationValidationError
 
             # Valid configuration should work
-            valid_config = EnhancedExtractionConfig(
+            EnhancedExtractionConfig(
                 include_images=True,
                 image_batch_size=4,
                 max_images_per_page=10
@@ -317,7 +317,7 @@ class TestConfigurationValidation:
 
             # Invalid batch size should raise error
             with pytest.raises(ConfigurationValidationError):
-                invalid_config = EnhancedExtractionConfig(image_batch_size=15)
+                EnhancedExtractionConfig(image_batch_size=15)
                 # Validation should be called somewhere
 
         except ImportError:

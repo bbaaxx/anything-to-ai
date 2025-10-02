@@ -151,7 +151,47 @@ config = create_config(
 results = process_audio_batch(audio_files, config)
 ```
 
-### Streaming with Progress
+### Progress Tracking (Unified System)
+
+The audio_processor now supports the unified progress tracking system:
+
+```python
+from audio_processor import process_audio_batch
+from progress_tracker import ProgressEmitter, CLIProgressConsumer
+
+# Create progress emitter
+emitter = ProgressEmitter(total=len(audio_files), label="Transcribing audio")
+emitter.add_consumer(CLIProgressConsumer())
+
+# Process with progress tracking
+results = process_audio_batch(audio_files, progress_emitter=emitter)
+
+# The progress bar will show:
+# Transcribing audio |████████████████| 100% (5/5 files)
+```
+
+#### Streaming with Progress
+
+```python
+from audio_processor import process_audio_streaming
+from progress_tracker import ProgressEmitter, CLIProgressConsumer
+
+# Create progress emitter for streaming
+emitter = ProgressEmitter(total=len(audio_files), label="Processing audio")
+emitter.add_consumer(CLIProgressConsumer())
+
+# Stream processing with progress updates
+for result in process_audio_streaming(audio_files):
+    emitter.update(1)
+    if result.success:
+        print(f"Transcribed: {result.audio_path}")
+
+emitter.complete()
+```
+
+#### Legacy Progress Callback (Deprecated)
+
+The old callback-based progress is still supported but deprecated:
 
 ```python
 from audio_processor import process_audio_batch, create_config
@@ -159,15 +199,17 @@ from audio_processor import process_audio_batch, create_config
 def progress_handler(current, total):
     print(f"Processing {current}/{total} audio files...")
 
+# This works but emits a deprecation warning
 config = create_config(
     model="medium",
     progress_callback=progress_handler,
     verbose=True
 )
 
-# Batch process with progress updates
 results = process_audio_batch(audio_files, config)
 ```
+
+**Migration**: Use `progress_emitter` parameter instead of `progress_callback`.
 
 ### Audio Validation
 

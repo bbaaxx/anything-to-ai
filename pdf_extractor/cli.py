@@ -25,7 +25,7 @@ class CLICommands:
 
     @staticmethod
     def _create_progress_callback(progress: bool):
-        """Create progress callback function."""
+        """Create progress callback function (DEPRECATED - use _create_progress_emitter)."""
         if not progress:
             return None
 
@@ -34,6 +34,21 @@ class CLICommands:
             print(f"Progress: {current}/{total} ({percentage:.1f}%)", file=sys.stderr)
 
         return progress_callback
+
+    @staticmethod
+    def _create_progress_emitter(progress: bool, label: str = "Processing"):
+        """Create progress emitter with CLI consumer."""
+        if not progress:
+            return None
+
+        try:
+            from progress_tracker import ProgressEmitter, CLIProgressConsumer
+
+            emitter = ProgressEmitter(total=None, label=label)
+            emitter.add_consumer(CLIProgressConsumer())
+            return emitter
+        except ImportError:
+            return None
 
     @staticmethod
     def _create_image_config(image_style: str):

@@ -62,7 +62,7 @@ class TestAudioModuleAPIContract:
         """Test create_config has correct signature."""
         import audio_processor
         sig = inspect.signature(audio_processor.create_config)
-        params = list(sig.parameters.keys())
+        list(sig.parameters.keys())
         # All parameters should have defaults
         assert all(p.default is not inspect.Parameter.empty for p in sig.parameters.values())
 

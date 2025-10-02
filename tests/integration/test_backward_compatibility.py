@@ -8,6 +8,7 @@ All tests should FAIL initially until implementation is complete.
 import pytest
 from unittest.mock import Mock, patch
 
+
 # Test fixtures
 @pytest.fixture
 def sample_pdf():
@@ -23,9 +24,9 @@ class TestExistingAPICompatibility:
         try:
             from pdf_extractor import extract_text
 
-            with patch('os.path.exists', return_value=True):
+            with patch("os.path.exists", return_value=True):
                 # Mock pdfplumber
-                with patch('pdfplumber.open') as mock_pdf:
+                with patch("pdfplumber.open") as mock_pdf:
                     mock_page = Mock()
                     mock_page.extract_text.return_value = "Sample text"
                     mock_pdf.return_value.pages = [mock_page]
@@ -34,14 +35,14 @@ class TestExistingAPICompatibility:
                     result = extract_text(sample_pdf)
 
                     # Should return original ExtractionResult
-                    assert hasattr(result, 'success')
-                    assert hasattr(result, 'pages')
-                    assert hasattr(result, 'total_pages')
-                    assert hasattr(result, 'processing_time')
+                    assert hasattr(result, "success")
+                    assert hasattr(result, "pages")
+                    assert hasattr(result, "total_pages")
+                    assert hasattr(result, "processing_time")
 
                     # Should NOT have enhanced fields
-                    assert not hasattr(result, 'total_images_found')
-                    assert not hasattr(result, 'enhanced_pages')
+                    assert not hasattr(result, "total_images_found")
+                    assert not hasattr(result, "enhanced_pages")
 
         except ImportError:
             pytest.fail("Original extract_text function not available")
@@ -54,8 +55,8 @@ class TestExistingAPICompatibility:
 
             config = ExtractionConfig()
 
-            with patch('os.path.exists', return_value=True):
-                with patch('pdfplumber.open') as mock_pdf:
+            with patch("os.path.exists", return_value=True):
+                with patch("pdfplumber.open") as mock_pdf:
                     mock_page = Mock()
                     mock_page.extract_text.return_value = "Sample text"
                     mock_pdf.return_value.pages = [mock_page]
@@ -68,14 +69,14 @@ class TestExistingAPICompatibility:
 
                     # Should return original PageResult objects
                     for page in pages:
-                        assert hasattr(page, 'page_number')
-                        assert hasattr(page, 'text')
-                        assert hasattr(page, 'char_count')
-                        assert hasattr(page, 'extraction_time')
+                        assert hasattr(page, "page_number")
+                        assert hasattr(page, "text")
+                        assert hasattr(page, "char_count")
+                        assert hasattr(page, "extraction_time")
 
                         # Should NOT have enhanced fields
-                        assert not hasattr(page, 'images_found')
-                        assert not hasattr(page, 'enhanced_text')
+                        assert not hasattr(page, "images_found")
+                        assert not hasattr(page, "enhanced_text")
 
         except ImportError:
             pytest.fail("Original extract_text_streaming function not available")
@@ -83,40 +84,24 @@ class TestExistingAPICompatibility:
     def test_original_models_unchanged(self):
         """Test that original data models remain unchanged."""
         try:
-            from pdf_extractor.models import (
-                PDFDocument,
-                PageResult,
-                ExtractionResult,
-                ExtractionConfig
-            )
+            from pdf_extractor.models import PDFDocument, PageResult, ExtractionResult, ExtractionConfig
 
             # Test original model structures
             config = ExtractionConfig()
-            assert hasattr(config, 'streaming_enabled')
-            assert hasattr(config, 'progress_callback')
-            assert hasattr(config, 'output_format')
+            assert hasattr(config, "streaming_enabled")
+            assert hasattr(config, "progress_callback")
+            assert hasattr(config, "output_format")
 
-            page = PageResult(
-                page_number=1,
-                text="test",
-                char_count=4,
-                extraction_time=1.0
-            )
-            assert hasattr(page, 'page_number')
-            assert hasattr(page, 'text')
-            assert hasattr(page, 'char_count')
-            assert hasattr(page, 'extraction_time')
+            page = PageResult(page_number=1, text="test", char_count=4, extraction_time=1.0)
+            assert hasattr(page, "page_number")
+            assert hasattr(page, "text")
+            assert hasattr(page, "char_count")
+            assert hasattr(page, "extraction_time")
 
-            result = ExtractionResult(
-                success=True,
-                pages=[page],
-                total_pages=1,
-                total_chars=4,
-                processing_time=1.0
-            )
-            assert hasattr(result, 'success')
-            assert hasattr(result, 'pages')
-            assert hasattr(result, 'total_pages')
+            result = ExtractionResult(success=True, pages=[page], total_pages=1, total_chars=4, processing_time=1.0)
+            assert hasattr(result, "success")
+            assert hasattr(result, "pages")
+            assert hasattr(result, "total_pages")
 
         except ImportError:
             pytest.fail("Original models not available")
@@ -132,17 +117,17 @@ class TestCLIBackwardCompatibility:
 
             cli = PDFExtractorCLI()
 
-            with patch('os.path.exists', return_value=True):
+            with patch("os.path.exists", return_value=True):
                 # Original argument structure should work
                 args = cli.parse_args([sample_pdf])
 
                 assert args.file_path == sample_pdf
                 # Should have original arguments
-                assert hasattr(args, 'stream')
-                assert hasattr(args, 'output')
+                assert hasattr(args, "stream")
+                assert hasattr(args, "output")
 
                 # Should NOT have enhanced arguments by default
-                if hasattr(args, 'include_images'):
+                if hasattr(args, "include_images"):
                     assert args.include_images is False
 
         except (ImportError, AttributeError):
@@ -153,8 +138,8 @@ class TestCLIBackwardCompatibility:
         try:
             from pdf_extractor import extract_text
 
-            with patch('os.path.exists', return_value=True):
-                with patch('pdfplumber.open') as mock_pdf:
+            with patch("os.path.exists", return_value=True):
+                with patch("pdfplumber.open") as mock_pdf:
                     mock_page = Mock()
                     mock_page.extract_text.return_value = "Sample text content"
                     mock_pdf.return_value.pages = [mock_page]
@@ -184,13 +169,7 @@ class TestExceptionBackwardCompatibility:
     def test_original_exceptions_available(self):
         """Test that original exceptions are still available."""
         try:
-            from pdf_extractor.exceptions import (
-                PDFExtractionError,
-                PDFNotFoundError,
-                PDFCorruptedError,
-                PDFPasswordProtectedError,
-                PDFNoTextError
-            )
+            from pdf_extractor.exceptions import PDFExtractionError, PDFNotFoundError, PDFCorruptedError, PDFPasswordProtectedError, PDFNoTextError
 
             # Should be able to create instances
             base_error = PDFExtractionError("test error")
@@ -207,11 +186,7 @@ class TestExceptionBackwardCompatibility:
     def test_exception_hierarchy_preserved(self):
         """Test that original exception hierarchy is preserved."""
         try:
-            from pdf_extractor.exceptions import (
-                PDFExtractionError,
-                PDFNotFoundError,
-                PDFCorruptedError
-            )
+            from pdf_extractor.exceptions import PDFExtractionError, PDFNotFoundError, PDFCorruptedError
 
             # Original hierarchy should be maintained
             assert issubclass(PDFNotFoundError, PDFExtractionError)
@@ -228,11 +203,12 @@ class TestModuleImportCompatibility:
     def test_original_imports_work(self):
         """Test that original import statements continue to work."""
         try:
-            # All original imports should work
+            # All original imports should work (except deprecated progress.py)
             from pdf_extractor import extract_text, extract_text_streaming
             from pdf_extractor.models import PDFDocument, PageResult, ExtractionResult
             from pdf_extractor.exceptions import PDFExtractionError
-            from pdf_extractor.progress import ProgressInfo
+            # Note: pdf_extractor.progress was deprecated and removed in Phase 4
+            # Use progress_tracker.ProgressEmitter instead
 
             # Should be importable
             assert callable(extract_text)
@@ -247,11 +223,7 @@ class TestModuleImportCompatibility:
             import pdf_extractor
 
             # Check __all__ includes original exports
-            expected_exports = {
-                'extract_text', 'extract_text_streaming', 'get_pdf_info',
-                'PDFDocument', 'PageResult', 'ExtractionResult', 'ExtractionConfig',
-                'PDFExtractionError', 'PDFNotFoundError', 'PDFCorruptedError'
-            }
+            expected_exports = {"extract_text", "extract_text_streaming", "get_pdf_info", "PDFDocument", "PageResult", "ExtractionResult", "ExtractionConfig", "PDFExtractionError", "PDFNotFoundError", "PDFCorruptedError"}
 
             actual_exports = set(pdf_extractor.__all__)
             assert expected_exports.issubset(actual_exports)
@@ -272,8 +244,8 @@ class TestBehavioralCompatibility:
             # Standard configuration without enhancements
             config = ExtractionConfig(output_format="plain")
 
-            with patch('os.path.exists', return_value=True):
-                with patch('pdfplumber.open') as mock_pdf:
+            with patch("os.path.exists", return_value=True):
+                with patch("pdfplumber.open") as mock_pdf:
                     mock_page = Mock()
                     mock_page.extract_text.return_value = "Expected text content"
                     mock_pdf.return_value.pages = [mock_page]
@@ -310,8 +282,8 @@ class TestBehavioralCompatibility:
             from pdf_extractor import extract_text
             import time
 
-            with patch('os.path.exists', return_value=True):
-                with patch('pdfplumber.open') as mock_pdf:
+            with patch("os.path.exists", return_value=True):
+                with patch("pdfplumber.open") as mock_pdf:
                     mock_page = Mock()
                     mock_page.extract_text.return_value = "Test content"
                     mock_pdf.return_value.pages = [mock_page] * 10  # 10 pages
@@ -342,13 +314,10 @@ class TestConfigurationCompatibility:
             from pdf_extractor.models import ExtractionConfig
 
             # Original config should work
-            config = ExtractionConfig(
-                streaming_enabled=True,
-                output_format="json"
-            )
+            config = ExtractionConfig(streaming_enabled=True, output_format="json")
 
-            with patch('os.path.exists', return_value=True):
-                with patch('pdfplumber.open') as mock_pdf:
+            with patch("os.path.exists", return_value=True):
+                with patch("pdfplumber.open") as mock_pdf:
                     mock_page = Mock()
                     mock_page.extract_text.return_value = "Content"
                     mock_pdf.return_value.pages = [mock_page]
@@ -386,8 +355,8 @@ class TestDeprecationWarnings:
         try:
             from pdf_extractor import extract_text
 
-            with patch('os.path.exists', return_value=True):
-                with patch('pdfplumber.open') as mock_pdf:
+            with patch("os.path.exists", return_value=True):
+                with patch("pdfplumber.open") as mock_pdf:
                     mock_page = Mock()
                     mock_page.extract_text.return_value = "Content"
                     mock_pdf.return_value.pages = [mock_page]
@@ -396,11 +365,10 @@ class TestDeprecationWarnings:
                     with warnings.catch_warnings(record=True) as w:
                         warnings.simplefilter("always")
 
-                        result = extract_text(sample_pdf)
+                        extract_text(sample_pdf)
 
                         # Should not generate deprecation warnings for normal usage
-                        deprecation_warnings = [warning for warning in w
-                                              if issubclass(warning.category, DeprecationWarning)]
+                        deprecation_warnings = [warning for warning in w if issubclass(warning.category, DeprecationWarning)]
                         assert len(deprecation_warnings) == 0, f"Unexpected deprecation warnings: {deprecation_warnings}"
 
         except ImportError:

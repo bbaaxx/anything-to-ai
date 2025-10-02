@@ -37,7 +37,7 @@ class TestPerformanceValidation:
         """Test batch processing is more efficient than individual processing."""
         # Process single image to get baseline
         start_time = time.time()
-        single_result = process_image(sample_image)
+        process_image(sample_image)
         single_time = time.time() - start_time
 
         # Process same image 3 times in batch
@@ -82,7 +82,7 @@ class TestPerformanceValidation:
 
         # Create multiple configurations
         for i in range(100):
-            config = create_config(
+            create_config(
                 description_style="brief",
                 max_length=200,
                 batch_size=2

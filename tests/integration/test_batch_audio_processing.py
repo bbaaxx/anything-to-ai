@@ -46,7 +46,7 @@ class TestBatchAudioProcessing:
             progress_calls.append((current, total))
 
         config = audio_processor.create_config(progress_callback=progress_callback)
-        result = audio_processor.process_audio_batch(sample_audio_files, config)
+        audio_processor.process_audio_batch(sample_audio_files, config)
 
         # Verify progress callback was called
         assert len(progress_calls) > 0

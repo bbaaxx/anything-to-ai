@@ -3,6 +3,8 @@
 Auto-generated from all feature plans. Last updated: 2025-09-28
 
 ## Active Technologies
+- Python 3.13 + alive-progress (CLI rendering), asyncio (async support), dataclasses (models) (010-unify-progress-bars)
+- N/A (in-memory state only) (010-unify-progress-bars)
 
 - Python 3.8+ (for compatibility with standard library features) + PyPDF2 or pdfplumber for PDF parsing (minimal external dependencies per constitution) (001-a-simple-python)
 - Python 3.13 (per project requirements) + mlx-vlm (VLM processing), PIL/Pillow (image handling) (002-implement-a-module)
@@ -73,10 +75,10 @@ uv run python -m audio_processor audio.mp3 --format plain | python -m text_summa
 Python 3.8+ (for compatibility with standard library features): Follow standard conventions
 
 ## Recent Changes
+- 010-unify-progress-bars: Added Python 3.13 + alive-progress (CLI rendering), asyncio (async support), dataclasses (models)
 
 - 009-summarizer-module-this: Added Python 3.13 + llm_client module (OpenAI-compatible client), standard library (json, argparse, sys)
 - 008-utility-module-to: Added Python 3.13 + Standard library (urllib, json), OpenAI-compatible client libraries (to be researched - potentially openai SDK or httpx for direct API calls)
-- 007-add-linting-and: Added Python 3.13 + pre-commit (hook framework), ruff (linting/formatting), pytest (testing), pytest-cov (coverage measurement)
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

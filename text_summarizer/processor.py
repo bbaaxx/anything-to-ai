@@ -58,13 +58,14 @@ class TextSummarizer:
         prompt = _PROMPT_TEMPLATE.format(instruction=instruction, text=text)
         return prompt
 
-    def summarize(self, text: str, include_metadata: bool = True) -> SummaryResult:
+    def summarize(self, text: str, include_metadata: bool = True, progress_emitter: Optional[Any] = None) -> SummaryResult:
         """
         Summarize text.
 
         Args:
             text: Input text to summarize
             include_metadata: Whether to include metadata
+            progress_emitter: Optional progress tracker
 
         Returns:
             SummaryResult with summary, tags, and optional metadata
@@ -85,10 +86,21 @@ class TextSummarizer:
         # Determine if chunking is needed
         needs_chunking = word_count > self.chunk_size
 
+        if progress_emitter and needs_chunking:
+            chunks = chunk_text(text, self.chunk_size, self.chunk_overlap)
+            progress_emitter.update_total(len(chunks) + 1)
+
         if needs_chunking:
-            result = self._summarize_chunked(text, word_count)
+            result = self._summarize_chunked(text, word_count, progress_emitter)
         else:
+            if progress_emitter:
+                progress_emitter.update_total(1)
             result = self._summarize_direct(text)
+            if progress_emitter:
+                progress_emitter.update(1)
+
+        if progress_emitter:
+            progress_emitter.complete()
 
         # Add metadata
         if include_metadata:
@@ -116,7 +128,7 @@ class TextSummarizer:
 
         return result
 
-    def _summarize_chunked(self, text: str, word_count: int) -> Dict[str, Any]:
+    def _summarize_chunked(self, text: str, word_count: int, progress_emitter: Optional[Any] = None) -> Dict[str, Any]:
         """Summarize text using chunking and hierarchical summarization."""
         # Split into chunks
         chunks = chunk_text(text, self.chunk_size, self.chunk_overlap)
@@ -129,15 +141,20 @@ class TextSummarizer:
             chunk_result = self.adapter.parse_response(response)
             chunk_summaries.append(chunk_result["summary"])
 
+            if progress_emitter:
+                progress_emitter.update(1)
+
         # Combine chunk summaries
         combined = "\n\n".join(chunk_summaries)
 
         # If combined summaries are still too large, recursively summarize
         if len(combined.split()) > self.chunk_size:
-            return self._summarize_chunked(combined, len(combined.split()))
+            return self._summarize_chunked(combined, len(combined.split()), progress_emitter)
 
         # Final summarization of combined chunks
         final_result = self._summarize_direct(combined)
+        if progress_emitter:
+            progress_emitter.update(1)
         return final_result
 
 

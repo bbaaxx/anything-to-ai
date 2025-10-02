@@ -32,7 +32,7 @@ def test_ruff_fixes_unused_imports():
 
     try:
         # Run ruff check with --fix
-        result = subprocess.run(["uv", "run", "ruff", "check", "--fix", str(temp_path)], capture_output=True, text=True)
+        subprocess.run(["uv", "run", "ruff", "check", "--fix", str(temp_path)], capture_output=True, text=True)
 
         # Read the fixed file
         content = temp_path.read_text()
@@ -52,7 +52,7 @@ def test_ruff_fixes_whitespace():
 
     try:
         # Run ruff format
-        result = subprocess.run(["uv", "run", "ruff", "format", str(temp_path)], capture_output=True, text=True)
+        subprocess.run(["uv", "run", "ruff", "format", str(temp_path)], capture_output=True, text=True)
 
         # Read the formatted file
         content = temp_path.read_text()
@@ -141,7 +141,7 @@ def complex_function(x):
 
     try:
         # Save original content
-        original_content = temp_path.read_text()
+        temp_path.read_text()
 
         # Run ruff check with --fix
         subprocess.run(["uv", "run", "ruff", "check", "--fix", str(temp_path)], capture_output=True, text=True)
