@@ -29,8 +29,7 @@ from .exceptions import (
     ConfigurationValidationError,
 )
 
-# Progress tracking
-from .progress import ProgressInfo
+# Progress tracking (deprecated - removed, use progress_tracker instead)
 
 __version__ = "0.1.0"
 
@@ -57,6 +56,5 @@ __all__ = [
     "VLMServiceError",
     "EnhancedExtractionError",
     "ConfigurationValidationError",
-    # Progress tracking
-    "ProgressInfo",
+    # Progress tracking removed - use progress_tracker.ProgressEmitter instead
 ]

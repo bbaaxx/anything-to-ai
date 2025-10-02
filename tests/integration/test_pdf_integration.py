@@ -182,7 +182,7 @@ class TestPdfIntegration:
         initial_memory = process.memory_info().rss
 
         # Process an image
-        result = process_image(sample_image)
+        process_image(sample_image)
 
         # Check memory usage after processing
         final_memory = process.memory_info().rss

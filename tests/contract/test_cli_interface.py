@@ -55,7 +55,7 @@ class TestCLIInterfaceContract:
             os.environ.pop('VISION_MODEL', None)
 
             # Mock stdout to capture output
-            with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
+            with patch('sys.stdout', new_callable=StringIO):
                 with patch('sys.stderr', new_callable=StringIO) as mock_stderr:
                     # Should return exit code 1 for missing VISION_MODEL
                     exit_code = main(['test_image.jpg'])
@@ -113,7 +113,7 @@ class TestCLIInterfaceContract:
             with patch('image_processor.process_images', return_value=mock_result):
                 with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
                     # This should produce enhanced JSON output
-                    exit_code = main(['test.jpg', '--format', 'json'])
+                    main(['test.jpg', '--format', 'json'])
 
                     output = mock_stdout.getvalue()
                     if output:
@@ -244,7 +244,7 @@ class TestCLIInterfaceContract:
                 with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
                     main(['test.jpg', '--verbose'])
 
-                    output = mock_stdout.getvalue()
+                    mock_stdout.getvalue()
                     # Verbose output should mention VLM model being used
                     # This will fail initially as VLM integration not implemented
 

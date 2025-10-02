@@ -93,6 +93,42 @@ for page_result in extract_text_streaming('large_document.pdf', config):
     print(f"Page {page_result.page_number}: {len(page_result.text)} characters")
 ```
 
+### Progress Tracking (Unified System)
+
+The pdf_extractor now supports the unified progress tracking system:
+
+```python
+from pdf_extractor import extract_text
+from progress_tracker import ProgressEmitter, CLIProgressConsumer
+
+# Create progress emitter
+emitter = ProgressEmitter(total=None, label="Extracting PDF")
+emitter.add_consumer(CLIProgressConsumer())
+
+# Extract with progress tracking
+result = extract_text('document.pdf', progress_emitter=emitter)
+
+# The progress bar will show:
+# Extracting PDF |████████████████| 100% (25/25 pages)
+```
+
+#### Legacy Progress Callback (Deprecated)
+
+The old callback-based progress is still supported but deprecated:
+
+```python
+from pdf_extractor import extract_text, ExtractionConfig
+
+def progress_callback(current, total):
+    print(f"Processing page {current}/{total}")
+
+# This works but emits a deprecation warning
+config = ExtractionConfig(progress_callback=progress_callback)
+result = extract_text('document.pdf', config)
+```
+
+**Migration**: Use `progress_emitter` parameter instead of `progress_callback`.
+
 ### Advanced Configuration
 
 ```python

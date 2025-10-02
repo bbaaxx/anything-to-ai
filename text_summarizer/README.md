@@ -210,11 +210,32 @@ print(f"Tags: {', '.join(result.tags)}")
 print(f"Language: {result.metadata.detected_language}")
 ```
 
+### Progress Tracking
+
+The text_summarizer now supports the unified progress tracking system:
+
+```python
+from text_summarizer import create_summarizer
+from progress_tracker import ProgressEmitter, CLIProgressConsumer
+
+# Create progress emitter
+emitter = ProgressEmitter(total=None, label="Summarizing text")
+emitter.add_consumer(CLIProgressConsumer())
+
+# Create summarizer and process with progress
+summarizer = create_summarizer()
+result = summarizer.summarize(text, progress_emitter=emitter)
+
+# For chunked text, progress shows each chunk being processed:
+# Summarizing text |████████░░░░░░░░| 60% (6/10 chunks)
+```
+
 ### Advanced Usage
 
 ```python
 from text_summarizer import create_summarizer, summarize_text, SummaryResult
 from llm_client import LLMClient, LLMConfig, Provider
+from progress_tracker import ProgressEmitter, CLIProgressConsumer
 
 # Use a different model and provider
 result = summarize_text(text, model="mistral:latest", provider="ollama")
@@ -237,8 +258,15 @@ summarizer = create_summarizer(
     provider="ollama"   # Specify provider
 )
 
-# Summarize with custom settings
-result = summarizer.summarize(text, include_metadata=True)
+# Summarize with custom settings and progress tracking
+emitter = ProgressEmitter(total=None, label="Processing")
+emitter.add_consumer(CLIProgressConsumer())
+
+result = summarizer.summarize(
+    text,
+    include_metadata=True,
+    progress_emitter=emitter
+)
 
 # Access detailed metadata
 if result.metadata:

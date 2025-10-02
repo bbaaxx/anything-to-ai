@@ -145,22 +145,61 @@ config = create_config(
 results = process_images(image_paths, config)
 ```
 
-### Streaming with Progress
+### Progress Tracking (Unified System)
+
+The image_processor now supports the unified progress tracking system:
+
+```python
+from image_processor import process_images
+from progress_tracker import ProgressEmitter, CLIProgressConsumer
+
+# Create progress emitter
+emitter = ProgressEmitter(total=len(image_paths), label="Processing images")
+emitter.add_consumer(CLIProgressConsumer())
+
+# Process with progress tracking
+results = process_images(image_paths, progress_emitter=emitter)
+
+# The progress bar will show:
+# Processing images |████████████████| 100% (10/10 images)
+```
+
+#### Streaming with Progress
+
+```python
+from image_processor import process_images_streaming, create_config
+from progress_tracker import ProgressEmitter, CLIProgressConsumer
+
+# Create progress emitter for streaming
+emitter = ProgressEmitter(total=len(image_paths), label="Streaming images")
+emitter.add_consumer(CLIProgressConsumer())
+
+# Stream processing with progress updates
+for i, result in enumerate(process_images_streaming(image_paths)):
+    emitter.update(1)
+    print(f"Completed: {result.image_path}")
+
+emitter.complete()
+```
+
+#### Legacy Progress Callback (Deprecated)
+
+The old callback-based progress is still supported but deprecated:
+
 ```python
 from image_processor import process_images_streaming, create_config
 
 def progress_handler(current, total):
     print(f"Processing {current}/{total} images...")
 
-config = create_config(
-    description_style="detailed",
-    progress_callback=progress_handler
-)
+# This works but emits a deprecation warning
+config = create_config(progress_callback=progress_handler)
 
-# Stream processing with progress updates
 for result in process_images_streaming(image_paths, config):
     print(f"Completed: {result.image_path}")
 ```
+
+**Migration**: Use `progress_emitter` parameter instead of `progress_callback`.
 
 ### Image Validation
 ```python
