@@ -1,0 +1,31 @@
+# Prompt Template for Text Summarization
+#
+# This template is used to generate prompts for the LLM.
+# Available placeholders:
+#   {instruction} - Will be replaced with task-specific instruction
+#   {text} - Will be replaced with the actual text to summarize
+#
+# Edit this file to customize the summarization behavior.
+
+You are a text summarization expert. {instruction}
+
+IMPORTANT: Provide ONLY the requested JSON output. Do not include explanations, reasoning, or any other text.
+
+The input text may be in any language. Detect the language and provide your summary and tags in English regardless of the input language.
+
+Provide a concise summary that captures the key points. The summary length should be appropriate for the content density and complexity.
+
+Return your response as valid JSON with exactly this structure:
+{{
+    "summary": "your concise summary here",
+    "tags": ["tag1", "tag2", "tag3"],
+    "language": "en"
+}}
+
+Requirements:
+- Provide at least 3 tags that categorize the content
+- The summary should be a clear, complete sentence or paragraph about the content
+- Output ONLY the JSON object, nothing else
+
+Text to summarize:
+{text}

@@ -1,0 +1,202 @@
+"""Core text summarization logic."""
+
+import time
+from pathlib import Path
+from typing import Optional, Any, Dict
+
+from .models import SummaryResult, SummaryMetadata
+from .chunker import chunk_text
+from .exceptions import InvalidInputError, ValidationError
+from .llm_adapter import LLMAdapter, get_default_llm_client
+
+# Load prompt template once at module level
+_PROMPT_TEMPLATE_PATH = Path(__file__).parent / "prompt_template.txt"
+_PROMPT_TEMPLATE = _PROMPT_TEMPLATE_PATH.read_text(encoding="utf-8")
+
+
+class TextSummarizer:
+    """Text summarizer that uses an LLM client."""
+
+    def __init__(
+        self,
+        llm_client: Optional[Any] = None,
+        chunk_size: int = 10000,
+        chunk_overlap: int = 500,
+        model: str = "llama3.2:latest",
+        provider: str = "ollama",
+    ):
+        """
+        Initialize TextSummarizer.
+
+        Args:
+            llm_client: Optional custom LLM client
+            chunk_size: Words per chunk for large texts
+            chunk_overlap: Overlap words between chunks
+            model: Model name to use (default: "llama3.2:latest")
+            provider: Provider to use - "ollama", "lmstudio", or "mlx" (default: "ollama")
+
+        Raises:
+            ValueError: If invalid parameters
+        """
+        if chunk_size <= 0:
+            raise ValueError("chunk_size must be positive")
+        if chunk_overlap < 0:
+            raise ValueError("chunk_overlap must be non-negative")
+        if chunk_size <= chunk_overlap:
+            raise ValueError("chunk_size must be greater than chunk_overlap")
+
+        client = llm_client or get_default_llm_client(model, provider)
+        self.adapter = LLMAdapter(client, model)
+        self.chunk_size = chunk_size
+        self.chunk_overlap = chunk_overlap
+
+    def _build_prompt(self, text: str, is_chunk: bool = False) -> str:
+        """Build prompt for LLM summarization using the template file."""
+        instruction = "Summarize the following text chunk." if is_chunk else ("Summarize the following text and generate categorization tags.")
+
+        # Format the prompt template with the instruction and text
+        prompt = _PROMPT_TEMPLATE.format(instruction=instruction, text=text)
+        return prompt
+
+    def summarize(self, text: str, include_metadata: bool = True) -> SummaryResult:
+        """
+        Summarize text.
+
+        Args:
+            text: Input text to summarize
+            include_metadata: Whether to include metadata
+
+        Returns:
+            SummaryResult with summary, tags, and optional metadata
+
+        Raises:
+            InvalidInputError: If text is invalid
+            ValidationError: If result doesn't meet requirements
+        """
+        start_time = time.time()
+
+        # Validate input
+        if not text or not text.strip():
+            raise InvalidInputError("Text must not be empty")
+
+        words = text.split()
+        word_count = len(words)
+
+        # Determine if chunking is needed
+        needs_chunking = word_count > self.chunk_size
+
+        if needs_chunking:
+            result = self._summarize_chunked(text, word_count)
+        else:
+            result = self._summarize_direct(text)
+
+        # Add metadata
+        if include_metadata:
+            processing_time = time.time() - start_time
+            metadata = SummaryMetadata(
+                input_length=word_count,
+                chunked=needs_chunking,
+                chunk_count=len(chunk_text(text, self.chunk_size, self.chunk_overlap)) if needs_chunking else None,
+                detected_language=result.get("language"),
+                processing_time=processing_time,
+            )
+            return SummaryResult(summary=result["summary"], tags=result["tags"], metadata=metadata)
+        else:
+            return SummaryResult(summary=result["summary"], tags=result["tags"])
+
+    def _summarize_direct(self, text: str) -> Dict[str, Any]:
+        """Directly summarize text without chunking."""
+        prompt = self._build_prompt(text, is_chunk=False)
+        response = self.adapter.call(prompt)
+        result = self.adapter.parse_response(response)
+
+        # Validate result
+        if len(result["tags"]) < 3:
+            raise ValidationError(f"Expected at least 3 tags, got {len(result['tags'])}")
+
+        return result
+
+    def _summarize_chunked(self, text: str, word_count: int) -> Dict[str, Any]:
+        """Summarize text using chunking and hierarchical summarization."""
+        # Split into chunks
+        chunks = chunk_text(text, self.chunk_size, self.chunk_overlap)
+
+        # Summarize each chunk
+        chunk_summaries = []
+        for chunk in chunks:
+            prompt = self._build_prompt(chunk.content, is_chunk=True)
+            response = self.adapter.call(prompt)
+            chunk_result = self.adapter.parse_response(response)
+            chunk_summaries.append(chunk_result["summary"])
+
+        # Combine chunk summaries
+        combined = "\n\n".join(chunk_summaries)
+
+        # If combined summaries are still too large, recursively summarize
+        if len(combined.split()) > self.chunk_size:
+            return self._summarize_chunked(combined, len(combined.split()))
+
+        # Final summarization of combined chunks
+        final_result = self._summarize_direct(combined)
+        return final_result
+
+
+def create_summarizer(
+    llm_client: Optional[Any] = None,
+    *,
+    chunk_size: int = 10000,
+    chunk_overlap: int = 500,
+    model: str = "llama3.2:latest",
+    provider: str = "ollama",
+) -> TextSummarizer:
+    """
+    Create a text summarizer instance.
+
+    Args:
+        llm_client: Optional custom LLM client (uses default if None)
+        chunk_size: Words per chunk for large texts (default: 10000)
+        chunk_overlap: Overlap words between chunks (default: 500)
+        model: Model name to use (default: "llama3.2:latest")
+        provider: Provider to use - "ollama", "lmstudio", or "mlx" (default: "ollama")
+
+    Returns:
+        TextSummarizer instance
+
+    Raises:
+        ValueError: If chunk_size < chunk_overlap or invalid values
+    """
+    return TextSummarizer(
+        llm_client=llm_client,
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+        model=model,
+        provider=provider,
+    )
+
+
+def summarize_text(
+    text: str,
+    *,
+    include_metadata: bool = True,
+    model: str = "llama3.2:latest",
+    provider: str = "ollama",
+) -> SummaryResult:
+    """
+    Summarize input text and generate categorization tags.
+
+    Args:
+        text: Input text to summarize (UTF-8 encoded)
+        include_metadata: Whether to include processing metadata
+        model: Model name to use (default: "llama3.2:latest")
+        provider: Provider to use - "ollama", "lmstudio", or "mlx" (default: "ollama")
+
+    Returns:
+        SummaryResult with summary, tags (≥3), and optional metadata
+
+    Raises:
+        InvalidInputError: If text is empty or invalid UTF-8
+        LLMError: If LLM client fails
+        ValidationError: If output doesn't meet requirements (e.g., <3 tags)
+    """
+    summarizer = create_summarizer(model=model, provider=provider)
+    return summarizer.summarize(text, include_metadata=include_metadata)
