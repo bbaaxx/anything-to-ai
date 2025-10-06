@@ -1,0 +1,139 @@
+contract: Image Markdown Output Format
+version: 1.0.0
+module: image_processor
+date: 2025-10-02
+
+description: |
+  Contract for images processed with markdown output format.
+  Ensures VLM descriptions are properly formatted as markdown with image references.
+
+endpoint:
+  command: "uv run python -m image_processor {files} --format markdown"
+  cli_flag: "--format markdown"
+
+input:
+  type: files
+  format: images
+  supported:
+    - jpg
+    - jpeg
+    - png
+    - gif
+    - webp
+  constraints:
+    - must be valid image files
+    - must be processable by VLM
+  examples:
+    - "image.jpg"
+    - "*.png"
+    - "folder/"
+
+output:
+  type: text
+  format: markdown
+  encoding: utf-8
+
+  structure:
+    document_title:
+      pattern: "# Image Descriptions"
+      required: true
+      level: 1
+
+    image_sections:
+      pattern: "## {filename}"
+      required: true
+      level: 2
+      multiple: true
+
+    image_reference:
+      pattern: "![{description}]({filepath})"
+      required: true
+      notes: "Markdown image syntax with VLM description as alt text"
+
+    detailed_description:
+      format: paragraph
+      required: true
+      notes: "Full VLM-generated description after image reference"
+
+validation_rules:
+  - name: valid_markdown_syntax
+    description: "Output must be syntactically valid markdown"
+    test: "Parse with markdown parser without errors"
+
+  - name: image_references
+    description: "Must contain markdown image syntax for each image"
+    test: "Count ![...](...) matches == image count"
+
+  - name: escape_descriptions
+    description: "VLM descriptions must have markdown chars escaped in alt text"
+    test: "Check alt text for unescaped * _ [ ] ( )"
+
+  - name: section_per_image
+    description: "Each image must have its own H2 section"
+    test: "Count ## headings == image count"
+
+  - name: non_empty_descriptions
+    description: "All descriptions must be non-empty"
+    test: "No empty alt text or description paragraphs"
+
+error_handling:
+  vlm_failure:
+    output: "## {filename}\n\n![Image processing failed]({filepath})\n\n⚠️ VLM processing failed"
+    notes: "Include image reference with error note"
+
+  invalid_image:
+    output: "## {filename}\n\n⚠️ Invalid or corrupted image file"
+    notes: "Skip image but note error"
+
+  partial_batch_failure:
+    output: "Process successful images, note failures for others"
+    exit_code: 0
+
+example_output: |
+  # Image Descriptions
+
+  ## image1.jpg
+
+  ![A red vintage sports car driving on a coastal highway at sunset](image1.jpg)
+
+  The image shows a red vintage sports car driving on a coastal highway. The setting sun creates a warm orange glow across the scene. The ocean is visible in the background.
+
+  ## image2.png
+
+  ![A modern office workspace with dual monitors and ergonomic chair](image2.png)
+
+  The image depicts a modern office workspace featuring dual monitors, an ergonomic chair, and minimalist desk organization. Natural light comes through a nearby window.
+
+backward_compatibility:
+  - Plain text format (--format plain) must continue to work
+  - JSON format (--format json) must continue to work
+  - CSV format (--format csv) must continue to work
+  - Default format must not change
+
+test_cases:
+  - name: single_image_markdown
+    input: "test_image.jpg"
+    expected:
+      - contains: "# Image Descriptions"
+      - contains: "## test_image.jpg"
+      - contains: "![.*](test_image.jpg)"
+      - description_length: "> 0"
+
+  - name: multiple_images_markdown
+    input: "*.jpg"
+    expected:
+      - section_count: ">= 2"
+      - image_references: ">= 2"
+      - unique_descriptions: true
+
+  - name: image_with_special_chars
+    input: "image_with_[brackets].jpg"
+    expected:
+      - filename_escaped: true
+      - valid_markdown: true
+
+notes: |
+  - VLM descriptions are escaped in alt text but not in detailed paragraph
+  - Image paths in markdown are relative to output location
+  - Batch processing creates single markdown document with all images
+  - Failed images are noted but don't prevent successful image output

@@ -24,7 +24,7 @@ Examples:
     parser.add_argument("--batch-size", type=int, default=4, metavar="N", help="Number of images to process simultaneously")
     parser.add_argument("--timeout", type=int, default=60, metavar="SECONDS", help="Processing timeout per image")
     parser.add_argument("--output", "-o", help="Output file path")
-    parser.add_argument("--format", choices=["plain", "json", "csv"], default="plain", help="Output format")
+    parser.add_argument("--format", choices=["plain", "json", "csv", "markdown"], default="plain", help="Output format")
     parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose progress output")
     parser.add_argument("--quiet", "-q", action="store_true", help="Suppress all output except results")
 
@@ -127,7 +127,15 @@ def main(args: Optional[List[str]] = None) -> int:
 
 def format_output(result: ProcessingResult, format_type: str) -> str:
     """Format processing results for CLI output."""
-    if format_type == "json":
+    if format_type == "markdown":
+        import os
+        from .markdown_formatter import format_markdown
+
+        # Convert ProcessingResult to list of dicts for formatter
+        results_list = [{"filename": os.path.basename(r.image_path), "image_path": r.image_path, "description": r.description, "processing_success": r.success} for r in result.results]
+        return format_markdown(results_list)
+
+    elif format_type == "json":
         import json
 
         data = {

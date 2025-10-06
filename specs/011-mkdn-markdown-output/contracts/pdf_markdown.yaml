@@ -1,0 +1,139 @@
+contract: PDF Markdown Output Format
+version: 1.0.0
+module: pdf_extractor
+date: 2025-10-02
+
+description: |
+  Contract for PDF documents processed with markdown output format.
+  Ensures consistent markdown structure preservation from PDF source.
+
+endpoint:
+  command: "uv run python -m pdf_extractor {file} --format markdown"
+  cli_flag: "--format markdown"
+
+input:
+  type: file
+  format: PDF
+  constraints:
+    - must be valid PDF file
+    - must be readable by pdfplumber
+  examples:
+    - "document.pdf"
+    - "sample-data/test.pdf"
+
+output:
+  type: text
+  format: markdown
+  encoding: utf-8
+
+  structure:
+    document_title:
+      pattern: "# PDF Document: {filename}"
+      required: true
+      level: 1
+
+    page_sections:
+      pattern: "## Page {number}"
+      required: true
+      level: 2
+      multiple: true
+
+    detected_headings:
+      pattern: "### {heading_text}"
+      required: false
+      level: 3
+      notes: "Only if structure detection succeeds"
+
+    paragraphs:
+      format: plain_text
+      required: true
+      notes: "Regular paragraphs without markdown formatting"
+
+    lists:
+      pattern: "- {item_text}"
+      required: false
+      notes: "Only if lists detected in PDF"
+
+validation_rules:
+  - name: valid_markdown_syntax
+    description: "Output must be syntactically valid markdown"
+    test: "Parse with markdown parser without errors"
+
+  - name: preserve_page_structure
+    description: "Each PDF page must have a section heading"
+    test: "Count '## Page' headings == page count"
+
+  - name: escape_special_chars
+    description: "Markdown special characters in content must be escaped"
+    test: "Check for unescaped * _ [ ] ( ) # in content text"
+
+  - name: heading_hierarchy
+    description: "Heading levels must be properly nested (H1 > H2 > H3)"
+    test: "H3 headings only appear after H2, never skip levels"
+
+  - name: no_empty_sections
+    description: "Page sections must contain text content"
+    test: "Each ## Page section has following content"
+
+error_handling:
+  invalid_pdf:
+    output: "# Error\n\n⚠️ Invalid or corrupted PDF file"
+    exit_code: 1
+
+  processing_failure:
+    output: "# PDF Document: {filename}\n\n⚠️ Processing failed: {error}"
+    exit_code: 1
+
+  partial_failure:
+    output: "Include successfully processed pages, note failures"
+    exit_code: 0
+
+example_output: |
+  # PDF Document: sample.pdf
+
+  ## Page 1
+
+  ### Introduction
+
+  This is the introduction paragraph with some text.
+
+  - First bullet point
+  - Second bullet point
+
+  Regular paragraph text continues here.
+
+  ## Page 2
+
+  Another paragraph on page 2.
+
+backward_compatibility:
+  - Plain text format (--format plain) must continue to work
+  - JSON format (--format json) must continue to work
+  - CSV format (--format csv) must continue to work
+  - Default format must not change
+
+test_cases:
+  - name: simple_pdf_markdown
+    input: "test.pdf"
+    expected:
+      - contains: "# PDF Document: test.pdf"
+      - contains: "## Page 1"
+      - matches: "^# .+\n\n## Page \\d+\n"
+
+  - name: pdf_with_lists
+    input: "document_with_lists.pdf"
+    expected:
+      - contains: "- "
+      - list_items: ">= 1"
+
+  - name: pdf_with_headings
+    input: "structured_document.pdf"
+    expected:
+      - contains: "###"
+      - heading_hierarchy: "valid"
+
+notes: |
+  - Structure detection is heuristic-based and may not detect all headings
+  - When in doubt, output as plain paragraphs (conservative approach)
+  - Page breaks always create H2 sections
+  - Font size analysis used for heading detection

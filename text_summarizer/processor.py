@@ -20,8 +20,8 @@ class TextSummarizer:
     def __init__(
         self,
         llm_client: Optional[Any] = None,
-        chunk_size: int = 10000,
-        chunk_overlap: int = 500,
+        chunk_size: Optional[int] = None,
+        chunk_overlap: Optional[int] = None,
         model: str = "llama3.2:latest",
         provider: str = "ollama",
     ):
@@ -30,14 +30,21 @@ class TextSummarizer:
 
         Args:
             llm_client: Optional custom LLM client
-            chunk_size: Words per chunk for large texts
-            chunk_overlap: Overlap words between chunks
+            chunk_size: Words per chunk for large texts (auto-detected if None)
+            chunk_overlap: Overlap words between chunks (auto-detected if None)
             model: Model name to use (default: "llama3.2:latest")
             provider: Provider to use - "ollama", "lmstudio", or "mlx" (default: "ollama")
 
         Raises:
             ValueError: If invalid parameters
         """
+        client = llm_client or get_default_llm_client(model, provider)
+        self.adapter = LLMAdapter(client, model)
+
+        # Auto-detect appropriate chunk sizes based on model
+        if chunk_size is None or chunk_overlap is None:
+            chunk_size, chunk_overlap = self._get_model_chunk_params(model)
+
         if chunk_size <= 0:
             raise ValueError("chunk_size must be positive")
         if chunk_overlap < 0:
@@ -45,10 +52,37 @@ class TextSummarizer:
         if chunk_size <= chunk_overlap:
             raise ValueError("chunk_size must be greater than chunk_overlap")
 
-        client = llm_client or get_default_llm_client(model, provider)
-        self.adapter = LLMAdapter(client, model)
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
+
+    def _get_model_chunk_params(self, model: str) -> tuple[int, int]:
+        """
+        Get appropriate chunk size and overlap for a given model.
+
+        Args:
+            model: Model name
+
+        Returns:
+            Tuple of (chunk_size, chunk_overlap) in words
+        """
+        # Model-specific chunk sizes based on context window and capabilities
+        model_lower = model.lower()
+
+        # Small models need smaller chunks
+        if any(name in model_lower for name in ["deepseek-r1:1.5b", "tiny", "small", "1.5b", "2b"]):
+            return 2000, 200  # Small chunk size with small overlap
+
+        # Medium models
+        elif any(name in model_lower for name in ["3b", "7b", "llama3.2", "mistral", "qwen"]):
+            return 4000, 300  # Medium chunk size
+
+        # Large models can handle bigger chunks
+        elif any(name in model_lower for name in ["8b", "13b", "30b", "70b", "llama3.1", "llama3"]):
+            return 6000, 400  # Large chunk size
+
+        # Default conservative settings
+        else:
+            return 3000, 250  # Conservative defaults
 
     def _build_prompt(self, text: str, is_chunk: bool = False) -> str:
         """Build prompt for LLM summarization using the template file."""
@@ -161,8 +195,8 @@ class TextSummarizer:
 def create_summarizer(
     llm_client: Optional[Any] = None,
     *,
-    chunk_size: int = 10000,
-    chunk_overlap: int = 500,
+    chunk_size: Optional[int] = None,
+    chunk_overlap: Optional[int] = None,
     model: str = "llama3.2:latest",
     provider: str = "ollama",
 ) -> TextSummarizer:
@@ -171,8 +205,8 @@ def create_summarizer(
 
     Args:
         llm_client: Optional custom LLM client (uses default if None)
-        chunk_size: Words per chunk for large texts (default: 10000)
-        chunk_overlap: Overlap words between chunks (default: 500)
+        chunk_size: Words per chunk for large texts (auto-detected if None)
+        chunk_overlap: Overlap words between chunks (auto-detected if None)
         model: Model name to use (default: "llama3.2:latest")
         provider: Provider to use - "ollama", "lmstudio", or "mlx" (default: "ollama")
 

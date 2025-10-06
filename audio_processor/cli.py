@@ -25,7 +25,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument("audio_files", nargs="+", help="Audio file paths (supports multiple files)")
 
     # Output format
-    parser.add_argument("--format", "-f", choices=["plain", "json"], default="plain", help="Output format (default: plain)")
+    parser.add_argument("--format", "-f", choices=["plain", "json", "markdown"], default="plain", help="Output format (default: plain)")
 
     # Model selection
     parser.add_argument("--model", "-m", default="medium", help="Whisper model selection (default: medium)")
@@ -87,6 +87,40 @@ def format_plain_output(result: ProcessingResult, verbose: bool = False) -> str:
             lines.append(f"✗ {r.audio_path}")
             lines.append(f"   Error: {r.error_message}")
         lines.append("")
+
+    return "\n".join(lines)
+
+
+def format_markdown_output(result: ProcessingResult) -> str:
+    """
+    Format processing result as markdown.
+
+    Args:
+        result: Processing result
+
+    Returns:
+        str: Formatted markdown output
+    """
+    import os
+    from audio_processor.markdown_formatter import format_markdown
+
+    # Format each successful transcription as markdown
+    if result.successful_count == 0:
+        return "# Error\n\nNo successful transcriptions."
+
+    # For single file, format directly
+    if result.successful_count == 1:
+        r = next(r for r in result.results if r.success)
+        result_dict = {"filename": os.path.basename(r.audio_path), "duration": r.processing_time, "model": r.model_used, "language": r.detected_language or "unknown", "segments": [{"start": 0.0, "end": r.processing_time, "text": r.text}]}
+        return format_markdown(result_dict)
+
+    # For multiple files, combine them
+    lines = ["# Audio Transcriptions", ""]
+    for r in result.results:
+        if r.success:
+            result_dict = {"filename": os.path.basename(r.audio_path), "duration": r.processing_time, "model": r.model_used, "language": r.detected_language or "unknown", "segments": [{"start": 0.0, "end": r.processing_time, "text": r.text}]}
+            lines.append(format_markdown(result_dict))
+            lines.append("")
 
     return "\n".join(lines)
 
@@ -161,6 +195,8 @@ def _handle_output(result, parsed_args):
     # Format output
     if parsed_args.format == "json":
         output = format_json_output(result)
+    elif parsed_args.format == "markdown":
+        output = format_markdown_output(result)
     else:
         output = format_plain_output(result, verbose=parsed_args.verbose)
 

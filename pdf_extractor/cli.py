@@ -218,7 +218,7 @@ def main():
     extract_parser = subparsers.add_parser("extract", help="Extract text from PDF")
     extract_parser.add_argument("file_path", help="Path to PDF file")
     extract_parser.add_argument("--stream", action="store_true", help="Enable streaming mode for large files")
-    extract_parser.add_argument("--format", choices=["plain", "json", "csv"], default="plain", help="Output format (default: plain)")
+    extract_parser.add_argument("--format", choices=["plain", "json", "csv", "markdown"], default="plain", help="Output format (default: plain)")
     extract_parser.add_argument("--progress", action="store_true", help="Show progress information")
 
     # Enhanced image processing options

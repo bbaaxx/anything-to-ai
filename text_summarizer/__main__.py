@@ -31,7 +31,25 @@ def read_input(file_path: Optional[str], use_stdin: bool) -> str:
 
 def format_output(result, output_format: str, include_metadata: bool) -> str:
     """Format output based on requested format."""
-    if output_format == "json":
+    if output_format == "markdown":
+        # Return markdown format
+        from .markdown_formatter import format_markdown
+
+        result_dict = {
+            "summary": result.summary,
+            "tags": result.tags,
+        }
+        if include_metadata and result.metadata:
+            result_dict["metadata"] = {
+                "input_length": result.metadata.input_length,
+                "chunked": result.metadata.chunked,
+                "chunk_count": result.metadata.chunk_count,
+                "detected_language": result.metadata.detected_language,
+                "processing_time": result.metadata.processing_time,
+            }
+        return format_markdown(result_dict)
+
+    elif output_format == "json":
         # Return JSON format
         data = {
             "summary": result.summary,
@@ -100,7 +118,7 @@ def main():
     )
     parser.add_argument(
         "--format",
-        choices=["json", "plain"],
+        choices=["json", "plain", "markdown"],
         default="json",
         help="Output format (default: json)",
     )

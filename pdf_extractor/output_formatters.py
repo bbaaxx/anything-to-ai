@@ -1,6 +1,7 @@
 """Output formatting utilities for CLI."""
 
 import json
+from .markdown_formatter import format_extraction_result
 
 
 class OutputFormatter:
@@ -16,16 +17,15 @@ class OutputFormatter:
                 "total_pages": result.total_pages,
                 "total_chars": result.total_chars,
                 "processing_time": result.processing_time,
-                "pages": [
-                    {
-                        "page_number": p.page_number,
-                        "text": p.text,
-                        "char_count": p.char_count,
-                        "extraction_time": p.extraction_time
-                    } for p in result.pages
-                ]
+                "pages": [{"page_number": p.page_number, "text": p.text, "char_count": p.char_count, "extraction_time": p.extraction_time} for p in result.pages],
             }
             print(json.dumps(output, indent=2))
+        elif format_type == "markdown":
+            import os
+
+            filename = os.path.basename(file_path)
+            markdown_output = format_extraction_result(result, filename)
+            print(markdown_output)
         else:
             for page in result.pages:
                 print(page.text)
@@ -39,16 +39,17 @@ class OutputFormatter:
                 "file_path": file_path,
                 "total_pages": len(pages),
                 "total_chars": sum(p.char_count for p in pages),
-                "pages": [
-                    {
-                        "page_number": p.page_number,
-                        "text": p.text,
-                        "char_count": p.char_count,
-                        "extraction_time": p.extraction_time
-                    } for p in pages
-                ]
+                "pages": [{"page_number": p.page_number, "text": p.text, "char_count": p.char_count, "extraction_time": p.extraction_time} for p in pages],
             }
             print(json.dumps(output, indent=2))
+        elif format_type == "markdown":
+            import os
+            from .markdown_formatter import format_markdown
+
+            filename = os.path.basename(file_path)
+            result_dict = {"filename": filename, "pages": [{"number": p.page_number, "text": p.text} for p in pages]}
+            markdown_output = format_markdown(result_dict)
+            print(markdown_output)
         else:
             for page in pages:
                 print(page.text)
@@ -78,9 +79,10 @@ class OutputFormatter:
                         "images_found": p.images_found,
                         "images_processed": p.images_processed,
                         "images_failed": p.images_failed,
-                        "enhanced_text": p.enhanced_text
-                    } for p in result.enhanced_pages
-                ]
+                        "enhanced_text": p.enhanced_text,
+                    }
+                    for p in result.enhanced_pages
+                ],
             }
             print(json.dumps(output, indent=2))
         elif format_type == "csv":
@@ -88,7 +90,7 @@ class OutputFormatter:
             for page in result.enhanced_pages:
                 # Escape text for CSV
                 text = page.enhanced_text or page.text
-                text = text.replace('"', '""').replace('\n', '\\n')
+                text = text.replace('"', '""').replace("\n", "\\n")
                 print(f'{page.page_number},"{text}",{page.images_found},{page.images_processed},{page.extraction_time}')
         else:
             # Plain text with enhanced content
@@ -123,9 +125,10 @@ class OutputFormatter:
                         "images_found": p.images_found,
                         "images_processed": p.images_processed,
                         "images_failed": p.images_failed,
-                        "enhanced_text": p.enhanced_text
-                    } for p in enhanced_pages
-                ]
+                        "enhanced_text": p.enhanced_text,
+                    }
+                    for p in enhanced_pages
+                ],
             }
             print(json.dumps(output, indent=2))
         else:

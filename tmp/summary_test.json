@@ -1,0 +1,15 @@
+{
+  "summary": "The task is to summarize an input text about AI's application in psychotherapy using specific tags. The text provides background on AI's role in technology and therapy but focuses specifically on its use in psychotherapy. The summary should be concise yet comprehensive, with at least three relevant tags that categorize the content effectively.\"}",
+  "tags": [
+    "summarize",
+    "input",
+    "about"
+  ],
+  "metadata": {
+    "input_length": 7119,
+    "chunked": true,
+    "chunk_count": 4,
+    "detected_language": null,
+    "processing_time": 64.813716173172
+  }
+}

@@ -1,0 +1,146 @@
+contract: Audio Markdown Output Format
+version: 1.0.0
+module: audio_processor
+date: 2025-10-02
+
+description: |
+  Contract for audio files transcribed with markdown output format.
+  Ensures transcriptions are formatted with timestamps and speaker labels.
+
+endpoint:
+  command: "uv run python -m audio_processor {file} --format markdown"
+  cli_flag: "--format markdown"
+
+input:
+  type: file
+  format: audio
+  supported:
+    - mp3
+    - wav
+    - m4a
+    - flac
+  constraints:
+    - must be valid audio file
+    - must be processable by Whisper
+  examples:
+    - "audio.mp3"
+    - "podcast.wav"
+
+output:
+  type: text
+  format: markdown
+  encoding: utf-8
+
+  structure:
+    document_title:
+      pattern: "# Transcription: {filename}"
+      required: true
+      level: 1
+
+    metadata_section:
+      format: unordered_list
+      required: true
+      fields:
+        - "- Duration: {HH:MM:SS}"
+        - "- Model: {model_name}"
+        - "- Language: {language_code}"
+      notes: "Audio metadata as bullet list"
+
+    transcript_segments:
+      pattern: "## [{timestamp}] {speaker}"
+      required: true
+      level: 2
+      multiple: true
+      notes: "Each segment gets H2 heading with timestamp and speaker"
+
+    segment_text:
+      format: paragraph
+      required: true
+      notes: "Transcript text for each segment"
+
+validation_rules:
+  - name: valid_markdown_syntax
+    description: "Output must be syntactically valid markdown"
+    test: "Parse with markdown parser without errors"
+
+  - name: timestamp_format
+    description: "Timestamps must follow HH:MM:SS or MM:SS format"
+    test: "All timestamps match \\[\\d{2}:\\d{2}(:\\d{2})?\\]"
+
+  - name: chronological_order
+    description: "Segments must appear in chronological order"
+    test: "Timestamps increase monotonically"
+
+  - name: metadata_present
+    description: "Metadata section must include duration, model, language"
+    test: "Check for required metadata fields"
+
+  - name: non_empty_segments
+    description: "All transcript segments must have text"
+    test: "No empty segment content"
+
+error_handling:
+  transcription_failure:
+    output: "# Transcription: {filename}\n\n⚠️ Transcription failed: {error}"
+    exit_code: 1
+
+  invalid_audio:
+    output: "# Error\n\n⚠️ Invalid or corrupted audio file"
+    exit_code: 1
+
+  partial_transcription:
+    output: "Include successfully transcribed segments, note gaps"
+    exit_code: 0
+
+example_output: |
+  # Transcription: podcast_episode.mp3
+
+  - Duration: 05:23
+  - Model: whisper-large-v3
+  - Language: en
+
+  ## [00:00:00] Speaker 1
+
+  Welcome to the podcast. Today we're discussing markdown formats and how they help with document processing.
+
+  ## [00:00:15] Speaker 2
+
+  That's right. Markdown is a great format for both humans and machines to read. It preserves structure while remaining simple.
+
+  ## [00:00:30] Speaker 1
+
+  Let's dive into the details of how this works in practice.
+
+backward_compatibility:
+  - Plain text format (--format plain) must continue to work
+  - JSON format (--format json) must continue to work
+  - Default format must not change
+
+test_cases:
+  - name: basic_audio_markdown
+    input: "test_audio.mp3"
+    expected:
+      - contains: "# Transcription: test_audio.mp3"
+      - contains: "- Duration:"
+      - contains: "## ["
+      - timestamp_count: ">= 1"
+
+  - name: audio_with_speakers
+    input: "conversation.wav"
+    expected:
+      - contains: "Speaker 1"
+      - contains: "Speaker 2"
+      - speaker_changes: ">= 1"
+
+  - name: long_audio_markdown
+    input: "long_recording.mp3"
+    expected:
+      - segment_count: ">= 10"
+      - timestamps_ordered: true
+
+notes: |
+  - Speaker detection depends on Whisper model capabilities
+  - If no speakers detected, use generic "Speaker" label
+  - Timestamps based on Whisper segment boundaries
+  - Transcript text preserves punctuation and capitalization
+  - Language auto-detected unless specified

@@ -95,6 +95,9 @@ makeme-a-podcast-from-docs/
 # Run tests
 uv run pytest
 
+# Run comprehensive human review test suite (quick integration test)
+./tests/human_review_quick_test
+
 # Code formatting and linting
 uv run ruff check .
 uv run ruff format .

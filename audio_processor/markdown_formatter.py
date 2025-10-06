@@ -1,0 +1,81 @@
+"""Markdown formatting for audio transcription results."""
+
+from typing import Dict, Any
+
+
+def format_markdown(result: Dict[str, Any]) -> str:
+    """
+    Format audio transcription result as markdown.
+
+    Args:
+        result: Dictionary with transcription data:
+            - filename: str - Audio filename
+            - duration: float - Duration in seconds
+            - model: str - Whisper model used
+            - language: str - Language code
+            - segments: List[Dict] - Transcript segments with optional timestamps/speakers
+
+    Returns:
+        str: Markdown-formatted transcript with structure:
+            - H1: Transcription title with filename
+            - Metadata: Duration, Model, Language as bullet list
+            - H2: Segments with timestamps and speakers (if available)
+            - Content: Transcript text (no escaping)
+
+    Note:
+        Special characters are NOT escaped per research.md decision (2025-10-02).
+        Fallback: If no speakers/timestamps, output as plain paragraphs.
+    """
+    filename = result.get("filename", "audio.mp3")
+    duration = result.get("duration", 0.0)
+    model = result.get("model", "unknown")
+    language = result.get("language", "en")
+    segments = result.get("segments", [])
+
+    # Build markdown document
+    lines = [f"# Transcription: {filename}", ""]
+
+    # Add metadata section
+    duration_formatted = _format_duration(duration)
+    lines.append(f"- Duration: {duration_formatted}")
+    lines.append(f"- Model: {model}")
+    lines.append(f"- Language: {language}")
+    lines.append("")
+
+    # Add transcript segments
+    for segment in segments:
+        text = segment.get("text", "")
+        start = segment.get("start", 0.0)
+        speaker = segment.get("speaker")
+
+        # Format with timestamp and speaker (always show for segments)
+        timestamp = _format_timestamp(start)
+        speaker_label = speaker if speaker else "Speaker"
+        lines.append(f"## [{timestamp}] {speaker_label}")
+        lines.append("")
+
+        # Add segment text (no escaping)
+        if text.strip():
+            lines.append(text.strip())
+            lines.append("")
+
+    # Fallback: If no segments, output plain text
+    if not segments and "text" in result:
+        lines.append(result["text"])
+        lines.append("")
+
+    return "\n".join(lines)
+
+
+def _format_duration(seconds: float) -> str:
+    """Format duration as HH:MM:SS."""
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    secs = int(seconds % 60)
+
+    return f"{hours:02d}:{minutes:02d}:{secs:02d}"
+
+
+def _format_timestamp(seconds: float) -> str:
+    """Format timestamp as HH:MM:SS."""
+    return _format_duration(seconds)
