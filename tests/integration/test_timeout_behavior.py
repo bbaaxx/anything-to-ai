@@ -9,7 +9,7 @@ import tempfile
 from unittest.mock import patch
 from PIL import Image
 
-from image_processor import create_config, process_image
+from anyfile_to_ai.image_processor import create_config, process_image
 
 
 class TestTimeoutBehavior:
@@ -107,7 +107,7 @@ class TestTimeoutBehavior:
         }
 
         with patch.dict(os.environ, env_vars):
-            from image_processor.exceptions import ValidationError
+            from anyfile_to_ai.image_processor.exceptions import ValidationError
 
             with pytest.raises(ValidationError):
                 create_config()

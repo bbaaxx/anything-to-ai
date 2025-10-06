@@ -8,11 +8,11 @@ import os
 from unittest.mock import patch
 
 # Import the module interfaces we're testing
-from image_processor import (
+from anyfile_to_ai.image_processor import (
     create_config, process_images, validate_model_availability,
     get_available_models, ProcessingConfig, DescriptionResult
 )
-from image_processor.exceptions import ValidationError
+from anyfile_to_ai.image_processor.exceptions import ValidationError
 
 
 class TestModuleAPIContract:
@@ -26,7 +26,7 @@ class TestModuleAPIContract:
             os.environ.pop('VISION_MODEL', None)
 
             # Should raise VLMConfigurationError when no VISION_MODEL set
-            from image_processor.vlm_exceptions import VLMConfigurationError
+            from anyfile_to_ai.image_processor.vlm_exceptions import VLMConfigurationError
             with pytest.raises(VLMConfigurationError) as exc_info:
                 create_config()
 
@@ -153,7 +153,7 @@ class TestModuleAPIContract:
             # Should be able to detect missing environment variable
             try:
                 # This should eventually check environment and fail appropriately
-                from image_processor.config import validate_vision_model_env
+                from anyfile_to_ai.image_processor.config import validate_vision_model_env
                 validate_vision_model_env()
                 pytest.fail("Should have raised ValidationError for missing VISION_MODEL")
             except ValidationError:
@@ -165,13 +165,13 @@ class TestModuleAPIContract:
         """Test that VLM-specific exceptions are available."""
         # This should FAIL initially - VLM exceptions not implemented
         try:
-            from image_processor.exceptions import (
+            from anyfile_to_ai.image_processor.exceptions import (
                 VLMConfigurationError, VLMModelLoadError, VLMProcessingError,
                 VLMTimeoutError, VLMModelNotFoundError
             )
 
             # All VLM exceptions should inherit from ImageProcessingError
-            from image_processor.exceptions import ImageProcessingError
+            from anyfile_to_ai.image_processor.exceptions import ImageProcessingError
 
             assert issubclass(VLMConfigurationError, ImageProcessingError)
             assert issubclass(VLMModelLoadError, ImageProcessingError)

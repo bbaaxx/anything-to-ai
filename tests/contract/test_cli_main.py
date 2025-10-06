@@ -1,7 +1,7 @@
 """Contract tests for CLI main() function."""
 
 from unittest.mock import patch
-from image_processor.cli import main
+from anyfile_to_ai.image_processor.cli import main
 
 
 class TestCliMainContract:

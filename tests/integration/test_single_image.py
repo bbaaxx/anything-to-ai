@@ -4,7 +4,7 @@ import pytest
 import tempfile
 import os
 from PIL import Image
-from image_processor import process_image, ProcessingConfig
+from anyfile_to_ai.image_processor import process_image, ProcessingConfig
 
 
 class TestSingleImageProcessing:

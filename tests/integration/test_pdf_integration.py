@@ -4,7 +4,7 @@ import pytest
 import tempfile
 import os
 from PIL import Image
-from image_processor import process_image, ProcessingConfig
+from anyfile_to_ai.image_processor import process_image, ProcessingConfig
 
 
 class TestPdfIntegration:
@@ -23,8 +23,8 @@ class TestPdfIntegration:
         """Test image processor can be imported alongside PDF processor."""
         # Test that both modules can be imported without conflicts
         try:
-            import pdf_extractor
-            import image_processor
+            import anyfile_to_ai.pdf_extractor
+            import anyfile_to_ai.image_processor
 
             # Both should be importable
             assert hasattr(pdf_extractor, 'extract_text')
@@ -36,8 +36,8 @@ class TestPdfIntegration:
     def test_unified_document_processing_workflow(self, sample_image):
         """Test unified workflow processing both PDF and image content."""
         try:
-            from pdf_extractor import extract_text
-            from image_processor import process_image
+            from anyfile_to_ai.pdf_extractor import extract_text
+            from anyfile_to_ai.image_processor import process_image
 
             # Simulate processing document with both text and images
             def process_document_assets(pdf_path, image_paths):
@@ -71,8 +71,8 @@ class TestPdfIntegration:
     def test_consistent_error_handling_patterns(self, sample_image):
         """Test that error handling patterns are consistent between modules."""
         try:
-            from pdf_extractor.exceptions import PDFExtractionError
-            from image_processor.exceptions import ImageProcessingError
+            from anyfile_to_ai.pdf_extractor.exceptions import PDFExtractionError
+            from anyfile_to_ai.image_processor.exceptions import ImageProcessingError
 
             # Both should inherit from Exception and follow similar patterns
             assert issubclass(PDFExtractionError, Exception)
@@ -113,7 +113,7 @@ class TestPdfIntegration:
 
     def test_configuration_pattern_consistency(self):
         """Test that configuration patterns are consistent between modules."""
-        from image_processor import ProcessingConfig, create_config
+        from anyfile_to_ai.image_processor import ProcessingConfig, create_config
 
         # Test that config creation follows expected patterns
         config = create_config(
@@ -144,7 +144,7 @@ class TestPdfIntegration:
 
     def test_module_version_compatibility(self):
         """Test that module versions are compatible."""
-        import image_processor
+        import anyfile_to_ai.image_processor
 
         # Should have version information
         assert hasattr(image_processor, '__version__')
@@ -152,7 +152,7 @@ class TestPdfIntegration:
 
     def test_api_surface_consistency(self):
         """Test that API surface follows consistent patterns."""
-        import image_processor
+        import anyfile_to_ai.image_processor
 
         # Core functions should be available
         expected_functions = [

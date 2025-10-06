@@ -32,8 +32,8 @@ class TestBasicPDFImageExtraction:
     def test_extract_pdf_with_images_enabled(self, sample_pdf_with_images, vision_model_env):
         """Test extracting PDF with image processing enabled."""
         try:
-            from pdf_extractor.image_integration import PDFImageProcessor
-            from pdf_extractor.enhanced_models import EnhancedExtractionConfig
+            from anyfile_to_ai.pdf_extractor.image_integration import PDFImageProcessor
+            from anyfile_to_ai.pdf_extractor.enhanced_models import EnhancedExtractionConfig
 
             config = EnhancedExtractionConfig(include_images=True)
             processor = PDFImageProcessor()
@@ -58,8 +58,8 @@ class TestBasicPDFImageExtraction:
     def test_extract_pdf_with_images_disabled(self, sample_pdf_with_images):
         """Test extracting PDF with image processing disabled."""
         try:
-            from pdf_extractor.image_integration import PDFImageProcessor
-            from pdf_extractor.enhanced_models import EnhancedExtractionConfig
+            from anyfile_to_ai.pdf_extractor.image_integration import PDFImageProcessor
+            from anyfile_to_ai.pdf_extractor.enhanced_models import EnhancedExtractionConfig
 
             config = EnhancedExtractionConfig(include_images=False)
             processor = PDFImageProcessor()
@@ -78,8 +78,8 @@ class TestBasicPDFImageExtraction:
     def test_extract_pdf_streaming_with_images(self, sample_pdf_with_images, vision_model_env):
         """Test streaming PDF extraction with image processing."""
         try:
-            from pdf_extractor.image_integration import PDFImageProcessor
-            from pdf_extractor.enhanced_models import EnhancedExtractionConfig
+            from anyfile_to_ai.pdf_extractor.image_integration import PDFImageProcessor
+            from anyfile_to_ai.pdf_extractor.enhanced_models import EnhancedExtractionConfig
 
             config = EnhancedExtractionConfig(include_images=True)
             processor = PDFImageProcessor()
@@ -109,7 +109,7 @@ class TestImageContextExtraction:
     def test_extract_images_from_pdf_page(self, sample_pdf_with_images):
         """Test extracting image contexts from a PDF page."""
         try:
-            from pdf_extractor.image_integration import ImageExtractor
+            from anyfile_to_ai.pdf_extractor.image_integration import ImageExtractor
 
             extractor = ImageExtractor()
 
@@ -139,7 +139,7 @@ class TestImageContextExtraction:
     def test_crop_image_from_pdf_page(self, sample_pdf_with_images):
         """Test cropping an image from a PDF page."""
         try:
-            from pdf_extractor.image_integration import ImageExtractor
+            from anyfile_to_ai.pdf_extractor.image_integration import ImageExtractor
 
             extractor = ImageExtractor()
 
@@ -168,7 +168,7 @@ class TestVLMIntegration:
     def test_vlm_processing_with_circuit_breaker(self, vision_model_env):
         """Test VLM processing with circuit breaker protection."""
         try:
-            from pdf_extractor.image_integration import VLMCircuitBreaker
+            from anyfile_to_ai.pdf_extractor.image_integration import VLMCircuitBreaker
 
             breaker = VLMCircuitBreaker()
 
@@ -195,8 +195,8 @@ class TestVLMIntegration:
     def test_image_description_processing(self, sample_pdf_with_images, vision_model_env):
         """Test image description processing with VLM."""
         try:
-            from pdf_extractor.image_integration import PDFImageProcessor
-            from pdf_extractor.enhanced_models import EnhancedExtractionConfig
+            from anyfile_to_ai.pdf_extractor.image_integration import PDFImageProcessor
+            from anyfile_to_ai.pdf_extractor.enhanced_models import EnhancedExtractionConfig
 
             config = EnhancedExtractionConfig(
                 include_images=True,
@@ -234,9 +234,9 @@ class TestErrorHandlingIntegration:
     def test_missing_vision_model_error(self, sample_pdf_with_images):
         """Test error when VISION_MODEL not configured."""
         try:
-            from pdf_extractor.image_integration import PDFImageProcessor
-            from pdf_extractor.enhanced_models import EnhancedExtractionConfig
-            from pdf_extractor.exceptions import VLMConfigurationError
+            from anyfile_to_ai.pdf_extractor.image_integration import PDFImageProcessor
+            from anyfile_to_ai.pdf_extractor.enhanced_models import EnhancedExtractionConfig
+            from anyfile_to_ai.pdf_extractor.exceptions import VLMConfigurationError
 
             config = EnhancedExtractionConfig(include_images=True)
             processor = PDFImageProcessor()
@@ -252,8 +252,8 @@ class TestErrorHandlingIntegration:
     def test_partial_image_processing_failure(self, sample_pdf_with_images, vision_model_env):
         """Test handling partial image processing failures."""
         try:
-            from pdf_extractor.image_integration import PDFImageProcessor
-            from pdf_extractor.enhanced_models import EnhancedExtractionConfig
+            from anyfile_to_ai.pdf_extractor.image_integration import PDFImageProcessor
+            from anyfile_to_ai.pdf_extractor.enhanced_models import EnhancedExtractionConfig
 
             config = EnhancedExtractionConfig(
                 include_images=True,
@@ -285,9 +285,9 @@ class TestErrorHandlingIntegration:
     def test_pdf_file_not_found_error(self):
         """Test error when PDF file doesn't exist."""
         try:
-            from pdf_extractor.image_integration import PDFImageProcessor
-            from pdf_extractor.enhanced_models import EnhancedExtractionConfig
-            from pdf_extractor.exceptions import PDFNotFoundError
+            from anyfile_to_ai.pdf_extractor.image_integration import PDFImageProcessor
+            from anyfile_to_ai.pdf_extractor.enhanced_models import EnhancedExtractionConfig
+            from anyfile_to_ai.pdf_extractor.exceptions import PDFNotFoundError
 
             config = EnhancedExtractionConfig()
             processor = PDFImageProcessor()
@@ -305,8 +305,8 @@ class TestConfigurationValidation:
     def test_enhanced_extraction_config_validation(self):
         """Test EnhancedExtractionConfig validation."""
         try:
-            from pdf_extractor.enhanced_models import EnhancedExtractionConfig
-            from pdf_extractor.exceptions import ConfigurationValidationError
+            from anyfile_to_ai.pdf_extractor.enhanced_models import EnhancedExtractionConfig
+            from anyfile_to_ai.pdf_extractor.exceptions import ConfigurationValidationError
 
             # Valid configuration should work
             EnhancedExtractionConfig(
@@ -326,8 +326,8 @@ class TestConfigurationValidation:
     def test_image_processing_config_integration(self, vision_model_env):
         """Test integration with image processing configuration."""
         try:
-            from pdf_extractor.enhanced_models import EnhancedExtractionConfig
-            from image_processor.config import ProcessingConfig
+            from anyfile_to_ai.pdf_extractor.enhanced_models import EnhancedExtractionConfig
+            from anyfile_to_ai.image_processor.config import ProcessingConfig
 
             # Should be able to integrate with image processor config
             image_config = ProcessingConfig(description_style="brief")
@@ -348,8 +348,8 @@ class TestPerformanceAndMemory:
     def test_batch_processing_memory_management(self, sample_pdf_with_images, vision_model_env):
         """Test batch processing manages memory properly."""
         try:
-            from pdf_extractor.image_integration import PDFImageProcessor
-            from pdf_extractor.enhanced_models import EnhancedExtractionConfig
+            from anyfile_to_ai.pdf_extractor.image_integration import PDFImageProcessor
+            from anyfile_to_ai.pdf_extractor.enhanced_models import EnhancedExtractionConfig
 
             # Use small batch size to test batching
             config = EnhancedExtractionConfig(
@@ -371,8 +371,8 @@ class TestPerformanceAndMemory:
     def test_large_pdf_streaming_performance(self, vision_model_env):
         """Test streaming performance with large PDFs."""
         try:
-            from pdf_extractor.image_integration import PDFImageProcessor
-            from pdf_extractor.enhanced_models import EnhancedExtractionConfig
+            from anyfile_to_ai.pdf_extractor.image_integration import PDFImageProcessor
+            from anyfile_to_ai.pdf_extractor.enhanced_models import EnhancedExtractionConfig
 
             config = EnhancedExtractionConfig(include_images=True)
             processor = PDFImageProcessor()

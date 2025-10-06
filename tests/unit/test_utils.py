@@ -3,10 +3,10 @@
 import tempfile
 import os
 from PIL import Image
-from image_processor.processor import SUPPORTED_FORMATS
-from image_processor.progress import ProgressTracker
-from image_processor.cli import expand_image_paths, format_output
-from image_processor.models import ProcessingResult, DescriptionResult
+from anyfile_to_ai.image_processor.processor import SUPPORTED_FORMATS
+from anyfile_to_ai.image_processor.progress import ProgressTracker
+from anyfile_to_ai.image_processor.cli import expand_image_paths, format_output
+from anyfile_to_ai.image_processor.models import ProcessingResult, DescriptionResult
 
 
 class TestUtilityFunctions:

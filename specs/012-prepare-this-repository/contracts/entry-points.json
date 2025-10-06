@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CLI Entry Points Contract",
+  "description": "Contract for CLI entry point configuration",
+  "type": "object",
+  "required": [
+    "pdf-extractor",
+    "image-processor", 
+    "audio-processor",
+    "text-summarizer"
+  ],
+  "properties": {
+    "pdf-extractor": {
+      "type": "string",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_]*\\.[a-zA-Z][a-zA-Z0-9_]*:[a-zA-Z][a-zA-Z0-9_]*$",
+      "description": "PDF extractor CLI entry point"
+    },
+    "image-processor": {
+      "type": "string",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_]*\\.[a-zA-Z][a-zA-Z0-9_]*:[a-zA-Z][a-zA-Z0-9_]*$",
+      "description": "Image processor CLI entry point"
+    },
+    "audio-processor": {
+      "type": "string",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_]*\\.[a-zA-Z][a-zA-Z0-9_]*:[a-zA-Z][a-zA-Z0-9_]*$",
+      "description": "Audio processor CLI entry point"
+    },
+    "text-summarizer": {
+      "type": "string",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_]*\\.[a-zA-Z][a-zA-Z0-9_]*:[a-zA-Z][a-zA-Z0-9_]*$",
+      "description": "Text summarizer CLI entry point"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,6 +1,6 @@
 """Contract tests for error message formatting."""
 
-from image_processor.exceptions import (
+from anyfile_to_ai.image_processor.exceptions import (
     ImageNotFoundError,
     UnsupportedFormatError,
     CorruptedImageError,

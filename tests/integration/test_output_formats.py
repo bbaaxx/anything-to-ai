@@ -13,7 +13,7 @@ class TestOutputFormats:
     def test_plain_text_output_format(self):
         """Test that plain text output format works."""
         pytest.skip("Test audio file not available yet")
-        import audio_processor
+        import anyfile_to_ai.audio_processor
 
         config = audio_processor.create_config(output_format="plain")
         result = audio_processor.process_audio("sample-data/audio/speech.mp3", config)
@@ -25,7 +25,7 @@ class TestOutputFormats:
     def test_json_output_format(self):
         """Test that JSON output format works."""
         pytest.skip("Test audio file not available yet")
-        import audio_processor
+        import anyfile_to_ai.audio_processor
 
         config = audio_processor.create_config(output_format="json")
         result = audio_processor.process_audio("sample-data/audio/speech.mp3", config)
@@ -49,7 +49,7 @@ class TestOutputFormats:
     def test_batch_results_json_serializable(self):
         """Test that batch results are JSON serializable."""
         pytest.skip("Test audio files not available yet")
-        import audio_processor
+        import anyfile_to_ai.audio_processor
 
         files = [
             "sample-data/audio/speech.mp3",
@@ -88,8 +88,8 @@ class TestOutputFormats:
 
     def test_output_format_validation(self):
         """Test that invalid output format raises error."""
-        import audio_processor
-        from audio_processor import ValidationError
+        import anyfile_to_ai.audio_processor
+        from anyfile_to_ai.audio_processor import ValidationError
 
         with pytest.raises(ValidationError):
             audio_processor.create_config(output_format="invalid")

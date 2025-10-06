@@ -2,7 +2,7 @@
 
 import pytest
 from pydantic import ValidationError
-from text_summarizer.models import (
+from anyfile_to_ai.text_summarizer.models import (
     SummaryRequest,
     SummaryResult,
     SummaryMetadata,

@@ -1,6 +1,6 @@
 """Integration tests for text summary markdown output."""
 
-from text_summarizer.markdown_formatter import format_markdown
+from anyfile_to_ai.text_summarizer.markdown_formatter import format_markdown
 
 
 class TestTextMarkdownIntegration:

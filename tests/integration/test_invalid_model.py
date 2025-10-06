@@ -7,8 +7,8 @@ import pytest
 import os
 from unittest.mock import patch
 
-from image_processor import create_config, process_image
-from image_processor.exceptions import ValidationError
+from anyfile_to_ai.image_processor import create_config, process_image
+from anyfile_to_ai.image_processor.exceptions import ValidationError
 
 
 class TestInvalidModelHandling:
@@ -26,7 +26,7 @@ class TestInvalidModelHandling:
         """Test model validation catches invalid models."""
         # This should FAIL initially - model validation not implemented
         try:
-            from image_processor import validate_model_availability
+            from anyfile_to_ai.image_processor import validate_model_availability
 
             result = validate_model_availability('nonexistent/invalid-model')
             assert result is False
@@ -90,7 +90,7 @@ class TestInvalidModelHandling:
             # This test would need to mock network failures
             # For now, just test that the interface exists
             try:
-                from image_processor.model_registry import VLMModelRegistry
+                from anyfile_to_ai.image_processor.model_registry import VLMModelRegistry
 
                 registry = VLMModelRegistry()
 
@@ -121,7 +121,7 @@ class TestInvalidModelHandling:
             # This test would need to simulate memory constraints
             # For now, verify error handling interfaces exist
             try:
-                from image_processor.vlm_exceptions import VLMModelLoadError
+                from anyfile_to_ai.image_processor.vlm_exceptions import VLMModelLoadError
 
                 # Should be able to create memory-related error
                 error = VLMModelLoadError(
@@ -149,7 +149,7 @@ class TestInvalidModelHandling:
         # This should FAIL initially - format validation not implemented
         with patch.dict(os.environ, {'VISION_MODEL': 'unsupported/model-format'}):
             try:
-                from image_processor import validate_model_availability
+                from anyfile_to_ai.image_processor import validate_model_availability
 
                 # Should detect unsupported formats
                 result = validate_model_availability('unsupported/model-format')
@@ -165,7 +165,7 @@ class TestInvalidModelHandling:
             # This test would check for version compatibility
             # For now, verify that version info is tracked
             try:
-                from image_processor.model_registry import LoadedModel
+                from anyfile_to_ai.image_processor.model_registry import LoadedModel
 
                 # LoadedModel should track version information
                 model_attrs = ['model_version', 'capabilities']
@@ -183,7 +183,7 @@ class TestInvalidModelHandling:
             # This test would simulate concurrent access
             # For now, verify that registry handles single instance
             try:
-                from image_processor.model_registry import VLMModelRegistry
+                from anyfile_to_ai.image_processor.model_registry import VLMModelRegistry
 
                 registry1 = VLMModelRegistry()
                 registry2 = VLMModelRegistry()
@@ -200,7 +200,7 @@ class TestInvalidModelHandling:
         # This should FAIL initially - cleanup error handling not implemented
         with patch.dict(os.environ, {'VISION_MODEL': 'google/gemma-3-4b'}):
             try:
-                from image_processor.model_registry import VLMModelRegistry
+                from anyfile_to_ai.image_processor.model_registry import VLMModelRegistry
 
                 registry = VLMModelRegistry()
 
@@ -218,7 +218,7 @@ class TestInvalidModelHandling:
             # This test would simulate invalid model responses
             # For now, verify that response validation exists
             try:
-                from image_processor.vlm_processor import VLMProcessor
+                from anyfile_to_ai.image_processor.vlm_processor import VLMProcessor
 
                 processor = VLMProcessor()
 

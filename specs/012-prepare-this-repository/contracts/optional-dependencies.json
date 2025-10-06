@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Optional Dependencies Contract",
+  "description": "Contract for optional dependency configuration",
+  "type": "object",
+  "required": [
+    "pdf",
+    "image",
+    "audio", 
+    "text",
+    "all"
+  ],
+  "properties": {
+    "pdf": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*(>=|==|!=|~=|<|>|<=)[^\\s]+$"
+      },
+      "description": "PDF extraction module dependencies"
+    },
+    "image": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*(>=|==|!=|~=|<|>|<=)[^\\s]+$"
+      },
+      "description": "Image processing module dependencies"
+    },
+    "audio": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*(>=|==|!=|~=|<|>|<=)[^\\s]+$"
+      },
+      "description": "Audio transcription module dependencies"
+    },
+    "text": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*(>=|==|!=|~=|<|>|<=)[^\\s]+$"
+      },
+      "description": "Text summarization module dependencies"
+    },
+    "all": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*(>=|==|!=|~=|<|>|<=)[^\\s]+$"
+      },
+      "description": "All module dependencies combined"
+    },
+    "dev": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*(>=|==|!=|~=|<|>|<=)[^\\s]+$"
+      },
+      "description": "Development dependencies"
+    }
+  },
+  "additionalProperties": false
+}

@@ -2,7 +2,7 @@
 
 import pytest
 import time
-from progress_tracker.models import ProgressState, ProgressUpdate, UpdateType, ProgressConsumer
+from anyfile_to_ai.progress_tracker.models import ProgressState, ProgressUpdate, UpdateType, ProgressConsumer
 
 
 class TestProgressState:

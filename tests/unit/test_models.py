@@ -1,6 +1,6 @@
 """Unit tests for model validation."""
 
-from image_processor.models import ImageDocument, DescriptionResult, ProcessingResult, ProcessingConfig
+from anyfile_to_ai.image_processor.models import ImageDocument, DescriptionResult, ProcessingResult, ProcessingConfig
 
 
 class TestModelValidation:

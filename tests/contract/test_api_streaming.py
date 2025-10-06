@@ -1,8 +1,8 @@
 """Contract tests for process_images_streaming() API function."""
 
 import pytest
-from image_processor import process_images_streaming, ProcessingConfig, DescriptionResult
-from image_processor.exceptions import ValidationError
+from anyfile_to_ai.image_processor import process_images_streaming, ProcessingConfig, DescriptionResult
+from anyfile_to_ai.image_processor.exceptions import ValidationError
 
 
 class TestStreamingProcessingContract:

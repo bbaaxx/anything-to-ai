@@ -99,7 +99,7 @@ class TestModulePiping:
     """Integration tests for module piping."""
 
     @pytest.mark.skipif(
-        subprocess.run([sys.executable, "-c", "import pdf_extractor"], capture_output=True).returncode != 0,
+        subprocess.run([sys.executable, "-c", "import anyfile_to_ai.pdf_extractor"], capture_output=True).returncode != 0,
         reason="pdf_extractor module not available",
     )
     def test_scenario_7_pdf_to_summarizer_pipeline(self):
@@ -107,7 +107,7 @@ class TestModulePiping:
         pytest.skip("Requires pdf_extractor implementation")
 
     @pytest.mark.skipif(
-        subprocess.run([sys.executable, "-c", "import audio_processor"], capture_output=True).returncode != 0,
+        subprocess.run([sys.executable, "-c", "import anyfile_to_ai.audio_processor"], capture_output=True).returncode != 0,
         reason="audio_processor module not available",
     )
     def test_scenario_8_audio_to_summarizer_pipeline(self):
@@ -115,7 +115,7 @@ class TestModulePiping:
         pytest.skip("Requires audio_processor implementation")
 
     @pytest.mark.skipif(
-        subprocess.run([sys.executable, "-c", "import image_processor"], capture_output=True).returncode != 0,
+        subprocess.run([sys.executable, "-c", "import anyfile_to_ai.image_processor"], capture_output=True).returncode != 0,
         reason="image_processor module not available",
     )
     def test_scenario_9_image_to_summarizer_pipeline(self):

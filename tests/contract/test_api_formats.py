@@ -1,6 +1,6 @@
 """Contract tests for get_supported_formats() API function."""
 
-from image_processor import get_supported_formats
+from anyfile_to_ai.image_processor import get_supported_formats
 
 
 class TestSupportedFormatsContract:

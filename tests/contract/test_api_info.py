@@ -1,8 +1,8 @@
 """Contract tests for get_image_info() API function."""
 
 import pytest
-from image_processor import get_image_info
-from image_processor.exceptions import ImageNotFoundError, CorruptedImageError
+from anyfile_to_ai.image_processor import get_image_info
+from anyfile_to_ai.image_processor.exceptions import ImageNotFoundError, CorruptedImageError
 
 
 class TestGetImageInfoContract:

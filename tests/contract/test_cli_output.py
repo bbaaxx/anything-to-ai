@@ -1,8 +1,8 @@
 """Contract tests for CLI output formatting functions."""
 
 import json
-from image_processor.cli import format_output, format_single_result
-from image_processor import ProcessingResult, DescriptionResult
+from anyfile_to_ai.image_processor.cli import format_output, format_single_result
+from anyfile_to_ai.image_processor import ProcessingResult, DescriptionResult
 
 
 class TestCliOutputFormattingContract:

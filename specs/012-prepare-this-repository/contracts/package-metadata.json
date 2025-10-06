@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Package Metadata Contract",
+  "description": "Contract for Python package metadata configuration",
+  "type": "object",
+  "required": [
+    "name",
+    "version",
+    "description",
+    "readme",
+    "requires-python",
+    "license",
+    "authors"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "Package name following Python conventions"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version (X.Y.Z)"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "Package description for PyPI"
+    },
+    "readme": {
+      "type": "string",
+      "description": "Path to README file"
+    },
+    "requires-python": {
+      "type": "string",
+      "pattern": "^>=\\d+\\.\\d+$",
+      "description": "Minimum Python version requirement"
+    },
+    "license": {
+      "type": "string",
+      "description": "License identifier"
+    },
+    "authors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Author name"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Author email"
+          }
+        }
+      },
+      "minItems": 1,
+      "description": "List of package authors"
+    },
+    "maintainers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Maintainer name"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Maintainer email"
+          }
+        }
+      },
+      "description": "List of package maintainers"
+    },
+    "keywords": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Package keywords for discovery"
+    },
+    "classifiers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "PyPI classifiers"
+    },
+    "urls": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "type": "string",
+          "format": "uri",
+          "description": "Source code repository URL"
+        },
+        "documentation": {
+          "type": "string",
+          "format": "uri",
+          "description": "Documentation URL"
+        },
+        "homepage": {
+          "type": "string",
+          "format": "uri",
+          "description": "Project homepage URL"
+        }
+      },
+      "description": "Project URLs"
+    }
+  }
+}

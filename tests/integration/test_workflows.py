@@ -1,8 +1,8 @@
 """Integration tests for PDF processing workflows."""
 import pytest
-from pdf_extractor import extract_text, extract_text_streaming, get_pdf_info
-from pdf_extractor import ExtractionConfig
-from pdf_extractor.exceptions import (
+from anyfile_to_ai.pdf_extractor import extract_text, extract_text_streaming, get_pdf_info
+from anyfile_to_ai.pdf_extractor import ExtractionConfig
+from anyfile_to_ai.pdf_extractor.exceptions import (
     PDFNotFoundError,
     PDFCorruptedError,
     PDFPasswordProtectedError,

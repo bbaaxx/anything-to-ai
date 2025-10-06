@@ -1,6 +1,6 @@
 """Integration tests for audio markdown output."""
 
-from audio_processor.markdown_formatter import format_markdown
+from anyfile_to_ai.audio_processor.markdown_formatter import format_markdown
 
 
 class TestAudioMarkdownIntegration:

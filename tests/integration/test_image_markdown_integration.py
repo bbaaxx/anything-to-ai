@@ -1,6 +1,6 @@
 """Integration tests for image markdown output."""
 
-from image_processor.markdown_formatter import format_markdown
+from anyfile_to_ai.image_processor.markdown_formatter import format_markdown
 
 
 class TestImageMarkdownIntegration:

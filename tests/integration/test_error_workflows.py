@@ -14,9 +14,9 @@ class TestMissingVLMError:
     def test_missing_vision_model_error_workflow(self):
         """Test workflow when VISION_MODEL environment variable is missing."""
         try:
-            from pdf_extractor.image_integration import PDFImageProcessor
-            from pdf_extractor.enhanced_models import EnhancedExtractionConfig
-            from pdf_extractor.exceptions import VLMConfigurationError
+            from anyfile_to_ai.pdf_extractor.image_integration import PDFImageProcessor
+            from anyfile_to_ai.pdf_extractor.enhanced_models import EnhancedExtractionConfig
+            from anyfile_to_ai.pdf_extractor.exceptions import VLMConfigurationError
 
             config = EnhancedExtractionConfig(include_images=True)
             processor = PDFImageProcessor()
@@ -36,8 +36,8 @@ class TestPartialProcessingFailure:
     def test_some_images_fail_processing(self):
         """Test when some images fail to process but others succeed."""
         try:
-            from pdf_extractor.image_integration import PDFImageProcessor
-            from pdf_extractor.enhanced_models import EnhancedExtractionConfig
+            from anyfile_to_ai.pdf_extractor.image_integration import PDFImageProcessor
+            from anyfile_to_ai.pdf_extractor.enhanced_models import EnhancedExtractionConfig
 
             config = EnhancedExtractionConfig(
                 include_images=True,

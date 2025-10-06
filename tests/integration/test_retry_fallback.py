@@ -20,13 +20,13 @@ errors) which are covered by the remaining tests.
 """
 
 import pytest
-from llm_client import (
+from anyfile_to_ai.llm_client import (
     LLMClient,
     LLMConfig,
     LLMRequest,
     Message,
 )
-from llm_client.exceptions import (
+from anyfile_to_ai.llm_client.exceptions import (
     ConnectionError as LLMConnectionError,
 )
 

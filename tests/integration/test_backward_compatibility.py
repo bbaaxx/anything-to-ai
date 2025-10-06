@@ -22,7 +22,7 @@ class TestExistingAPICompatibility:
     def test_original_extract_text_function(self, sample_pdf):
         """Test that original extract_text function works unchanged."""
         try:
-            from pdf_extractor import extract_text
+            from anyfile_to_ai.pdf_extractor import extract_text
 
             with patch("os.path.exists", return_value=True):
                 # Mock pdfplumber
@@ -50,8 +50,8 @@ class TestExistingAPICompatibility:
     def test_original_extract_text_streaming(self, sample_pdf):
         """Test that original streaming function works unchanged."""
         try:
-            from pdf_extractor import extract_text_streaming
-            from pdf_extractor.models import ExtractionConfig
+            from anyfile_to_ai.pdf_extractor import extract_text_streaming
+            from anyfile_to_ai.pdf_extractor.models import ExtractionConfig
 
             config = ExtractionConfig()
 
@@ -84,7 +84,7 @@ class TestExistingAPICompatibility:
     def test_original_models_unchanged(self):
         """Test that original data models remain unchanged."""
         try:
-            from pdf_extractor.models import PDFDocument, PageResult, ExtractionResult, ExtractionConfig
+            from anyfile_to_ai.pdf_extractor.models import PDFDocument, PageResult, ExtractionResult, ExtractionConfig
 
             # Test original model structures
             config = ExtractionConfig()
@@ -113,7 +113,7 @@ class TestCLIBackwardCompatibility:
     def test_original_cli_commands(self, sample_pdf):
         """Test that original CLI commands work unchanged."""
         try:
-            from pdf_extractor.cli import PDFExtractorCLI
+            from anyfile_to_ai.pdf_extractor.cli import PDFExtractorCLI
 
             cli = PDFExtractorCLI()
 
@@ -136,7 +136,7 @@ class TestCLIBackwardCompatibility:
     def test_cli_output_format_compatibility(self, sample_pdf):
         """Test that CLI output formats remain compatible."""
         try:
-            from pdf_extractor import extract_text
+            from anyfile_to_ai.pdf_extractor import extract_text
 
             with patch("os.path.exists", return_value=True):
                 with patch("pdfplumber.open") as mock_pdf:
@@ -148,7 +148,7 @@ class TestCLIBackwardCompatibility:
                     result = extract_text(sample_pdf)
 
                     # Convert to CLI output format
-                    from pdf_extractor.cli import format_output
+                    from anyfile_to_ai.pdf_extractor.cli import format_output
 
                     # Plain text format should work
                     text_output = format_output(result, "plain")
@@ -169,7 +169,7 @@ class TestExceptionBackwardCompatibility:
     def test_original_exceptions_available(self):
         """Test that original exceptions are still available."""
         try:
-            from pdf_extractor.exceptions import PDFExtractionError, PDFNotFoundError, PDFCorruptedError, PDFPasswordProtectedError, PDFNoTextError
+            from anyfile_to_ai.pdf_extractor.exceptions import PDFExtractionError, PDFNotFoundError, PDFCorruptedError, PDFPasswordProtectedError, PDFNoTextError
 
             # Should be able to create instances
             base_error = PDFExtractionError("test error")
@@ -186,7 +186,7 @@ class TestExceptionBackwardCompatibility:
     def test_exception_hierarchy_preserved(self):
         """Test that original exception hierarchy is preserved."""
         try:
-            from pdf_extractor.exceptions import PDFExtractionError, PDFNotFoundError, PDFCorruptedError
+            from anyfile_to_ai.pdf_extractor.exceptions import PDFExtractionError, PDFNotFoundError, PDFCorruptedError
 
             # Original hierarchy should be maintained
             assert issubclass(PDFNotFoundError, PDFExtractionError)
@@ -204,9 +204,9 @@ class TestModuleImportCompatibility:
         """Test that original import statements continue to work."""
         try:
             # All original imports should work (except deprecated progress.py)
-            from pdf_extractor import extract_text, extract_text_streaming
-            from pdf_extractor.models import PDFDocument, PageResult, ExtractionResult
-            from pdf_extractor.exceptions import PDFExtractionError
+            from anyfile_to_ai.pdf_extractor import extract_text, extract_text_streaming
+            from anyfile_to_ai.pdf_extractor.models import PDFDocument, PageResult, ExtractionResult
+            from anyfile_to_ai.pdf_extractor.exceptions import PDFExtractionError
             # Note: pdf_extractor.progress was deprecated and removed in Phase 4
             # Use progress_tracker.ProgressEmitter instead
 
@@ -220,7 +220,7 @@ class TestModuleImportCompatibility:
     def test_module_structure_preserved(self):
         """Test that original module structure is preserved."""
         try:
-            import pdf_extractor
+            import anyfile_to_ai.pdf_extractor
 
             # Check __all__ includes original exports
             expected_exports = {"extract_text", "extract_text_streaming", "get_pdf_info", "PDFDocument", "PageResult", "ExtractionResult", "ExtractionConfig", "PDFExtractionError", "PDFNotFoundError", "PDFCorruptedError"}
@@ -238,8 +238,8 @@ class TestBehavioralCompatibility:
     def test_same_output_for_same_input(self, sample_pdf):
         """Test that same input produces same output as before enhancement."""
         try:
-            from pdf_extractor import extract_text
-            from pdf_extractor.models import ExtractionConfig
+            from anyfile_to_ai.pdf_extractor import extract_text
+            from anyfile_to_ai.pdf_extractor.models import ExtractionConfig
 
             # Standard configuration without enhancements
             config = ExtractionConfig(output_format="plain")
@@ -266,8 +266,8 @@ class TestBehavioralCompatibility:
     def test_error_handling_unchanged(self):
         """Test that error handling behavior is unchanged."""
         try:
-            from pdf_extractor import extract_text
-            from pdf_extractor.exceptions import PDFNotFoundError
+            from anyfile_to_ai.pdf_extractor import extract_text
+            from anyfile_to_ai.pdf_extractor.exceptions import PDFNotFoundError
 
             # Should still raise PDFNotFoundError for missing files
             with pytest.raises(PDFNotFoundError):
@@ -279,7 +279,7 @@ class TestBehavioralCompatibility:
     def test_performance_not_degraded(self, sample_pdf):
         """Test that performance is not degraded for original functionality."""
         try:
-            from pdf_extractor import extract_text
+            from anyfile_to_ai.pdf_extractor import extract_text
             import time
 
             with patch("os.path.exists", return_value=True):
@@ -310,8 +310,8 @@ class TestConfigurationCompatibility:
     def test_original_config_parameters_work(self, sample_pdf):
         """Test that original configuration parameters continue to work."""
         try:
-            from pdf_extractor import extract_text_streaming
-            from pdf_extractor.models import ExtractionConfig
+            from anyfile_to_ai.pdf_extractor import extract_text_streaming
+            from anyfile_to_ai.pdf_extractor.models import ExtractionConfig
 
             # Original config should work
             config = ExtractionConfig(streaming_enabled=True, output_format="json")
@@ -335,7 +335,7 @@ class TestConfigurationCompatibility:
     def test_config_validation_preserved(self):
         """Test that original configuration validation is preserved."""
         try:
-            from pdf_extractor.models import ExtractionConfig
+            from anyfile_to_ai.pdf_extractor.models import ExtractionConfig
 
             # Invalid output format should still raise ValueError
             with pytest.raises(ValueError):
@@ -353,7 +353,7 @@ class TestDeprecationWarnings:
         import warnings
 
         try:
-            from pdf_extractor import extract_text
+            from anyfile_to_ai.pdf_extractor import extract_text
 
             with patch("os.path.exists", return_value=True):
                 with patch("pdfplumber.open") as mock_pdf:

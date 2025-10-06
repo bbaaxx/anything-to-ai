@@ -5,7 +5,7 @@ import tempfile
 import time
 import os
 from PIL import Image
-from image_processor import process_image, process_images, ProcessingConfig
+from anyfile_to_ai.image_processor import process_image, process_images, ProcessingConfig
 
 
 class TestPerformanceValidation:
@@ -60,7 +60,7 @@ class TestPerformanceValidation:
         initial_memory = process.memory_info().rss
 
         # Process multiple images via streaming
-        from image_processor import process_images_streaming
+        from anyfile_to_ai.image_processor import process_images_streaming
         image_paths = [sample_image] * 5
 
         results = []
@@ -76,7 +76,7 @@ class TestPerformanceValidation:
 
     def test_configuration_validation_performance(self):
         """Test configuration validation is fast."""
-        from image_processor import create_config
+        from anyfile_to_ai.image_processor import create_config
 
         start_time = time.time()
 
@@ -96,7 +96,7 @@ class TestPerformanceValidation:
 
     def test_error_handling_performance(self):
         """Test error handling doesn't cause significant delays."""
-        from image_processor.exceptions import ImageNotFoundError
+        from anyfile_to_ai.image_processor.exceptions import ImageNotFoundError
 
         start_time = time.time()
 

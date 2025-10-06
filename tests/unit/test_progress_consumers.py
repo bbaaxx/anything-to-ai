@@ -3,9 +3,9 @@
 import logging
 import time
 from unittest.mock import Mock, MagicMock, patch
-from progress_tracker.consumers import CallbackProgressConsumer, LoggingProgressConsumer
-from progress_tracker.cli_renderer import CLIProgressConsumer
-from progress_tracker.models import ProgressState, ProgressUpdate, UpdateType
+from anyfile_to_ai.progress_tracker.consumers import CallbackProgressConsumer, LoggingProgressConsumer
+from anyfile_to_ai.progress_tracker.cli_renderer import CLIProgressConsumer
+from anyfile_to_ai.progress_tracker.models import ProgressState, ProgressUpdate, UpdateType
 
 
 class TestCallbackProgressConsumer:

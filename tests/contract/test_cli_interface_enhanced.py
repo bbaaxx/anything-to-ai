@@ -17,7 +17,7 @@ class TestEnhancedCLIInterfaceContract:
     def test_enhanced_cli_interface_parser_creation(self):
         """Test that enhanced CLI can create argument parser."""
         try:
-            from pdf_extractor.cli import EnhancedCLI
+            from anyfile_to_ai.pdf_extractor.cli import EnhancedCLI
 
             cli = EnhancedCLI()
             parser = cli.create_parser()
@@ -39,7 +39,7 @@ class TestEnhancedCLIInterfaceContract:
     def test_enhanced_cli_argument_parsing(self):
         """Test CLI argument parsing with enhanced options."""
         try:
-            from pdf_extractor.cli import EnhancedCLI
+            from anyfile_to_ai.pdf_extractor.cli import EnhancedCLI
 
             cli = EnhancedCLI()
 
@@ -68,7 +68,7 @@ class TestEnhancedCLIInterfaceContract:
     def test_enhanced_cli_argument_validation(self):
         """Test CLI argument validation."""
         try:
-            from pdf_extractor.cli import EnhancedCLI
+            from anyfile_to_ai.pdf_extractor.cli import EnhancedCLI
 
             cli = EnhancedCLI()
 
@@ -93,7 +93,7 @@ class TestEnhancedCLIInterfaceContract:
     def test_enhanced_cli_extraction_execution(self):
         """Test CLI extraction execution."""
         try:
-            from pdf_extractor.cli import EnhancedCLI
+            from anyfile_to_ai.pdf_extractor.cli import EnhancedCLI
 
             cli = EnhancedCLI()
             args = cli.parse_args(['test.pdf'])
@@ -117,7 +117,7 @@ class TestEnhancedCLIInterfaceContract:
     def test_enhanced_cli_output_formatting(self):
         """Test CLI output formatting."""
         try:
-            from pdf_extractor.cli import EnhancedCLI
+            from anyfile_to_ai.pdf_extractor.cli import EnhancedCLI
 
             cli = EnhancedCLI()
 
@@ -150,7 +150,7 @@ class TestCLIOutputFormatterInterfaceContract:
     def test_output_formatter_interface_methods(self):
         """Test that output formatter interface has required methods."""
         try:
-            from pdf_extractor.cli import CLIOutputFormatter
+            from anyfile_to_ai.pdf_extractor.cli import CLIOutputFormatter
 
             formatter = CLIOutputFormatter()
             assert hasattr(formatter, 'format_text_output')
@@ -183,7 +183,7 @@ class TestCLIOutputFormatterInterfaceContract:
     def test_output_formatter_enhanced_fields(self):
         """Test output formatter handles enhanced extraction fields."""
         try:
-            from pdf_extractor.cli import CLIOutputFormatter
+            from anyfile_to_ai.pdf_extractor.cli import CLIOutputFormatter
 
             formatter = CLIOutputFormatter()
 
@@ -219,7 +219,7 @@ class TestCLIProgressReporterInterfaceContract:
     def test_progress_reporter_interface_methods(self):
         """Test that progress reporter interface has required methods."""
         try:
-            from pdf_extractor.cli import CLIProgressReporter
+            from anyfile_to_ai.pdf_extractor.cli import CLIProgressReporter
 
             reporter = CLIProgressReporter()
             assert hasattr(reporter, 'report_start')
@@ -239,7 +239,7 @@ class TestCLIProgressReporterInterfaceContract:
     def test_progress_reporter_image_processing(self):
         """Test progress reporter handles image processing progress."""
         try:
-            from pdf_extractor.cli import CLIProgressReporter
+            from anyfile_to_ai.pdf_extractor.cli import CLIProgressReporter
 
             reporter = CLIProgressReporter()
 
@@ -349,7 +349,7 @@ class TestCLIIntegrationContract:
     def test_cli_enhanced_workflow(self):
         """Test complete enhanced CLI workflow."""
         try:
-            from pdf_extractor.cli import EnhancedCLI
+            from anyfile_to_ai.pdf_extractor.cli import EnhancedCLI
 
             cli = EnhancedCLI()
 
@@ -370,7 +370,7 @@ class TestCLIIntegrationContract:
     def test_cli_backward_compatibility(self):
         """Test CLI maintains backward compatibility."""
         try:
-            from pdf_extractor.cli import EnhancedCLI
+            from anyfile_to_ai.pdf_extractor.cli import EnhancedCLI
 
             cli = EnhancedCLI()
 

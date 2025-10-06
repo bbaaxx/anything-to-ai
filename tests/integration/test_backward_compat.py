@@ -9,7 +9,7 @@ import tempfile
 from unittest.mock import patch
 from PIL import Image
 
-from image_processor import create_config, process_image, process_images
+from anyfile_to_ai.image_processor import create_config, process_image, process_images
 
 
 class TestBackwardCompatibility:
@@ -77,7 +77,7 @@ class TestBackwardCompatibility:
 
     def test_existing_exception_hierarchy_preserved(self):
         """Test that existing exception hierarchy is preserved."""
-        from image_processor.exceptions import (
+        from anyfile_to_ai.image_processor.exceptions import (
             ImageProcessingError, ImageNotFoundError, UnsupportedFormatError,
             CorruptedImageError, ProcessingError, ValidationError
         )
@@ -105,7 +105,7 @@ class TestBackwardCompatibility:
 
     def test_existing_module_api_preserved(self):
         """Test that existing module API functions are preserved."""
-        import image_processor
+        import anyfile_to_ai.image_processor
 
         # All existing functions should still be available
         existing_functions = [
@@ -121,7 +121,7 @@ class TestBackwardCompatibility:
         """Test that streaming interface remains compatible."""
         # This should FAIL initially - streaming enhancement not backward compatible
         with patch.dict(os.environ, {'VISION_MODEL': 'google/gemma-3-4b'}):
-            from image_processor import process_images_streaming
+            from anyfile_to_ai.image_processor import process_images_streaming
 
             config = create_config()
 

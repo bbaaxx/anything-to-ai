@@ -5,7 +5,7 @@ import tempfile
 import os
 import json
 from PIL import Image
-from image_processor.cli import main, create_cli_parser, expand_image_paths
+from anyfile_to_ai.image_processor.cli import main, create_cli_parser, expand_image_paths
 
 
 class TestCliScenarios:

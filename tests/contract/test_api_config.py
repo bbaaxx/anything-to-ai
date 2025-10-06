@@ -1,8 +1,8 @@
 """Contract tests for create_config() API function."""
 
 import pytest
-from image_processor import create_config, ProcessingConfig
-from image_processor.exceptions import ValidationError
+from anyfile_to_ai.image_processor import create_config, ProcessingConfig
+from anyfile_to_ai.image_processor.exceptions import ValidationError
 
 
 class TestCreateConfigContract:

@@ -7,7 +7,7 @@ Contract tests must validate these interfaces before implementation.
 from abc import ABC, abstractmethod
 from typing import Iterator, Optional, List
 from dataclasses import dataclass
-from pdf_extractor.models import ExtractionConfig, ExtractionResult, PageResult
+from anyfile_to_ai.pdf_extractor.models import ExtractionConfig, ExtractionResult, PageResult
 
 
 @dataclass

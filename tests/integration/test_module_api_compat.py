@@ -9,8 +9,8 @@ import tempfile
 from unittest.mock import patch
 from PIL import Image
 
-import image_processor
-from image_processor import create_config, process_image
+import anyfile_to_ai.image_processor
+from anyfile_to_ai.image_processor import create_config, process_image
 
 
 class TestModuleAPICompatibility:
@@ -153,11 +153,11 @@ class TestModuleAPICompatibility:
     def test_error_handling_api_compatibility(self):
         """Test error handling API compatibility."""
         # This should FAIL initially - enhanced error handling not implemented
-        from image_processor.exceptions import ImageProcessingError
+        from anyfile_to_ai.image_processor.exceptions import ImageProcessingError
 
         # Should be able to import VLM-specific exceptions
         try:
-            from image_processor.exceptions import (
+            from anyfile_to_ai.image_processor.exceptions import (
                 VLMConfigurationError, VLMModelLoadError,
                 VLMProcessingError, VLMTimeoutError
             )
@@ -188,7 +188,7 @@ class TestModuleAPICompatibility:
         with patch.dict(os.environ, {}, clear=True):
             os.environ.pop('VISION_MODEL', None)
 
-            from image_processor.exceptions import ValidationError
+            from anyfile_to_ai.image_processor.exceptions import ValidationError
 
             with pytest.raises(ValidationError):
                 create_config()

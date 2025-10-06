@@ -24,7 +24,7 @@ class TestPDFMarkdownContract:
         """Assert output starts with '# PDF Document:'."""
         # This test will be implemented after formatter exists
         # For now, it should fail (TDD requirement)
-        from pdf_extractor.markdown_formatter import format_markdown
+        from anyfile_to_ai.pdf_extractor.markdown_formatter import format_markdown
 
         result = {"filename": "test.pdf", "pages": []}
         output = format_markdown(result)
@@ -33,7 +33,7 @@ class TestPDFMarkdownContract:
 
     def test_contains_page_sections(self):
         """Assert contains '## Page N' sections."""
-        from pdf_extractor.markdown_formatter import format_markdown
+        from anyfile_to_ai.pdf_extractor.markdown_formatter import format_markdown
 
         result = {"filename": "test.pdf", "pages": [{"number": 1, "text": "Content"}]}
         output = format_markdown(result)
@@ -42,7 +42,7 @@ class TestPDFMarkdownContract:
 
     def test_markdown_syntax_valid(self):
         """Verify markdown syntax validity."""
-        from pdf_extractor.markdown_formatter import format_markdown
+        from anyfile_to_ai.pdf_extractor.markdown_formatter import format_markdown
 
         result = {"filename": "test.pdf", "pages": [{"number": 1, "text": "Test content"}]}
         output = format_markdown(result)
@@ -54,7 +54,7 @@ class TestPDFMarkdownContract:
 
     def test_fallback_no_structure(self):
         """Test fallback: no structure → plain paragraphs."""
-        from pdf_extractor.markdown_formatter import format_markdown
+        from anyfile_to_ai.pdf_extractor.markdown_formatter import format_markdown
 
         result = {"filename": "test.pdf", "pages": [{"number": 1, "text": "Simple paragraph text without structure."}]}
         output = format_markdown(result)
@@ -65,7 +65,7 @@ class TestPDFMarkdownContract:
 
     def test_special_characters_not_escaped(self):
         """Test special characters are not escaped (per research.md decision)."""
-        from pdf_extractor.markdown_formatter import format_markdown
+        from anyfile_to_ai.pdf_extractor.markdown_formatter import format_markdown
 
         result = {
             "filename": "test.pdf",

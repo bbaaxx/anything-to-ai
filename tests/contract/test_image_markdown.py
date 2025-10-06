@@ -23,7 +23,7 @@ class TestImageMarkdownContract:
 
     def test_output_starts_with_heading(self):
         """Assert output starts with '# Image Descriptions'."""
-        from image_processor.markdown_formatter import format_markdown
+        from anyfile_to_ai.image_processor.markdown_formatter import format_markdown
 
         results = [{"filename": "test.jpg", "image_path": "/path/test.jpg", "description": "A test image"}]
         output = format_markdown(results)
@@ -32,7 +32,7 @@ class TestImageMarkdownContract:
 
     def test_contains_markdown_image_syntax(self):
         """Assert contains '![alt](path)' markdown image syntax."""
-        from image_processor.markdown_formatter import format_markdown
+        from anyfile_to_ai.image_processor.markdown_formatter import format_markdown
 
         results = [{"filename": "test.jpg", "image_path": "test.jpg", "description": "A test image", "processing_success": True}]
         output = format_markdown(results)
@@ -42,7 +42,7 @@ class TestImageMarkdownContract:
 
     def test_each_image_has_section(self):
         """Verify each image has '## filename' section."""
-        from image_processor.markdown_formatter import format_markdown
+        from anyfile_to_ai.image_processor.markdown_formatter import format_markdown
 
         results = [
             {"filename": "image1.jpg", "image_path": "image1.jpg", "description": "First image", "processing_success": True},
@@ -55,7 +55,7 @@ class TestImageMarkdownContract:
 
     def test_vlm_failure_fallback(self):
         """Test VLM failure fallback: generic 'Description unavailable'."""
-        from image_processor.markdown_formatter import format_markdown
+        from anyfile_to_ai.image_processor.markdown_formatter import format_markdown
 
         results = [{"filename": "test.jpg", "image_path": "test.jpg", "description": None, "processing_success": False}]
         output = format_markdown(results)
@@ -65,7 +65,7 @@ class TestImageMarkdownContract:
 
     def test_special_characters_not_escaped(self):
         """Test special characters in descriptions are not escaped."""
-        from image_processor.markdown_formatter import format_markdown
+        from anyfile_to_ai.image_processor.markdown_formatter import format_markdown
 
         results = [
             {

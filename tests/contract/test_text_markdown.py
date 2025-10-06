@@ -21,7 +21,7 @@ class TestTextMarkdownContract:
 
     def test_output_starts_with_summary_heading(self):
         """Assert output starts with '# Summary'."""
-        from text_summarizer.markdown_formatter import format_markdown
+        from anyfile_to_ai.text_summarizer.markdown_formatter import format_markdown
 
         result = {
             "summary": "This is a test summary",
@@ -33,7 +33,7 @@ class TestTextMarkdownContract:
 
     def test_contains_tags_section(self):
         """Assert contains '## Tags' section."""
-        from text_summarizer.markdown_formatter import format_markdown
+        from anyfile_to_ai.text_summarizer.markdown_formatter import format_markdown
 
         result = {
             "summary": "This is a test summary",
@@ -45,7 +45,7 @@ class TestTextMarkdownContract:
 
     def test_tags_formatted_as_bullets(self):
         """Assert tags formatted as bullet list ('- tag')."""
-        from text_summarizer.markdown_formatter import format_markdown
+        from anyfile_to_ai.text_summarizer.markdown_formatter import format_markdown
 
         result = {
             "summary": "This is a test summary",
@@ -59,7 +59,7 @@ class TestTextMarkdownContract:
 
     def test_heading_hierarchy(self):
         """Verify heading hierarchy (H1, H2)."""
-        from text_summarizer.markdown_formatter import format_markdown
+        from anyfile_to_ai.text_summarizer.markdown_formatter import format_markdown
 
         result = {
             "summary": "This is a test summary",
@@ -77,7 +77,7 @@ class TestTextMarkdownContract:
 
     def test_special_characters_not_escaped(self):
         """Test special characters in summary are not escaped."""
-        from text_summarizer.markdown_formatter import format_markdown
+        from anyfile_to_ai.text_summarizer.markdown_formatter import format_markdown
 
         result = {
             "summary": "Summary with *asterisks* and [brackets] and #hashtags",

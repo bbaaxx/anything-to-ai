@@ -7,8 +7,8 @@ import pytest
 import os
 from unittest.mock import patch
 
-from image_processor import create_config
-from image_processor.exceptions import ValidationError
+from anyfile_to_ai.image_processor import create_config
+from anyfile_to_ai.image_processor.exceptions import ValidationError
 
 
 class TestModelConfigurationIntegration:

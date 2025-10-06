@@ -1,27 +1,80 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "pdf-extractor"
+name = "anyfile_to_ai"
 version = "0.1.0"
-description = "PDF text extraction module with streaming support"
+description = "Universal file processor with AI-powered text extraction, image analysis, audio transcription, and text summarization"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "AnyFile to AI Contributors"}
+]
+keywords = ["pdf", "image", "audio", "text", "ai", "extraction", "transcription", "summarization"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Text Processing",
+    "Topic :: Multimedia :: Graphics",
+    "Topic :: Multimedia :: Sound/Audio",
+]
 dependencies = [
     "alive-progress>=3.0.0",
+    "build>=1.3.0",
     "httpx>=0.27.0",
-    "lightning-whisper-mlx>=0.0.10",
-    "mlx-vlm>=0.3.3",
-    "pdfplumber>=0.11.7",
-    "pillow>=11.3.0",
-    "pre-commit>=4.3.0",
-    "torch>=2.8.0",
+    "twine>=6.2.0",
+    "wheel>=0.45.1",
 ]
 
 [project.optional-dependencies]
+pdf = [
+    "pdfplumber>=0.11.7",
+]
+image = [
+    "mlx-vlm>=0.3.3",
+    "pillow>=11.3.0",
+]
+audio = [
+    "lightning-whisper-mlx>=0.0.10",
+]
+text = [
+    "httpx>=0.27.0",
+]
+all = [
+    "pdfplumber>=0.11.7",
+    "mlx-vlm>=0.3.3",
+    "pillow>=11.3.0",
+    "lightning-whisper-mlx>=0.0.10",
+    "httpx>=0.27.0",
+]
 dev = [
     "pytest>=8.4.2",
+    "pytest-cov>=6.0.0",
+    "pre-commit>=4.0.0",
+    "ruff>=0.13.2",
+    "setuptools>=61.0",
+    "wheel",
+    "build",
+    "twine",
 ]
 
 [project.scripts]
-pdf-extractor = "pdf_extractor.__main__:main"
+pdf-extractor = "anyfile_to_ai.pdf_extractor.__main__:main"
+image-processor = "anyfile_to_ai.image_processor.__main__:main"
+audio-processor = "anyfile_to_ai.audio_processor.__main__:main"
+text-summarizer = "anyfile_to_ai.text_summarizer.__main__:main"
+
+[project.urls]
+Repository = "https://github.com/yourusername/anyfile-to-ai"
+Documentation = "https://github.com/yourusername/anyfile-to-ai#readme"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -31,29 +84,16 @@ python_functions = "test_*"
 addopts = [
     "-v",
     "--tb=short",
-    "--cov=pdf_extractor",
-    "--cov=audio_processor",
-    "--cov=image_processor",
-    "--cov=llm_client",
+    "--cov=anyfile_to_ai",
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-fail-under=70",
 ]
 
-[dependency-groups]
-dev = [
-    "pytest>=8.4.2",
-    "pytest-cov>=6.0.0",
-    "pre-commit>=4.0.0",
-    "ruff>=0.13.2",
-]
-
 [tool.ruff]
-# Set line length limit to 250
 line-length = 250
 
 [tool.ruff.lint]
-# Select specific lint rules
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
@@ -61,21 +101,17 @@ select = [
     "C901", # too complex (McCabe complexity)
 ]
 
-# Ignore specific rules if needed
 ignore = []
 
-# Enforce maximum file length of 250 lines
 [tool.ruff.lint.pycodestyle]
 max-line-length = 250
 
 [tool.ruff.format]
-# Use double quotes for strings
 quote-style = "double"
-# Indent with 4 spaces
 indent-style = "space"
 
 [tool.coverage.run]
-source = ["pdf_extractor", "audio_processor", "image_processor", "llm_client"]
+source = ["anyfile_to_ai"]
 branch = true
 omit = [
     "*/tests/*",
@@ -102,3 +138,6 @@ exclude_lines = [
 
 [tool.coverage.html]
 directory = "htmlcov"
+
+[tool.setuptools.package-data]
+anyfile_to_ai = ["**/*.txt", "**/*.md"]

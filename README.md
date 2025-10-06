@@ -1,8 +1,8 @@
-# Make Me a Podcast from Docs
+# anyfile_to_ai
 
-> **Experimental Project**: An evolving experiment exploring complexity in document processing and content generation.
+> **Universal File Processor with AI-Powered Capabilities**
 
-This repository contains modular tools for processing documents, images, and audio with AI models. Currently implemented as independent modules that can be used separately or together.
+A Python package that provides unified access to PDF text extraction, image processing, audio transcription, and text summarization using AI models. Install as a package with optional dependencies for modular usage.
 
 ## What's Inside
 
@@ -34,59 +34,182 @@ Summarize text using LLM models with automatic language detection and intelligen
 - **Documentation**: [`text_summarizer/README.md`](text_summarizer/README.md)
 - **Usage**: CLI and Python API for AI-powered text summarization with pipeline support
 
-## Quick Start
+## Installation
+
+### Install Core Package
+```bash
+pip install anyfile_to_ai
+```
+
+### Install with Specific Modules
+```bash
+# PDF processing only
+pip install anyfile_to_ai[pdf]
+
+# Image processing only  
+pip install anyfile_to_ai[image]
+
+# Audio transcription only
+pip install anyfile_to_ai[audio]
+
+# Text summarization only
+pip install anyfile_to_ai[text]
+
+# All modules
+pip install anyfile_to_ai[all]
+```
+
+### Install for Development
+```bash
+pip install anyfile_to_ai[dev]
+```
+
+## Quick Usage Examples
+
+### PDF Text Extraction
+```bash
+# Extract text from PDF
+pdf-extractor extract document.pdf --format json
+
+# Extract with streaming for large files
+pdf-extractor extract large-document.pdf --stream --progress
+```
+
+### Image Processing
+```bash
+# Process images with AI description
+image-processor photo.jpg --style detailed
+
+# Batch process multiple images
+image-processor *.jpg --style brief --format json
+```
+
+### Audio Transcription
+```bash
+# Transcribe audio file
+audio-processor podcast.mp3 --format json --verbose
+
+# Transcribe with specific model
+audio-processor interview.wav --model base --language en
+```
+
+### Text Summarization
+```bash
+# Summarize text file
+text-summarizer article.txt --format markdown
+
+# Summarize from stdin
+cat document.txt | text-summarizer --stdin --format json
+```
+
+### Pipeline Examples
+```bash
+# Audio to Summary Pipeline
+audio-processor podcast.mp3 --format plain | \
+text-summarizer --stdin --format markdown > summary.md
+
+# PDF to Summary Pipeline
+pdf-extractor extract document.pdf --format plain | \
+text-summarizer --stdin --format json > summary.json
+```
+
+## Python API Usage
+
+### Import Modules
+```python
+from anyfile_to_ai.pdf_extractor import extract_text
+from anyfile_to_ai.image_processor import process_image
+from anyfile_to_ai.audio_processor import transcribe_audio
+from anyfile_to_ai.text_summarizer import summarize_text
+```
+
+### PDF Processing Example
+```python
+result = extract_text("document.pdf", format="json")
+print(result.text)
+```
+
+### Image Processing Example
+```python
+result = process_image("image.jpg", style="detailed")
+print(result.description)
+```
+
+### Audio Transcription Example
+```python
+result = transcribe_audio("audio.mp3", format="json")
+print(result.text)
+```
+
+### Text Summarization Example
+```python
+result = summarize_text("long_text.txt", format="markdown")
+print(result.summary)
+```
+
+## Model Setup
+
+### ML Model Installation
+Since ML models are not included in the package, install them separately:
+
+```bash
+# For image processing (VLM models)
+pip install mlx-vlm
+
+# For audio transcription (Whisper models)
+pip install lightning-whisper-mlx
+
+# For text summarization (LLM client)
+pip install httpx
+```
+
+### Model Configuration
+```bash
+# Set vision model for image processing
+export VISION_MODEL=google/gemma-3-4b
+
+# Configure LLM provider for text summarization
+export LLM_PROVIDER=ollama
+export LLM_MODEL=mistral
+```
+
+## Development
 
 ### Prerequisites
 
-- Python 3.13+
+- Python 3.11+
 - UV package manager (recommended)
 - Apple Silicon Mac (for MLX-optimized features)
 
-### Setup
+### Development Setup
 
 ```bash
 # Clone and enter directory
 git clone <repo-url>
 cd anyfile-to-ai
 
-# Install dependencies
+# Install development dependencies
 uv sync
 
-# For image processing, configure VLM model
-export VISION_MODEL=google/gemma-3-4b
+# Install pre-commit hooks
+uv run pre-commit install
 ```
 
-### Try It Out
+### Development Commands
 
 ```bash
-# Extract text from a PDF
-python -m pdf_extractor extract sample-data/pdf/*.pdf --format json
+# Run tests
+uv run pytest
 
-# Process images with VLM
-python -m image_processor sample-data/images/*.jpg --style brief
+# Run comprehensive human review test suite
+./tests/human_review_quick_test
 
-# Transcribe audio files
-python -m audio_processor sample-data/audio/*.mp3 --format json --verbose
+# Code formatting and linting
+uv run ruff check .
+uv run ruff format .
 
-# Summarize text
-echo "Artificial intelligence is transforming industries..." | python -m text_summarizer --stdin --format plain
-
-# Pipeline: Audio → Transcription → Summary
-python -m audio_processor sample-data/audio/podcast.mp3 --format plain | python -m text_summarizer --stdin
-```
-
-## Project Structure
-
-```
-anyfile-to-ai/
-├── pdf_extractor/          # PDF text extraction module
-├── image_processor/        # VLM image processing module
-├── audio_processor/        # Audio transcription module
-├── text_summarizer/        # Text summarization module
-├── llm_client/            # Unified LLM client for AI services
-├── sample-data/           # Sample PDFs, images, and audio for testing
-├── tests/                 # Test suites
-└── specs/                 # Feature specifications and development docs
+# Check file length compliance
+uv run python check_file_lengths.py
 ```
 
 ## Development Commands

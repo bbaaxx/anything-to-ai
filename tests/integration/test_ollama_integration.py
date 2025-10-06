@@ -5,7 +5,7 @@ Skip if service is unavailable.
 """
 
 import pytest
-from llm_client import (
+from anyfile_to_ai.llm_client import (
     LLMClient,
     LLMConfig,
     LLMRequest,
@@ -13,7 +13,7 @@ from llm_client import (
     Message,
     ModelInfo,
 )
-from llm_client.exceptions import ConnectionError as LLMConnectionError
+from anyfile_to_ai.llm_client.exceptions import ConnectionError as LLMConnectionError
 
 # Test configuration
 OLLAMA_BASE_URL = "http://localhost:11434"

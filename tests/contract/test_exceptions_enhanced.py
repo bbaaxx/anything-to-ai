@@ -6,7 +6,7 @@ All tests should FAIL initially until implementation is complete.
 
 import pytest
 
-from pdf_extractor.exceptions import (
+from anyfile_to_ai.pdf_extractor.exceptions import (
     ImageExtractionError,
     ImageNotFoundInPDFError,
     ImageCroppingError,
@@ -318,7 +318,7 @@ class TestExceptionImplementationContract:
     def test_enhanced_exceptions_importable(self):
         """Test that enhanced exceptions can be imported."""
         try:
-            from pdf_extractor.exceptions import (
+            from anyfile_to_ai.pdf_extractor.exceptions import (
                 ImageExtractionError,
                 VLMConfigurationError,
                 EnhancedExtractionError
@@ -339,7 +339,7 @@ class TestExceptionImplementationContract:
     def test_exception_hierarchy_implementation(self):
         """Test that exception hierarchy is properly implemented."""
         try:
-            from pdf_extractor.exceptions import (
+            from anyfile_to_ai.pdf_extractor.exceptions import (
                 ImageExtractionError,
                 ImageNotFoundInPDFError,
                 VLMServiceError,
