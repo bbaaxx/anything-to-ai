@@ -1065,6 +1065,7 @@ dependencies = [
     { name = "mlx-vlm" },
     { name = "pdfplumber" },
     { name = "pillow" },
+    { name = "pre-commit" },
     { name = "torch" },
 ]
 
@@ -1089,6 +1090,7 @@ requires-dist = [
     { name = "mlx-vlm", specifier = ">=0.3.3" },
     { name = "pdfplumber", specifier = ">=0.11.7" },
     { name = "pillow", specifier = ">=11.3.0" },
+    { name = "pre-commit", specifier = ">=4.3.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.4.2" },
     { name = "torch", specifier = ">=2.8.0" },
 ]
