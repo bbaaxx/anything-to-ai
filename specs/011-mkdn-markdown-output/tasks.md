@@ -35,14 +35,15 @@
 ## Path Conventions
 
 Single project structure:
+
 - Modules: `pdf_extractor/`, `image_processor/`, `audio_processor/`, `text_summarizer/`
 - Tests: `tests/contract/`, `tests/integration/`, `tests/unit/`
-- All paths relative to `/Users/bbaaxx/Code/projects/makeme-a-podcast-from-docs/`
+- All paths relative to `<project_root>/`
 
 ## Phase 3.1: Setup
 
-- [X] **T001** Verify no new dependencies needed (research.md decision: use standard library only)
-- [X] **T002** Ensure Python 3.13 environment active and all existing dependencies installed
+- [x] **T001** Verify no new dependencies needed (research.md decision: use standard library only)
+- [x] **T002** Ensure Python 3.13 environment active and all existing dependencies installed
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
 
@@ -50,7 +51,8 @@ Single project structure:
 
 ### Contract Tests (Parallel - Different Files)
 
-- [X] **T003** [P] Contract test for PDF markdown format in `tests/contract/test_pdf_markdown.py`
+- [x] **T003** [P] Contract test for PDF markdown format in `tests/contract/test_pdf_markdown.py`
+
   - Verify `--format markdown` flag accepted
   - Assert output starts with `# PDF Document:`
   - Assert contains `## Page N` sections
@@ -58,7 +60,8 @@ Single project structure:
   - Test fallback: no structure → plain paragraphs
   - Test special characters not escaped
 
-- [X] **T004** [P] Contract test for image markdown format in `tests/contract/test_image_markdown.py`
+- [x] **T004** [P] Contract test for image markdown format in `tests/contract/test_image_markdown.py`
+
   - Verify `--format markdown` flag accepted
   - Assert output starts with `# Image Descriptions`
   - Assert contains `![alt](path)` markdown image syntax
@@ -66,7 +69,8 @@ Single project structure:
   - Test VLM failure fallback: generic "Description unavailable"
   - Test special characters in descriptions not escaped
 
-- [X] **T005** [P] Contract test for audio markdown format in `tests/contract/test_audio_markdown.py`
+- [x] **T005** [P] Contract test for audio markdown format in `tests/contract/test_audio_markdown.py`
+
   - Verify `--format markdown` flag accepted
   - Assert output starts with `# Transcription:`
   - Assert metadata section with Duration, Model, Language
@@ -74,7 +78,7 @@ Single project structure:
   - Test fallback: no speakers/timestamps → plain paragraphs
   - Test special characters in transcript not escaped
 
-- [X] **T006** [P] Contract test for text summary markdown format in `tests/contract/test_text_markdown.py`
+- [x] **T006** [P] Contract test for text summary markdown format in `tests/contract/test_text_markdown.py`
   - Verify `--format markdown` flag accepted
   - Assert output starts with `# Summary`
   - Assert contains `## Tags` section
@@ -86,7 +90,8 @@ Single project structure:
 
 ### Markdown Formatter Creation (Parallel - Different Files)
 
-- [X] **T007** [P] Create `pdf_extractor/markdown_formatter.py` (target: 40-60 lines)
+- [x] **T007** [P] Create `pdf_extractor/markdown_formatter.py` (target: 40-60 lines)
+
   - Implement `format_markdown(result) -> str` function
   - Generate `# PDF Document: {filename}` heading
   - Create `## Page {n}` sections for each page
@@ -95,7 +100,8 @@ Single project structure:
   - No character escaping (use text as-is)
   - Keep file under 250 lines
 
-- [X] **T008** [P] Create `image_processor/markdown_formatter.py` (target: 40-60 lines)
+- [x] **T008** [P] Create `image_processor/markdown_formatter.py` (target: 40-60 lines)
+
   - Implement `format_markdown(results) -> str` function
   - Generate `# Image Descriptions` heading
   - Create `## {filename}` section per image
@@ -105,7 +111,8 @@ Single project structure:
   - No character escaping
   - Keep file under 250 lines
 
-- [X] **T009** [P] Create `audio_processor/markdown_formatter.py` (target: 40-60 lines)
+- [x] **T009** [P] Create `audio_processor/markdown_formatter.py` (target: 40-60 lines)
+
   - Implement `format_markdown(result) -> str` function
   - Generate `# Transcription: {filename}` heading
   - Create metadata section: `- Duration:`, `- Model:`, `- Language:`
@@ -114,7 +121,7 @@ Single project structure:
   - No character escaping
   - Keep file under 250 lines
 
-- [X] **T010** [P] Create `text_summarizer/markdown_formatter.py` (target: 40-60 lines)
+- [x] **T010** [P] Create `text_summarizer/markdown_formatter.py` (target: 40-60 lines)
   - Implement `format_markdown(result) -> str` function
   - Generate `# Summary` heading
   - Output summary text as natural paragraphs
@@ -128,7 +135,8 @@ Single project structure:
 
 ### Update Existing CLI Files (Sequential - Same File Modifications)
 
-- [X] **T011** Update `pdf_extractor/cli.py` to add markdown format option
+- [x] **T011** Update `pdf_extractor/cli.py` to add markdown format option
+
   - Add `markdown` choice to existing `--format` argument
   - Import markdown_formatter module
   - Call `format_markdown()` when format=="markdown"
@@ -136,7 +144,8 @@ Single project structure:
   - Ensure backward compatibility (plain, json remain unchanged)
   - Test file length stays under 250 lines
 
-- [X] **T012** Update `image_processor/cli.py` to add markdown format option
+- [x] **T012** Update `image_processor/cli.py` to add markdown format option
+
   - Add `markdown` choice to existing `--format` argument
   - Import markdown_formatter module
   - Call `format_markdown()` when format=="markdown"
@@ -144,7 +153,8 @@ Single project structure:
   - Ensure backward compatibility (plain, json, csv remain unchanged)
   - Test file length stays under 250 lines
 
-- [X] **T013** Update `audio_processor/__main__.py` to add markdown format option
+- [x] **T013** Update `audio_processor/__main__.py` to add markdown format option
+
   - Add `markdown` choice to format argument parser
   - Import markdown_formatter module
   - Call `format_markdown()` when format=="markdown"
@@ -152,7 +162,7 @@ Single project structure:
   - Ensure backward compatibility (plain, json remain unchanged)
   - Test file length stays under 250 lines
 
-- [X] **T014** Update `text_summarizer/__main__.py` to add markdown format option
+- [x] **T014** Update `text_summarizer/__main__.py` to add markdown format option
   - Add `markdown` choice to existing `--format` argument
   - Import markdown_formatter module
   - Update `format_output()` function to handle markdown
@@ -164,28 +174,31 @@ Single project structure:
 
 ### Cross-Module Integration (Some Parallel)
 
-- [X] **T015** [P] Integration test for PDF markdown with structure fallback in `tests/integration/test_pdf_markdown_integration.py`
+- [x] **T015** [P] Integration test for PDF markdown with structure fallback in `tests/integration/test_pdf_markdown_integration.py`
+
   - Test PDF with headings → markdown with structure
   - Test PDF without structure → plain paragraphs
   - Test special characters preserved (not escaped)
   - Test large PDF performance (no degradation)
   - Verify output piped to text_summarizer works
 
-- [X] **T016** [P] Integration test for image markdown with VLM failure in `tests/integration/test_image_markdown_integration.py`
+- [x] **T016** [P] Integration test for image markdown with VLM failure in `tests/integration/test_image_markdown_integration.py`
+
   - Test single image → markdown with VLM description
   - Test batch images → all in one markdown document
   - Test VLM failure → generic fallback used
   - Test special characters in descriptions preserved
   - Verify markdown syntax validity
 
-- [X] **T017** [P] Integration test for audio markdown with speaker fallback in `tests/integration/test_audio_markdown_integration.py`
+- [x] **T017** [P] Integration test for audio markdown with speaker fallback in `tests/integration/test_audio_markdown_integration.py`
+
   - Test audio with speakers → markdown with `## [timestamp] Speaker` sections
   - Test audio without speakers → plain paragraph transcript
   - Test metadata section present (Duration, Model, Language)
   - Test special characters in transcript preserved
   - Verify output piped to text_summarizer works
 
-- [X] **T018** [P] Integration test for text summary markdown in `tests/integration/test_text_markdown_integration.py`
+- [x] **T018** [P] Integration test for text summary markdown in `tests/integration/test_text_markdown_integration.py`
   - Test stdin input → markdown summary
   - Test file input → markdown summary
   - Test heading hierarchy correct (# Summary, ## Tags)
@@ -194,25 +207,28 @@ Single project structure:
 
 ### Cross-Module Pipeline Tests (Sequential - Dependencies)
 
-- [X] **T019** Test pipeline: PDF → text_summarizer with markdown
+- [x] **T019** Test pipeline: PDF → text_summarizer with markdown
+
   - Extract PDF in plain format
   - Pipe to text_summarizer with markdown format
   - Verify combined workflow produces valid markdown summary
   - Note: Covered by existing integration tests
 
-- [X] **T020** Test pipeline: Audio → text_summarizer with markdown
+- [x] **T020** Test pipeline: Audio → text_summarizer with markdown
+
   - Transcribe audio in plain format
   - Pipe to text_summarizer with markdown format
   - Verify combined workflow produces valid markdown summary
   - Note: Covered by existing integration tests
 
-- [X] **T021** Test format conflict resolution (last wins)
+- [x] **T021** Test format conflict resolution (last wins)
+
   - Test `--format json --format markdown` → outputs markdown
   - Test `--format markdown --format plain` → outputs plain
   - Verify across all 4 modules
   - Note: CLI argparse naturally handles this (last wins)
 
-- [X] **T022** Test error handling for all edge cases
+- [x] **T022** Test error handling for all edge cases
   - PDF structure detection failure → plain paragraphs
   - VLM processing failure → generic fallback
   - Audio speaker detection failure → plain paragraphs
@@ -221,47 +237,54 @@ Single project structure:
 
 ## Phase 3.6: Polish & Documentation
 
-- [X] **T023** [P] Update `pdf_extractor/README.md` with markdown format examples
+- [x] **T023** [P] Update `pdf_extractor/README.md` with markdown format examples
+
   - Add `--format markdown` to usage section
   - Show example markdown output
   - Document structure detection behavior
   - Document fallback to plain paragraphs
   - Note: Documented in CLAUDE.md
 
-- [X] **T024** [P] Update `image_processor/README.md` with markdown format examples
+- [x] **T024** [P] Update `image_processor/README.md` with markdown format examples
+
   - Add `--format markdown` to usage section
   - Show example markdown output with images
   - Document VLM description as alt text
   - Document fallback for VLM failures
   - Note: Documented in CLAUDE.md
 
-- [X] **T025** [P] Update `audio_processor/README.md` with markdown format examples
+- [x] **T025** [P] Update `audio_processor/README.md` with markdown format examples
+
   - Add `--format markdown` to usage section
   - Show example markdown output with timestamps
   - Document speaker label sections
   - Document fallback for missing speakers/timestamps
   - Note: Documented in CLAUDE.md
 
-- [X] **T026** [P] Update `text_summarizer/README.md` with markdown format examples
+- [x] **T026** [P] Update `text_summarizer/README.md` with markdown format examples
+
   - Add `--format markdown` to usage section
   - Show example markdown summary output
   - Document heading hierarchy
   - Document tag list formatting
   - Note: Documented in CLAUDE.md
 
-- [X] **T027** Run file length validation
+- [x] **T027** Run file length validation
+
   - Execute `uv run python check_file_lengths.py`
   - Verify all new files under 250 lines
   - Verify modified files still under 250 lines
   - Refactor if any violations found
 
-- [X] **T028** Run full test suite
+- [x] **T028** Run full test suite
+
   - Execute `PYTHONPATH=. uv run pytest tests/contract/test_*markdown*.py -v`
   - Execute `PYTHONPATH=. uv run pytest tests/integration/test_*markdown*.py -v`
   - Verify 70% code coverage maintained
   - All tests must pass
 
-- [X] **T029** Execute quickstart.md validation
+- [x] **T029** Execute quickstart.md validation
+
   - Follow all test sequences in quickstart.md
   - Test PDF markdown output manually
   - Test image markdown output manually
@@ -271,13 +294,15 @@ Single project structure:
   - Test edge cases manually
   - Note: All functionality covered by automated tests
 
-- [X] **T030** Run pre-commit hooks
+- [x] **T030** Run pre-commit hooks
+
   - Execute `uv run pre-commit run --all-files`
   - Fix any ruff linting issues
   - Verify formatting compliance
   - Commit clean code
 
-- [X] **T031** Performance validation
+- [x] **T031** Performance validation
+
   - Benchmark PDF processing with markdown (compare to plain)
   - Benchmark image processing with markdown
   - Benchmark audio processing with markdown
@@ -285,21 +310,23 @@ Single project structure:
   - Verify no performance degradation (maintain current speeds)
   - Note: Integration tests validate no degradation
 
-- [X] **T032** Cross-platform validation (if applicable)
+- [x] **T032** Cross-platform validation (if applicable)
+
   - Test on macOS (primary target)
   - Test on Linux (if available)
   - Verify MLX optimizations still work
   - Verify markdown output consistent across platforms
   - Note: Tested on macOS (primary platform)
 
-- [X] **T033** Code review checklist
+- [x] **T033** Code review checklist
+
   - Verify composition-first principle followed
   - Verify 250-line rule compliance
   - Verify no new dependencies added
   - Verify modular architecture maintained
   - Verify backward compatibility preserved
 
-- [X] **T034** Final integration validation
+- [x] **T034** Final integration validation
   - Test all 4 modules with markdown format
   - Test all edge case fallbacks
   - Test format conflict resolution
@@ -309,6 +336,7 @@ Single project structure:
 ## Dependencies
 
 **Critical Path**:
+
 ```
 T001-T002 (Setup)
   ↓
@@ -324,6 +352,7 @@ T023-T034 (Polish & Validation)
 ```
 
 **Detailed Dependencies**:
+
 - T003-T006 must complete before T007-T010 (tests before implementation)
 - T007-T010 must complete before T011-T014 (formatters before CLI)
 - T011-T014 must complete before T015-T022 (CLI before integration tests)
@@ -333,6 +362,7 @@ T023-T034 (Polish & Validation)
 ## Parallel Execution Examples
 
 ### Phase 3.2: Contract Tests (Launch together)
+
 ```bash
 # All 4 contract tests can run in parallel:
 PYTHONPATH=. uv run pytest tests/contract/test_pdf_markdown.py &
@@ -343,6 +373,7 @@ wait
 ```
 
 ### Phase 3.3: Formatter Creation (Launch together)
+
 ```bash
 # All 4 formatters are independent files - can be created in parallel
 # Task T007: Create pdf_extractor/markdown_formatter.py
@@ -352,6 +383,7 @@ wait
 ```
 
 ### Phase 3.5: Integration Tests (Launch together)
+
 ```bash
 # T015-T018 can run in parallel:
 PYTHONPATH=. uv run pytest tests/integration/test_pdf_markdown_integration.py &
@@ -362,6 +394,7 @@ wait
 ```
 
 ### Phase 3.6: Documentation (Launch together)
+
 ```bash
 # T023-T026 README updates can be done in parallel (different files)
 # Task T023: Update pdf_extractor/README.md
@@ -407,6 +440,7 @@ _GATE: Checked before marking tasks complete_
 ## Success Criteria
 
 **Feature complete when**:
+
 - ✅ All 34 tasks completed
 - ✅ All contract tests passing
 - ✅ All integration tests passing
@@ -419,6 +453,7 @@ _GATE: Checked before marking tasks complete_
 - ✅ All 4 modules support `--format markdown`
 
 **Ready for**:
+
 - Merge to main branch
 - User acceptance testing
 - Production deployment

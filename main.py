@@ -1,5 +1,5 @@
 def main():
-    print("Hello from makeme-a-podcast-from-docs!")
+    print("Hello from anyfile-to-ai!")
 
 
 if __name__ == "__main__":

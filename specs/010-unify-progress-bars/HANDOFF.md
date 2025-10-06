@@ -8,7 +8,7 @@
 
 ```bash
 # Verify current state
-cd /Users/bbaaxx/Code/projects/makeme-a-podcast-from-docs
+cd <project_root>
 git status
 uv run pytest tests/contract/test_progress_protocol.py -v  # Should pass (49/49)
 uv run python check_file_lengths.py  # Should pass - all files < 250 lines
@@ -18,12 +18,14 @@ uv run ruff check progress_tracker/  # Should pass with no errors
 ## What's Complete ✅
 
 ### Infrastructure (100%)
+
 - ✅ Module structure created (`progress_tracker/` at repo root)
 - ✅ Dependencies installed (`alive-progress>=3.0.0`)
 - ✅ Public API exports configured in `__init__.py`
 - ✅ Contract tests implemented and copied to `tests/contract/`
 
 ### Core Data Models (100%)
+
 - ✅ `progress_tracker/models.py` (88 lines)
   - `UpdateType` enum (STARTED, PROGRESS, TOTAL_CHANGED, COMPLETED, ERROR)
   - `ProgressState` frozen dataclass with validation
@@ -31,6 +33,7 @@ uv run ruff check progress_tracker/  # Should pass with no errors
   - `ProgressConsumer` protocol (@runtime_checkable)
 
 ### ProgressEmitter (100%)
+
 - ✅ `progress_tracker/emitter.py` (260 lines)
   - Constructor with total, label, throttle_interval
   - Basic methods: `update()`, `set_current()`, `update_total()`, `complete()`
@@ -42,6 +45,7 @@ uv run ruff check progress_tracker/  # Should pass with no errors
   - Properties: `current`, `total`, `state`
 
 ### Consumer Implementations (100%)
+
 - ✅ `progress_tracker/consumers.py` (71 lines)
   - `CallbackProgressConsumer` - Legacy callback adapter
   - `LoggingProgressConsumer` - Logs at configurable intervals
@@ -51,6 +55,7 @@ uv run ruff check progress_tracker/  # Should pass with no errors
   - Renders to stderr (preserves stdout for piping)
 
 ### Testing (100% of contract tests)
+
 - ✅ Contract tests: 49/49 passing
   - UpdateType contract (5 tests)
   - ProgressState contract (6 tests)
@@ -62,6 +67,7 @@ uv run ruff check progress_tracker/  # Should pass with no errors
   - Hierarchical progress (4 tests)
 
 ### Documentation
+
 - ✅ `progress_tracker/README.md` (57 lines) - Basic module documentation
 - ✅ Tasks file updated with completion status
 
@@ -70,43 +76,50 @@ uv run ruff check progress_tracker/  # Should pass with no errors
 ### Phase 3.4: Integration (T043-T055) - 13 tasks remaining
 
 **Priority 1: CLI Integration Tests**
+
 - **T043**: Implement CLI progress integration tests ⬅️ START HERE
   - File: `tests/integration/test_cli_progress.py`
   - Tests: test_cli_renders_determinate_bar, test_cli_renders_indeterminate_spinner, test_cli_updates_on_progress, test_cli_completes_bar
   - Capture stderr to validate output format
 
 **T044**: Run CLI integration tests
-  ```bash
-  uv run pytest tests/integration/test_cli_progress.py -v
-  ```
+
+```bash
+uv run pytest tests/integration/test_cli_progress.py -v
+```
 
 **Priority 2: Hierarchical Integration Tests**
+
 - **T045**: Implement hierarchical progress integration tests
   - File: `tests/integration/test_hierarchical.py`
   - Tests: test_parent_child_basic, test_weighted_average_calculation, test_multi_level_hierarchy, test_child_completion_propagates
 
 **T046**: Run hierarchical integration tests
-  ```bash
-  uv run pytest tests/integration/test_hierarchical.py -v
-  ```
+
+```bash
+uv run pytest tests/integration/test_hierarchical.py -v
+```
 
 **Priority 3: Module Integration (4 parallel tasks)**
 
 These can be done in parallel:
 
 - **T047** [P]: Refactor `pdf_extractor/progress.py`
+
   - Replace `ProgressInfo` class with import from progress_tracker
   - Add deprecation warnings
   - Update `pdf_extractor/reader.py` to accept `progress_emitter` parameter
   - Update CLI to use `CLIProgressConsumer`
 
 - **T048** [P]: Refactor `image_processor/progress.py`
+
   - Replace `ProgressTracker` class with import from progress_tracker
   - Add deprecation warnings
   - Update `image_processor/processor.py` to accept `progress_emitter` parameter
   - Update CLI to use `CLIProgressConsumer`
 
 - **T049** [P]: Refactor `audio_processor/progress.py`
+
   - Replace `ProgressTracker` class with import from progress_tracker
   - Add deprecation warnings
   - Update `audio_processor/processor.py` to accept `progress_emitter` parameter
@@ -127,18 +140,22 @@ After module integration complete:
   - Verify progress updates during actual processing
 
 **T055**: Run module integration tests
-  ```bash
-  uv run pytest tests/integration/test_module_integration.py -v
-  ```
+
+```bash
+uv run pytest tests/integration/test_module_integration.py -v
+```
 
 ### Phase 3.5: Polish (T056-T068) - 13 tasks remaining
 
 **Unit Tests**:
+
 - **T056** [P]: Create unit tests for ProgressState
+
   - File: `tests/unit/test_models.py`
   - Test property calculations, edge cases, validation errors
 
 - **T057** [P]: Create unit tests for ProgressEmitter
+
   - File: `tests/unit/test_emitter.py`
   - Test state transitions, throttling logic, consumer notifications
 
@@ -147,11 +164,13 @@ After module integration complete:
   - Mock alive-progress for CLIProgressConsumer
 
 **T059**: Run all unit tests
-  ```bash
-  uv run pytest tests/unit/ -v
-  ```
+
+```bash
+uv run pytest tests/unit/ -v
+```
 
 **Documentation Updates (4 parallel tasks)**:
+
 - **T060**: Update `progress_tracker/README.md` with full API reference
 - **T061** [P]: Update `pdf_extractor/README.md` with progress examples
 - **T062** [P]: Update `image_processor/README.md` with progress examples
@@ -159,6 +178,7 @@ After module integration complete:
 - **T064** [P]: Update `text_summarizer/README.md` with progress examples
 
 **Final Validation**:
+
 - **T065**: Run all quickstart.md examples manually
 - **T066**: Run full test suite
   ```bash
@@ -169,21 +189,21 @@ After module integration complete:
 
 ## File Status
 
-| File | Lines | Status | Notes |
-|------|-------|--------|-------|
-| `progress_tracker/__init__.py` | 18 | ✅ Complete | Public API |
-| `progress_tracker/models.py` | 88 | ✅ Complete | Under limit |
-| `progress_tracker/emitter.py` | 260 | ✅ Complete | Under limit (includes all features) |
-| `progress_tracker/consumers.py` | 71 | ✅ Complete | Under limit |
-| `progress_tracker/cli_renderer.py` | 73 | ✅ Complete | Under limit |
-| `progress_tracker/README.md` | 57 | ⚠️ Basic | Needs full API reference |
-| `tests/contract/test_progress_protocol.py` | 449 | ✅ Complete | 49/49 passing |
-| `tests/integration/test_cli_progress.py` | 0 | ❌ Not started | Next task |
-| `tests/integration/test_hierarchical.py` | 0 | ❌ Not started | Priority 2 |
-| `tests/integration/test_module_integration.py` | 0 | ❌ Not started | Priority 4 |
-| `tests/unit/test_models.py` | 0 | ❌ Not started | Polish phase |
-| `tests/unit/test_emitter.py` | 0 | ❌ Not started | Polish phase |
-| `tests/unit/test_consumers.py` | 0 | ❌ Not started | Polish phase |
+| File                                           | Lines | Status         | Notes                               |
+| ---------------------------------------------- | ----- | -------------- | ----------------------------------- |
+| `progress_tracker/__init__.py`                 | 18    | ✅ Complete    | Public API                          |
+| `progress_tracker/models.py`                   | 88    | ✅ Complete    | Under limit                         |
+| `progress_tracker/emitter.py`                  | 260   | ✅ Complete    | Under limit (includes all features) |
+| `progress_tracker/consumers.py`                | 71    | ✅ Complete    | Under limit                         |
+| `progress_tracker/cli_renderer.py`             | 73    | ✅ Complete    | Under limit                         |
+| `progress_tracker/README.md`                   | 57    | ⚠️ Basic       | Needs full API reference            |
+| `tests/contract/test_progress_protocol.py`     | 449   | ✅ Complete    | 49/49 passing                       |
+| `tests/integration/test_cli_progress.py`       | 0     | ❌ Not started | Next task                           |
+| `tests/integration/test_hierarchical.py`       | 0     | ❌ Not started | Priority 2                          |
+| `tests/integration/test_module_integration.py` | 0     | ❌ Not started | Priority 4                          |
+| `tests/unit/test_models.py`                    | 0     | ❌ Not started | Polish phase                        |
+| `tests/unit/test_emitter.py`                   | 0     | ❌ Not started | Polish phase                        |
+| `tests/unit/test_consumers.py`                 | 0     | ❌ Not started | Polish phase                        |
 
 ## Test Commands
 
@@ -287,12 +307,14 @@ def cli_main(files: List[Path], verbose: bool):
 ## Advanced Features Documentation
 
 ### Throttling
+
 - Default: 10 Hz (100ms interval)
 - First update (STARTED): Not throttled
 - Forced updates: `update(force=True)`, `complete()`, `update_total()`
 - Configurable: `ProgressEmitter(total=100, throttle_interval=0.2)`
 
 ### Hierarchical Progress
+
 ```python
 parent = ProgressEmitter(total=100, label="Overall")
 child1 = parent.create_child(total=50, weight=0.4, label="Phase 1")
@@ -303,6 +325,7 @@ child1.update(25)  # Parent now at 10% (0.4 * 50% of child1)
 ```
 
 ### Async Streaming
+
 ```python
 async def monitor_progress(emitter: ProgressEmitter):
     async for update in emitter.stream():
@@ -315,6 +338,7 @@ asyncio.create_task(monitor_progress(emitter))
 ```
 
 ### Indeterminate Progress
+
 ```python
 # When total is unknown
 emitter = ProgressEmitter(total=None, label="Streaming")

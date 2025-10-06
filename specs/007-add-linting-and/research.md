@@ -11,6 +11,7 @@ This research document provides decision guidance for implementing a robust pre-
 ### Decision: Use pre-commit framework with remote hook configuration and strategic hook selection
 
 **Recommended Configuration:**
+
 ```yaml
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -49,6 +50,7 @@ repos:
 ### Decision: Configure 70% minimum coverage threshold with strategic exclusions in pyproject.toml
 
 **Recommended Configuration:**
+
 ```toml
 [tool.coverage.run]
 source = ["pdf_extractor", "audio_processor", "image_processor"]
@@ -76,7 +78,7 @@ show_missing = true
 ### Rationale:
 
 1. **70% Threshold**: Balances code quality with development velocity
-2. **Strategic Exclusions**: Test files, __init__ files, and boilerplate shouldn't be included
+2. **Strategic Exclusions**: Test files, **init** files, and boilerplate shouldn't be included
 3. **Exclusion Patterns**: `pragma: no cover` allows surgical exclusion of untestable code
 4. **Reporting Formats**: Terminal + HTML for comprehensive feedback
 5. **pyproject.toml Integration**: Consolidate configuration in single modern standard file
@@ -95,6 +97,7 @@ show_missing = true
 ### Decision: Use hybrid approach with `ruff check --fix` in pre-commit and `ruff format` separately
 
 **Recommended Hook Configuration:**
+
 ```yaml
 - repo: https://github.com/astral-sh/ruff-pre-commit
   rev: v0.13.2
@@ -128,6 +131,7 @@ show_missing = true
 ### Decision: Allow bypass with `--no-verify` but discourage through documentation and CI enforcement
 
 **Recommended Approach:**
+
 1. Document when bypass is appropriate in project README
 2. Enforce all checks in CI regardless of bypass
 3. Use CI to catch bypassed checks
@@ -175,11 +179,13 @@ show_missing = true
 
 ```markdown
 ## Local Development
+
 - Run relevant tests before committing: `pytest tests/unit/test_<module>.py -v`
 - Optional: Use pytest-watch for continuous testing: `ptw`
 - Pre-commit runs linting and formatting only (fast feedback)
 
 ## Continuous Integration
+
 - Full test suite runs on every PR
 - Required checks: pytest, coverage >= 70%
 - Blocks merge until passing
@@ -190,17 +196,20 @@ show_missing = true
 ## Implementation Recommendations
 
 ### Phase 1: Basic Pre-commit Setup
+
 1. Install pre-commit: `uv pip install pre-commit`
 2. Create `.pre-commit-config.yaml` with Ruff hooks
 3. Run `pre-commit install`
 4. Run `pre-commit run --all-files` to validate
 
 ### Phase 2: Coverage Configuration
+
 1. Add coverage configuration to `pyproject.toml`
 2. Test locally: `pytest --cov --cov-fail-under=70`
 3. Update CI to use same configuration
 
 ### Phase 3: Team Adoption
+
 1. Document bypass guidelines in README
 2. Add pre-commit status badge to README (if using pre-commit.ci)
 3. Team training on when bypass is appropriate
@@ -210,6 +219,7 @@ show_missing = true
 ## Configuration File Templates
 
 ### Complete .pre-commit-config.yaml
+
 ```yaml
 # Pre-commit hooks configuration for Python 3.13 project
 default_language_version:
@@ -239,6 +249,7 @@ repos:
 ```
 
 ### Complete pyproject.toml Coverage Section
+
 ```toml
 [tool.coverage.run]
 source = ["pdf_extractor", "audio_processor", "image_processor"]
@@ -286,19 +297,19 @@ addopts = [
 
 ## Summary of Decisions
 
-| Topic | Decision | Key Rationale |
-|-------|----------|---------------|
+| Topic                    | Decision                                    | Key Rationale                          |
+| ------------------------ | ------------------------------------------- | -------------------------------------- |
 | **Pre-commit Framework** | Use remote hooks with Ruff + standard hooks | Portability, auto-updates, performance |
-| **Coverage Threshold** | 70% minimum via pyproject.toml | Balanced quality/velocity |
-| **Coverage Exclusions** | Tests, __init__.py, pragmas | Focus on application logic |
-| **Ruff Auto-fix** | Hybrid: `--fix` for safe fixes | Developer experience with safety |
-| **Ruff Execution** | Check before format | Proper sequencing |
-| **Bypass Mechanism** | Allow --no-verify, enforce in CI | Pragmatic approach |
-| **Test Execution** | NO tests in pre-commit, all in CI | Performance optimization |
+| **Coverage Threshold**   | 70% minimum via pyproject.toml              | Balanced quality/velocity              |
+| **Coverage Exclusions**  | Tests, **init**.py, pragmas                 | Focus on application logic             |
+| **Ruff Auto-fix**        | Hybrid: `--fix` for safe fixes              | Developer experience with safety       |
+| **Ruff Execution**       | Check before format                         | Proper sequencing                      |
+| **Bypass Mechanism**     | Allow --no-verify, enforce in CI            | Pragmatic approach                     |
+| **Test Execution**       | NO tests in pre-commit, all in CI           | Performance optimization               |
 
 ---
 
 **Document Version**: 1.0
 **Date**: 2025-09-29
-**Project**: makeme-a-podcast-from-docs
+**Project**: anyfile-to-ai
 **Python Version**: 3.13

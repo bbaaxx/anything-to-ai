@@ -2,7 +2,7 @@
 
 **Feature**: Text Summarizer Module
 **Branch**: `009-summarizer-module-this`
-**Design docs**: `/Users/bbaaxx/Code/projects/makeme-a-podcast-from-docs/specs/009-summarizer-module-this/`
+**Design docs**: `<project_root>/specs/009-summarizer-module-this/`
 
 ## Execution Flow
 

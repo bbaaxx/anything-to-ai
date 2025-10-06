@@ -47,7 +47,7 @@ Summarize text using LLM models with automatic language detection and intelligen
 ```bash
 # Clone and enter directory
 git clone <repo-url>
-cd makeme-a-podcast-from-docs
+cd anyfile-to-ai
 
 # Install dependencies
 uv sync
@@ -78,7 +78,7 @@ python -m audio_processor sample-data/audio/podcast.mp3 --format plain | python 
 ## Project Structure
 
 ```
-makeme-a-podcast-from-docs/
+anyfile-to-ai/
 ├── pdf_extractor/          # PDF text extraction module
 ├── image_processor/        # VLM image processing module
 ├── audio_processor/        # Audio transcription module

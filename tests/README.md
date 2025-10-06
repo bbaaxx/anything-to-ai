@@ -1,6 +1,6 @@
 # Tests
 
-This directory contains comprehensive test suites for the makeme-a-podcast-from-docs project.
+This directory contains comprehensive test suites for the anyfile-to-ai project.
 
 ## Test Structure
 

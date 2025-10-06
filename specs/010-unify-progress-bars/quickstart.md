@@ -11,7 +11,7 @@
 uv add progress-tracker
 
 # Or for development
-cd /path/to/makeme-a-podcast-from-docs
+cd /path/to/anyfile-to-ai
 uv sync
 ```
 
@@ -38,6 +38,7 @@ def process_files(files: list[str]):
 ```
 
 **Output** (stderr):
+
 ```
 Processing files |████████████████████████████████| 100% (42/42)
 ```
@@ -120,6 +121,7 @@ def process_document(pdf_path: str):
 ```
 
 **Output** (stderr):
+
 ```
 Document Processing |██████████                    | 40% (Extract Text: 100/100)
 Document Processing |████████████████████████████  | 100% (Process Images: 50/50)
@@ -149,6 +151,7 @@ def process_stream(data_stream):
 ```
 
 **Output** (stderr):
+
 ```
 Streaming input ⠋ Processed: 42 items
 ```
@@ -216,6 +219,7 @@ def process_images(
 ```
 
 **CLI Usage**:
+
 ```python
 def cli_main(image_paths: list[str], verbose: bool):
     """CLI entry point."""
@@ -392,6 +396,7 @@ def process_batches(batches: list[list]):
 ### From pdf_extractor.ProgressInfo
 
 **Old**:
+
 ```python
 def extract_pdf(path, callback):
     for page in pages:
@@ -406,6 +411,7 @@ def extract_pdf(path, callback):
 ```
 
 **New**:
+
 ```python
 def extract_pdf(path, progress_emitter=None):
     if progress_emitter:
@@ -420,6 +426,7 @@ def extract_pdf(path, progress_emitter=None):
 ### From image_processor.ProgressTracker
 
 **Old**:
+
 ```python
 tracker = ProgressTracker(
     total_items=100,
@@ -431,6 +438,7 @@ for item in items:
 ```
 
 **New**:
+
 ```python
 emitter = ProgressEmitter(total=100)
 emitter.add_consumer(CallbackProgressConsumer(lambda c, t: print(f"{c}/{t}")))
@@ -474,6 +482,7 @@ for item in items:
 ## Support
 
 For questions or issues:
+
 - Review [`research.md`](./research.md) for design decisions
 - Check [`data-model.md`](./data-model.md) for entity relationships
 - See [`contracts/api.md`](./contracts/api.md) for API details

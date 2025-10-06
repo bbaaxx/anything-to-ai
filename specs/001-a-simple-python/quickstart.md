@@ -5,7 +5,7 @@
 ```bash
 # Clone repository
 git clone <repository-url>
-cd makeme-a-podcast-from-docs
+cd anyfile-to-ai
 
 # Install dependencies
 pip install pdfplumber
@@ -67,6 +67,7 @@ for page_result in extract_text_streaming("large_file.pdf", config):
 ## Test Scenarios
 
 ### Scenario 1: Small PDF Processing
+
 ```bash
 # Test with a small PDF (≤ 20 pages)
 python -m pdf_extractor extract test_files/small_document.pdf
@@ -74,6 +75,7 @@ python -m pdf_extractor extract test_files/small_document.pdf
 ```
 
 ### Scenario 2: Large PDF with Streaming
+
 ```bash
 # Test with a large PDF (> 20 pages)
 python -m pdf_extractor extract --stream --progress test_files/large_report.pdf
@@ -81,6 +83,7 @@ python -m pdf_extractor extract --stream --progress test_files/large_report.pdf
 ```
 
 ### Scenario 3: JSON Output Format
+
 ```bash
 # Test JSON output format
 python -m pdf_extractor extract --format json test_files/sample.pdf
@@ -88,6 +91,7 @@ python -m pdf_extractor extract --format json test_files/sample.pdf
 ```
 
 ### Scenario 4: Error Handling
+
 ```bash
 # Test with non-existent file
 python -m pdf_extractor extract nonexistent.pdf
@@ -103,6 +107,7 @@ python -m pdf_extractor extract test_files/protected.pdf
 ```
 
 ### Scenario 5: API Integration Test
+
 ```python
 # Test programmatic integration
 import pdf_extractor
@@ -128,6 +133,7 @@ except pdf_extractor.PDFNotFoundError as e:
 ## Performance Validation
 
 ### Memory Usage Test
+
 ```bash
 # Monitor memory usage with large file
 python -c "
@@ -146,6 +152,7 @@ print(f'Memory usage: {(peak_memory - initial_memory) / 1024 / 1024:.2f} MB')
 ```
 
 ### Processing Speed Test
+
 ```bash
 # Measure processing time
 time python -m pdf_extractor extract large_document.pdf
@@ -168,14 +175,17 @@ time python -m pdf_extractor extract large_document.pdf
 ### Common Issues
 
 1. **"Module not found" error**
+
    - Ensure pdfplumber is installed: `pip install pdfplumber`
    - Check Python path includes current directory
 
 2. **"Permission denied" error**
+
    - Verify file permissions on PDF file
    - Ensure file is not open in another application
 
 3. **"No text found" error**
+
    - PDF may contain only images - this is expected behavior
    - Try with a different PDF that contains text
 

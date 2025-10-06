@@ -1,8 +1,9 @@
-# makeme-a-podcast-from-docs Development Guidelines
+# anyfile-to-ai Development Guidelines
 
 Auto-generated from all feature plans. Last updated: 2025-09-28
 
 ## Active Technologies
+
 - Python 3.13 + alive-progress (CLI rendering), asyncio (async support), dataclasses (models) (010-unify-progress-bars)
 - N/A (in-memory state only) (010-unify-progress-bars)
 - Python 3.13 + pdfplumber (PDF), mlx-vlm (VLM), Pillow (images), lightning-whisper-mlx (audio), alive-progress (CLI), httpx (LLM client) (011-mkdn-markdown-output)
@@ -88,6 +89,7 @@ uv run python -m text_summarizer article.txt --format markdown
 Python 3.8+ (for compatibility with standard library features): Follow standard conventions
 
 ## Recent Changes
+
 - 011-mkdn-markdown-output: Added Python 3.13 + pdfplumber (PDF), mlx-vlm (VLM), Pillow (images), lightning-whisper-mlx (audio), alive-progress (CLI), httpx (LLM client)
 - 010-unify-progress-bars: Added Python 3.13 + alive-progress (CLI rendering), asyncio (async support), dataclasses (models)
 

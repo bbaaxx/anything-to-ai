@@ -8,7 +8,7 @@
 
 ```bash
 # Verify current state
-cd /Users/bbaaxx/Code/projects/makeme-a-podcast-from-docs
+cd <project_root>
 git status
 uv run pytest tests/contract/test_config_interface.py -v  # Should pass (24/24)
 uv run pytest tests/unit/test_cache.py tests/unit/test_retry.py -v  # Should pass (16/16)
@@ -18,11 +18,13 @@ uv run python check_file_lengths.py  # Should pass - all files < 250 lines
 ## What's Complete ✅
 
 ### Infrastructure (100%)
+
 - ✅ Project structure setup (llm_client/ module)
 - ✅ Dependencies installed (httpx>=0.27.0)
 - ✅ Configuration for testing and linting
 
 ### Data Layer (100%)
+
 - ✅ `llm_client/models.py` - All data models (Message, Usage, ModelInfo, LLMRequest, LLMResponse)
 - ✅ `llm_client/exceptions.py` - Complete error hierarchy (9 exception types)
 - ✅ `llm_client/config.py` - LLMConfig with validation
@@ -30,6 +32,7 @@ uv run python check_file_lengths.py  # Should pass - all files < 250 lines
 - ✅ `llm_client/retry.py` - RetryHandler with exponential backoff
 
 ### Adapter Layer (40%)
+
 - ✅ `llm_client/adapters/base.py` - BaseAdapter abstract class
 - ✅ `llm_client/adapters/__init__.py` - Factory pattern (ADAPTER_REGISTRY empty)
 - ✅ `llm_client/adapters/ollama_adapter.py` - Complete (153 lines)
@@ -37,6 +40,7 @@ uv run python check_file_lengths.py  # Should pass - all files < 250 lines
 - ❌ `llm_client/adapters/mlx_adapter.py` - **NOT STARTED** ← Next task
 
 ### Testing (40/90+ tests implemented)
+
 - ✅ Contract tests copied (90 tests total, only config tests passing)
 - ✅ Unit tests created and passing (16 tests)
 - ❌ Integration tests not started
@@ -46,6 +50,7 @@ uv run python check_file_lengths.py  # Should pass - all files < 250 lines
 ### Immediate Priority: Complete Phase 3.6 (3 tasks)
 
 **T023: Implement MLXAdapter** ⬅️ START HERE
+
 - File: `llm_client/adapters/mlx_adapter.py`
 - Must wrap existing `image_processor` VLM functionality
 - Translate OpenAI chat format → MLX image processing
@@ -53,8 +58,10 @@ uv run python check_file_lengths.py  # Should pass - all files < 250 lines
 - Target: < 200 lines
 
 **T024: Register Adapters**
+
 - Update `llm_client/adapters/__init__.py`
 - Add to ADAPTER_REGISTRY:
+
   ```python
   from llm_client.adapters.ollama_adapter import OllamaAdapter
   from llm_client.adapters.lmstudio_adapter import LMStudioAdapter
@@ -68,12 +75,14 @@ uv run python check_file_lengths.py  # Should pass - all files < 250 lines
   ```
 
 **T025: Validate Adapters**
+
 - Run: `uv run pytest tests/contract/test_adapter_interface.py::TestAdapterInterface -v`
 - Should pass base adapter contract tests
 
 ### Phase 3.7: Main LLM Client (5 tasks)
 
 **T026-T028: Implement LLMClient**
+
 - File: `llm_client/client.py`
 - Constructor: Initialize adapter (via factory), cache, retry handler
 - `generate()` method: Orchestrate retry, fallback, latency measurement
@@ -83,6 +92,7 @@ uv run python check_file_lengths.py  # Should pass - all files < 250 lines
 - Target: < 250 lines total
 
 **T029: Public API Facade**
+
 - Update `llm_client/__init__.py` to expose:
   - LLMClient (new)
   - LLMConfig, LLMRequest, LLMResponse, Message, ModelInfo, Usage (already exposed)
@@ -90,6 +100,7 @@ uv run python check_file_lengths.py  # Should pass - all files < 250 lines
   - `__version__` (already exposed)
 
 **T030: Validate Client**
+
 - Run: `uv run pytest tests/contract/test_llm_client_api.py -v`
 - Should pass 30 client API contract tests
 - Note: Tests requiring running services may be skipped
@@ -97,6 +108,7 @@ uv run python check_file_lengths.py  # Should pass - all files < 250 lines
 ### Phase 3.8: Integration Tests (5 tasks)
 
 Create integration test files:
+
 - `tests/integration/test_ollama_integration.py`
 - `tests/integration/test_lmstudio_integration.py`
 - `tests/integration/test_caching_behavior.py`
@@ -114,20 +126,20 @@ Mark all with `@pytest.mark.integration`
 
 ## File Status
 
-| File | Lines | Status | Notes |
-|------|-------|--------|-------|
-| `llm_client/models.py` | 152 | ✅ Complete | Under limit |
-| `llm_client/exceptions.py` | 76 | ✅ Complete | Under limit |
-| `llm_client/config.py` | 79 | ✅ Complete | Under limit |
-| `llm_client/cache.py` | 88 | ✅ Complete | Under limit |
-| `llm_client/retry.py` | 92 | ✅ Complete | Under limit |
-| `llm_client/adapters/base.py` | 61 | ✅ Complete | Under limit |
-| `llm_client/adapters/__init__.py` | 42 | ⚠️ Incomplete | Needs registration |
-| `llm_client/adapters/ollama_adapter.py` | 153 | ✅ Complete | Under limit |
-| `llm_client/adapters/lmstudio_adapter.py` | 169 | ✅ Complete | Under limit |
-| `llm_client/adapters/mlx_adapter.py` | 0 | ❌ Not started | Target < 200 |
-| `llm_client/client.py` | 0 | ❌ Not started | Target < 250 |
-| `llm_client/__init__.py` | 32 | ⚠️ Incomplete | Needs LLMClient |
+| File                                      | Lines | Status         | Notes              |
+| ----------------------------------------- | ----- | -------------- | ------------------ |
+| `llm_client/models.py`                    | 152   | ✅ Complete    | Under limit        |
+| `llm_client/exceptions.py`                | 76    | ✅ Complete    | Under limit        |
+| `llm_client/config.py`                    | 79    | ✅ Complete    | Under limit        |
+| `llm_client/cache.py`                     | 88    | ✅ Complete    | Under limit        |
+| `llm_client/retry.py`                     | 92    | ✅ Complete    | Under limit        |
+| `llm_client/adapters/base.py`             | 61    | ✅ Complete    | Under limit        |
+| `llm_client/adapters/__init__.py`         | 42    | ⚠️ Incomplete  | Needs registration |
+| `llm_client/adapters/ollama_adapter.py`   | 153   | ✅ Complete    | Under limit        |
+| `llm_client/adapters/lmstudio_adapter.py` | 169   | ✅ Complete    | Under limit        |
+| `llm_client/adapters/mlx_adapter.py`      | 0     | ❌ Not started | Target < 200       |
+| `llm_client/client.py`                    | 0     | ❌ Not started | Target < 250       |
+| `llm_client/__init__.py`                  | 32    | ⚠️ Incomplete  | Needs LLMClient    |
 
 ## Test Commands
 
@@ -169,13 +181,16 @@ uv run pytest --cov=llm_client --cov-report=term-missing
 ## Integration Notes
 
 ### MLX Adapter Specifics (T023)
+
 The MLX adapter is special because it wraps the existing `image_processor` module:
+
 - Must maintain compatibility with `VISION_MODEL` environment variable
 - Translates OpenAI chat format to MLX image processing calls
 - May need to extract image paths from message content
 - Should reuse existing VLM error handling from `image_processor.vlm_exceptions`
 
 Example pattern:
+
 ```python
 from image_processor import process_image, ProcessingConfig
 from llm_client.adapters.base import BaseAdapter
@@ -189,7 +204,9 @@ class MLXAdapter(BaseAdapter):
 ```
 
 ### Fallback Behavior (T026-T028)
+
 The client must implement cascading fallback:
+
 1. Try primary provider with retries
 2. If all retries fail, try first fallback provider
 3. Continue through fallback list
