@@ -13,7 +13,6 @@ class TestOutputFormats:
     def test_plain_text_output_format(self):
         """Test that plain text output format works."""
         pytest.skip("Test audio file not available yet")
-        import anyfile_to_ai.audio_processor
 
         config = audio_processor.create_config(output_format="plain")
         result = audio_processor.process_audio("sample-data/audio/speech.mp3", config)
@@ -25,7 +24,6 @@ class TestOutputFormats:
     def test_json_output_format(self):
         """Test that JSON output format works."""
         pytest.skip("Test audio file not available yet")
-        import anyfile_to_ai.audio_processor
 
         config = audio_processor.create_config(output_format="json")
         result = audio_processor.process_audio("sample-data/audio/speech.mp3", config)
@@ -41,7 +39,7 @@ class TestOutputFormats:
             "quantization": result.quantization,
             "detected_language": result.detected_language,
             "success": result.success,
-            "error_message": result.error_message
+            "error_message": result.error_message,
         }
         json_str = json.dumps(result_dict)
         assert json_str is not None
@@ -49,12 +47,8 @@ class TestOutputFormats:
     def test_batch_results_json_serializable(self):
         """Test that batch results are JSON serializable."""
         pytest.skip("Test audio files not available yet")
-        import anyfile_to_ai.audio_processor
 
-        files = [
-            "sample-data/audio/speech.mp3",
-            "sample-data/audio/spanish.m4a"
-        ]
+        files = ["sample-data/audio/speech.mp3", "sample-data/audio/spanish.m4a"]
 
         config = audio_processor.create_config(output_format="json")
         result = audio_processor.process_audio_batch(files, config)
@@ -77,19 +71,18 @@ class TestOutputFormats:
                     "quantization": r.quantization,
                     "detected_language": r.detected_language,
                     "success": r.success,
-                    "error_message": r.error_message
+                    "error_message": r.error_message,
                 }
                 for r in result.results
             ],
-            "error_summary": result.error_summary
+            "error_summary": result.error_summary,
         }
         json_str = json.dumps(result_dict)
         assert json_str is not None
 
     def test_output_format_validation(self):
         """Test that invalid output format raises error."""
-        import anyfile_to_ai.audio_processor
-        from anyfile_to_ai.audio_processor import ValidationError
+        from anything_to_ai.audio_processor import ValidationError
 
         with pytest.raises(ValidationError):
             audio_processor.create_config(output_format="invalid")

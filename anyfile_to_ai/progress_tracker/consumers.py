@@ -2,7 +2,7 @@
 
 import logging
 import time
-from typing import Callable, Optional
+from collections.abc import Callable
 
 from .models import ProgressState, ProgressUpdate
 
@@ -10,7 +10,7 @@ from .models import ProgressState, ProgressUpdate
 class CallbackProgressConsumer:
     """Adapts legacy callback(current, total) signatures."""
 
-    def __init__(self, callback: Callable[[int, Optional[int]], None]) -> None:
+    def __init__(self, callback: Callable[[int, int | None], None]) -> None:
         """
         Create callback adapter consumer.
 
@@ -24,20 +24,20 @@ class CallbackProgressConsumer:
         try:
             self.callback(update.state.current, update.state.total)
         except Exception as e:
-            logging.error(f"Callback error: {e}")
+            logging.exception(f"Callback error: {e}")
 
     def on_complete(self, state: ProgressState) -> None:
         """Handle completion event."""
         try:
             self.callback(state.current, state.total)
         except Exception as e:
-            logging.error(f"Callback error on complete: {e}")
+            logging.exception(f"Callback error on complete: {e}")
 
 
 class LoggingProgressConsumer:
     """Logs progress updates at configurable intervals."""
 
-    def __init__(self, logger: Optional[logging.Logger] = None, level: int = logging.INFO, log_interval: float = 5.0) -> None:
+    def __init__(self, logger: logging.Logger | None = None, level: int = logging.INFO, log_interval: float = 5.0) -> None:
         """
         Create logging consumer.
 

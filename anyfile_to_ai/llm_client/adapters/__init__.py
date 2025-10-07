@@ -6,14 +6,14 @@ for a given provider configuration.
 
 from typing import Dict, Type
 
-from anyfile_to_ai.llm_client.adapters.base import BaseAdapter
-from anyfile_to_ai.llm_client.adapters.lmstudio_adapter import LMStudioAdapter
-from anyfile_to_ai.llm_client.adapters.mlx_adapter import MLXAdapter
-from anyfile_to_ai.llm_client.adapters.ollama_adapter import OllamaAdapter
-from anyfile_to_ai.llm_client.config import LLMConfig
+from anything_to_ai.llm_client.adapters.base import BaseAdapter
+from anything_to_ai.llm_client.adapters.lmstudio_adapter import LMStudioAdapter
+from anything_to_ai.llm_client.adapters.mlx_adapter import MLXAdapter
+from anything_to_ai.llm_client.adapters.ollama_adapter import OllamaAdapter
+from anything_to_ai.llm_client.config import LLMConfig
 
 # Registry of provider names to adapter classes
-ADAPTER_REGISTRY: Dict[str, Type[BaseAdapter]] = {
+ADAPTER_REGISTRY: dict[str, type[BaseAdapter]] = {
     "ollama": OllamaAdapter,
     "lmstudio": LMStudioAdapter,
     "mlx": MLXAdapter,
@@ -32,22 +32,25 @@ def get_adapter(config: LLMConfig) -> BaseAdapter:
     Raises:
         ConfigurationError: If provider is not supported
     """
-    from anyfile_to_ai.llm_client.exceptions import ConfigurationError
+    from anything_to_ai.llm_client.exceptions import ConfigurationError
 
     adapter_class = ADAPTER_REGISTRY.get(config.provider)
 
     if adapter_class is None:
         available = ", ".join(ADAPTER_REGISTRY.keys()) if ADAPTER_REGISTRY else "none"
-        raise ConfigurationError(f"Unsupported provider: {config.provider}. Available providers: {available}", provider=config.provider)
+        raise ConfigurationError(
+            f"Unsupported provider: {config.provider}. Available providers: {available}",
+            provider=config.provider,
+        )
 
     return adapter_class(config)
 
 
 __all__ = [
+    "ADAPTER_REGISTRY",
     "BaseAdapter",
-    "OllamaAdapter",
     "LMStudioAdapter",
     "MLXAdapter",
-    "ADAPTER_REGISTRY",
+    "OllamaAdapter",
     "get_adapter",
 ]

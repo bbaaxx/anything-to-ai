@@ -1,6 +1,6 @@
 """Integration tests for text summary markdown output."""
 
-from anyfile_to_ai.text_summarizer.markdown_formatter import format_markdown
+from anything_to_ai.text_summarizer.markdown_formatter import format_markdown
 
 
 class TestTextMarkdownIntegration:
@@ -8,7 +8,10 @@ class TestTextMarkdownIntegration:
 
     def test_simple_summary_with_tags(self):
         """Test simple summary produces valid markdown."""
-        result = {"summary": "This is a test summary of the document.", "tags": ["test", "example", "documentation"]}
+        result = {
+            "summary": "This is a test summary of the document.",
+            "tags": ["test", "example", "documentation"],
+        }
 
         output = format_markdown(result)
 
@@ -39,7 +42,11 @@ class TestTextMarkdownIntegration:
         result = {
             "summary": "Summary text",
             "tags": ["test", "metadata", "integration"],
-            "metadata": {"input_length": 1500, "chunked": False, "processing_time": 2.5},
+            "metadata": {
+                "input_length": 1500,
+                "chunked": False,
+                "processing_time": 2.5,
+            },
         }
 
         output = format_markdown(result)
@@ -52,7 +59,10 @@ class TestTextMarkdownIntegration:
 
     def test_heading_hierarchy_correct(self):
         """Test heading hierarchy is valid."""
-        result = {"summary": "Test summary", "tags": ["test", "hierarchy", "validation"]}
+        result = {
+            "summary": "Test summary",
+            "tags": ["test", "hierarchy", "validation"],
+        }
 
         output = format_markdown(result)
 
@@ -103,7 +113,12 @@ class TestTextMarkdownIntegration:
         result = {
             "summary": "Summary from chunked processing",
             "tags": ["chunked", "large-document", "test"],
-            "metadata": {"input_length": 50000, "chunked": True, "chunk_count": 5, "processing_time": 15.2},
+            "metadata": {
+                "input_length": 50000,
+                "chunked": True,
+                "chunk_count": 5,
+                "processing_time": 15.2,
+            },
         }
 
         output = format_markdown(result)

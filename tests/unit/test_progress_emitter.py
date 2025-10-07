@@ -3,8 +3,12 @@
 import asyncio
 import pytest
 import time
-from anyfile_to_ai.progress_tracker.emitter import ProgressEmitter
-from anyfile_to_ai.progress_tracker.models import ProgressState, ProgressUpdate, UpdateType
+from anything_to_ai.progress_tracker.emitter import ProgressEmitter
+from anything_to_ai.progress_tracker.models import (
+    ProgressState,
+    ProgressUpdate,
+    UpdateType,
+)
 
 
 class MockConsumer:

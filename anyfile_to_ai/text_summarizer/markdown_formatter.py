@@ -1,9 +1,9 @@
 """Markdown formatting for text summarization results."""
 
-from typing import Dict, Any
+from typing import Any
 
 
-def format_markdown(result: Dict[str, Any]) -> str:
+def format_markdown(result: dict[str, Any]) -> str:
     """
     Format text summarization result as markdown.
 
@@ -59,7 +59,7 @@ def format_markdown(result: Dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def _format_metadata(metadata: Dict[str, Any], lines: list) -> None:
+def _format_metadata(metadata: dict[str, Any], lines: list) -> None:
     """Format metadata as bullet list."""
     if "input_length" in metadata:
         lines.append(f"- Input length: {metadata['input_length']} words")

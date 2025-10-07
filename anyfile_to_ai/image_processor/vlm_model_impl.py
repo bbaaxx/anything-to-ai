@@ -1,7 +1,7 @@
 """VLM model protocol implementation with MLX integration."""
 
 import time
-from typing import Dict, Any, Protocol
+from typing import Any, Protocol
 from abc import ABC, abstractmethod
 
 from .vlm_exceptions import VLMProcessingError
@@ -10,11 +10,11 @@ from .vlm_exceptions import VLMProcessingError
 class VLMModelProtocol(Protocol):
     """Protocol for VLM model implementations."""
 
-    def process_image(self, image_path: str, prompt: str) -> Dict[str, Any]:
+    def process_image(self, image_path: str, prompt: str) -> dict[str, Any]:
         """Process image with VLM model."""
         ...
 
-    def get_model_info(self) -> Dict[str, str]:
+    def get_model_info(self) -> dict[str, str]:
         """Get model information."""
         ...
 
@@ -34,19 +34,17 @@ class BaseVLMModel(ABC):
     @abstractmethod
     def _load_model(self) -> Any:
         """Load the actual model instance."""
-        pass
 
     @abstractmethod
     def _process_image_internal(self, image_path: str, prompt: str) -> str:
         """Internal image processing implementation."""
-        pass
 
     def _ensure_model_loaded(self):
         """Ensure model is loaded (for pre-loading without timeout)."""
         if self._model_instance is None:
             self._model_instance = self._load_model()
 
-    def process_image(self, image_path: str, prompt: str) -> Dict[str, Any]:
+    def process_image(self, image_path: str, prompt: str) -> dict[str, Any]:
         """
         Process image with VLM model.
 
@@ -75,24 +73,16 @@ class BaseVLMModel(ABC):
                 "description": description,
                 "confidence_score": None,  # Model-dependent
                 "processing_time": processing_time,
-                "model_info": self.get_model_info()
+                "model_info": self.get_model_info(),
             }
 
         except Exception as e:
             processing_time = time.time() - start_time
-            raise VLMProcessingError(
-                f"VLM processing failed: {str(e)}",
-                image_path=image_path,
-                model_name=self.model_name,
-                error_details=str(e)
-            )
+            raise VLMProcessingError(f"VLM processing failed: {e!s}", image_path=image_path, model_name=self.model_name, error_details=str(e))
 
-    def get_model_info(self) -> Dict[str, str]:
+    def get_model_info(self) -> dict[str, str]:
         """Get model information."""
-        return {
-            "name": self.model_name,
-            "version": self.model_version
-        }
+        return {"name": self.model_name, "version": self.model_version}
 
     def cleanup(self) -> None:
         """Clean up model resources."""
@@ -112,17 +102,15 @@ class MLXVLMModel(BaseVLMModel):
         """Load MLX VLM model."""
         try:
             import mlx_vlm
+
             # mlx_vlm.load returns a tuple of (model, processor)
             model, processor = mlx_vlm.load(self.model_name)
             return {"model": model, "processor": processor}
 
         except Exception as e:
             from .vlm_exceptions import VLMModelLoadError
-            raise VLMModelLoadError(
-                f"Failed to load MLX model '{self.model_name}'",
-                model_name=self.model_name,
-                error_reason=str(e)
-            )
+
+            raise VLMModelLoadError(f"Failed to load MLX model '{self.model_name}'", model_name=self.model_name, error_reason=str(e))
 
     def _process_image_internal(self, image_path: str, prompt: str) -> str:
         """Process image using MLX VLM."""
@@ -137,33 +125,21 @@ class MLXVLMModel(BaseVLMModel):
             # Gemma-3 requires explicit image token in the prompt
             formatted_prompt = f"<start_of_image>{prompt}"
 
-            result = mlx_vlm.generate(
-                model=model,
-                processor=processor,
-                prompt=formatted_prompt,
-                image=image_path,
-                max_tokens=100,
-                temperature=0.0
-            )
+            result = mlx_vlm.generate(model=model, processor=processor, prompt=formatted_prompt, image=image_path, max_tokens=100, temperature=0.0)
 
             # Extract text from result
-            if hasattr(result, 'text'):
+            if hasattr(result, "text"):
                 return result.text
-            elif isinstance(result, str):
+            if isinstance(result, str):
                 return result
-            else:
-                return str(result)
+            return str(result)
 
         except Exception as e:
             # Fallback to descriptive error handling
             import os
+
             filename = os.path.basename(image_path)
-            raise VLMProcessingError(
-                f"Failed to process image {filename} with MLX VLM: {str(e)}",
-                image_path=image_path,
-                model_name=self.model_name,
-                error_details=str(e)
-            )
+            raise VLMProcessingError(f"Failed to process image {filename} with MLX VLM: {e!s}", image_path=image_path, model_name=self.model_name, error_details=str(e))
 
 
 class MockVLMModel(BaseVLMModel):
@@ -179,6 +155,7 @@ class MockVLMModel(BaseVLMModel):
     def _process_image_internal(self, image_path: str, prompt: str) -> str:
         """Mock image processing."""
         import os
+
         filename = os.path.basename(image_path)
         return f"Mock VLM description for {filename}"
 
@@ -196,6 +173,5 @@ def create_vlm_model(model_name: str, **kwargs) -> VLMModelProtocol:
     """
     if model_name.startswith("mock/") or model_name == "test":
         return MockVLMModel(model_name, **kwargs)
-    else:
-        # Default to MLX implementation for real models
-        return MLXVLMModel(model_name, **kwargs)
+    # Default to MLX implementation for real models
+    return MLXVLMModel(model_name, **kwargs)

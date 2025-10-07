@@ -20,13 +20,13 @@ errors) which are covered by the remaining tests.
 """
 
 import pytest
-from anyfile_to_ai.llm_client import (
+from anything_to_ai.llm_client import (
     LLMClient,
     LLMConfig,
     LLMRequest,
     Message,
 )
-from anyfile_to_ai.llm_client.exceptions import (
+from anything_to_ai.llm_client.exceptions import (
     ConnectionError as LLMConnectionError,
 )
 
@@ -128,7 +128,11 @@ class TestFallbackBehavior:
             base_url="http://localhost:99999",  # Would fail if used
         )
 
-        config = LLMConfig(provider="ollama", base_url="http://localhost:11434", fallback_configs=[fallback])
+        config = LLMConfig(
+            provider="ollama",
+            base_url="http://localhost:11434",
+            fallback_configs=[fallback],
+        )
 
         client = LLMClient(config)
 

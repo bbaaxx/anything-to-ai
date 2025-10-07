@@ -1,12 +1,12 @@
 """Contract tests for exception hierarchy."""
 
-from anyfile_to_ai.image_processor.exceptions import (
+from anything_to_ai.image_processor.exceptions import (
     ImageProcessingError,
     ImageNotFoundError,
     UnsupportedFormatError,
     CorruptedImageError,
     ProcessingError,
-    ValidationError
+    ValidationError,
 )
 
 
@@ -20,7 +20,7 @@ class TestExceptionHierarchyContract:
             UnsupportedFormatError,
             CorruptedImageError,
             ProcessingError,
-            ValidationError
+            ValidationError,
         ]
         for exc_class in exceptions:
             assert issubclass(exc_class, ImageProcessingError)

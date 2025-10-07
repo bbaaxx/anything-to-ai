@@ -5,7 +5,6 @@ from the specification.
 """
 
 import argparse
-from typing import List, Optional
 from .api import ProcessingConfig, ProcessingResult, DescriptionResult
 
 
@@ -24,87 +23,36 @@ Examples:
     python -m image_processor *.png --style brief
     python -m image_processor folder/ --batch-size 2 --output results.json
     python -m image_processor image.jpg --model large --timeout 120
-        """
+        """,
     )
 
     # Positional arguments
-    parser.add_argument(
-        'images',
-        nargs='+',
-        help='Image file paths or directories to process'
-    )
+    parser.add_argument("images", nargs="+", help="Image file paths or directories to process")
 
     # Processing options
-    parser.add_argument(
-        '--style',
-        choices=['detailed', 'brief', 'technical'],
-        default='detailed',
-        help='Description style preference (default: detailed)'
-    )
+    parser.add_argument("--style", choices=["detailed", "brief", "technical"], default="detailed", help="Description style preference (default: detailed)")
 
-    parser.add_argument(
-        '--max-length',
-        type=int,
-        default=500,
-        metavar='N',
-        help='Maximum description length in characters (default: 500)'
-    )
+    parser.add_argument("--max-length", type=int, default=500, metavar="N", help="Maximum description length in characters (default: 500)")
 
-    parser.add_argument(
-        '--batch-size',
-        type=int,
-        default=4,
-        metavar='N',
-        help='Number of images to process simultaneously (default: 4)'
-    )
+    parser.add_argument("--batch-size", type=int, default=4, metavar="N", help="Number of images to process simultaneously (default: 4)")
 
-    parser.add_argument(
-        '--model',
-        choices=['small', 'medium', 'large'],
-        default='small',
-        help='Model size preference (default: small)'
-    )
+    parser.add_argument("--model", choices=["small", "medium", "large"], default="small", help="Model size preference (default: small)")
 
-    parser.add_argument(
-        '--timeout',
-        type=int,
-        default=60,
-        metavar='SECONDS',
-        help='Processing timeout per image (default: 60)'
-    )
+    parser.add_argument("--timeout", type=int, default=60, metavar="SECONDS", help="Processing timeout per image (default: 60)")
 
     # Output options
-    parser.add_argument(
-        '--output',
-        '-o',
-        help='Output file path (JSON format, default: stdout)'
-    )
+    parser.add_argument("--output", "-o", help="Output file path (JSON format, default: stdout)")
 
-    parser.add_argument(
-        '--format',
-        choices=['plain', 'json', 'csv'],
-        default='plain',
-        help='Output format (default: plain)'
-    )
+    parser.add_argument("--format", choices=["plain", "json", "csv"], default="plain", help="Output format (default: plain)")
 
-    parser.add_argument(
-        '--verbose',
-        '-v',
-        action='store_true',
-        help='Enable verbose progress output'
-    )
+    parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose progress output")
 
-    parser.add_argument(
-        '--quiet',
-        '-q',
-        action='store_true',
-        help='Suppress all output except results'
-    )
+    parser.add_argument("--quiet", "-q", action="store_true", help="Suppress all output except results")
 
     return parser
 
 
-def main(args: Optional[List[str]] = None) -> int:
+def main(args: list[str] | None = None) -> int:
     """Main CLI entry point.
 
     Args:
@@ -113,10 +61,9 @@ def main(args: Optional[List[str]] = None) -> int:
     Returns:
         Exit code (0 for success, non-zero for failure)
     """
-    pass
 
 
-def process_cli_images(image_paths: List[str], config: ProcessingConfig) -> ProcessingResult:
+def process_cli_images(image_paths: list[str], config: ProcessingConfig) -> ProcessingResult:
     """Process images from CLI with configuration.
 
     Args:
@@ -126,7 +73,6 @@ def process_cli_images(image_paths: List[str], config: ProcessingConfig) -> Proc
     Returns:
         ProcessingResult with all processing outcomes
     """
-    pass
 
 
 def format_output(result: ProcessingResult, format_type: str) -> str:
@@ -139,7 +85,6 @@ def format_output(result: ProcessingResult, format_type: str) -> str:
     Returns:
         Formatted string for output
     """
-    pass
 
 
 def format_single_result(result: DescriptionResult, format_type: str) -> str:
@@ -152,7 +97,6 @@ def format_single_result(result: DescriptionResult, format_type: str) -> str:
     Returns:
         Formatted string for single result
     """
-    pass
 
 
 def progress_callback(current: int, total: int) -> None:
@@ -162,10 +106,9 @@ def progress_callback(current: int, total: int) -> None:
         current: Current image number
         total: Total number of images
     """
-    pass
 
 
-def expand_image_paths(paths: List[str]) -> List[str]:
+def expand_image_paths(paths: list[str]) -> list[str]:
     """Expand directory paths and glob patterns to image files.
 
     Args:
@@ -177,7 +120,6 @@ def expand_image_paths(paths: List[str]) -> List[str]:
     Raises:
         ValidationError: No valid images found
     """
-    pass
 
 
 def validate_cli_args(args: argparse.Namespace) -> None:
@@ -189,4 +131,3 @@ def validate_cli_args(args: argparse.Namespace) -> None:
     Raises:
         ValidationError: Invalid argument combination
     """
-    pass

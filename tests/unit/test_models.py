@@ -1,6 +1,11 @@
 """Unit tests for model validation."""
 
-from anyfile_to_ai.image_processor.models import ImageDocument, DescriptionResult, ProcessingResult, ProcessingConfig
+from anything_to_ai.image_processor.models import (
+    ImageDocument,
+    DescriptionResult,
+    ProcessingResult,
+    ProcessingConfig,
+)
 
 
 class TestModelValidation:
@@ -14,7 +19,7 @@ class TestModelValidation:
             width=1024,
             height=768,
             file_size=102400,
-            is_large_image=False
+            is_large_image=False,
         )
 
         assert doc.file_path == "/test/image.jpg"
@@ -33,7 +38,7 @@ class TestModelValidation:
             processing_time=1.5,
             model_used="test-model",
             prompt_used="test prompt",
-            success=True
+            success=True,
         )
 
         assert result.image_path == "/test/image.jpg"
@@ -53,7 +58,7 @@ class TestModelValidation:
             processing_time=1.5,
             model_used="test-model",
             prompt_used="test prompt",
-            success=True
+            success=True,
         )
 
         result = ProcessingResult(
@@ -63,7 +68,7 @@ class TestModelValidation:
             successful_count=1,
             failed_count=0,
             total_processing_time=1.5,
-            error_message=None
+            error_message=None,
         )
 
         assert result.success is True
@@ -76,9 +81,21 @@ class TestModelValidation:
 
     def test_processing_config_defaults(self):
         """Test ProcessingConfig default values."""
-        config = ProcessingConfig()
+        import os
 
-        assert config.model_name == "mlx-community/Qwen2-VL-2B-Instruct-4bit"
+        # Set VISION_MODEL for this test
+        original_vision_model = os.environ.get("VISION_MODEL")
+        os.environ["VISION_MODEL"] = "mlx-community/Qwen2-VL-2B-Instruct-4bit"
+
+        try:
+            config = ProcessingConfig()
+            assert config.model_name == "mlx-community/Qwen2-VL-2B-Instruct-4bit"
+        finally:
+            # Restore original value
+            if original_vision_model is not None:
+                os.environ["VISION_MODEL"] = original_vision_model
+            else:
+                del os.environ["VISION_MODEL"]
         assert config.description_style == "detailed"
         assert config.max_description_length == 500
         assert config.batch_size == 4
@@ -88,6 +105,7 @@ class TestModelValidation:
 
     def test_processing_config_custom_values(self):
         """Test ProcessingConfig with custom values."""
+
         def dummy_callback(current, total):
             pass
 
@@ -98,7 +116,7 @@ class TestModelValidation:
             batch_size=2,
             progress_callback=dummy_callback,
             prompt_template="Custom prompt: {style}",
-            timeout_seconds=30
+            timeout_seconds=30,
         )
 
         assert config.model_name == "custom-model"

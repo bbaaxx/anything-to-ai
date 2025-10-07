@@ -11,7 +11,7 @@
 uv add progress-tracker
 
 # Or for development
-cd /path/to/anyfile-to-ai
+cd /path/to/anything-to-ai
 uv sync
 ```
 

@@ -33,18 +33,18 @@
 
 ## Summary
 
-Prepare the anyfile-to-ai repository for Python packaging and PyPI distribution. The approach involves creating a unified `anyfile_to_ai` package with optional extras for modular installation, maintaining existing CLI entry points while providing proper package metadata and build configuration. The solution excludes ML model dependencies from the package to reduce size and allow user choice, following Python packaging standards and constitutional principles.
+Prepare the anything-to-ai repository for Python packaging and PyPI distribution. The approach involves creating a unified `anything_to_ai` package with optional extras for modular installation, maintaining existing CLI entry points while providing proper package metadata and build configuration. The solution excludes ML model dependencies from the package to reduce size and allow user choice, following Python packaging standards and constitutional principles.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11+ (per clarifications)  
-**Primary Dependencies**: setuptools, wheel, build (packaging tools); existing module dependencies (pdfplumber, mlx-vlm, lightning-whisper-mlx, etc.)  
-**Storage**: File system only (package distribution files)  
-**Testing**: pytest (existing test framework)  
-**Target Platform**: PyPI distribution for cross-platform Python installation  
-**Project Type**: Single Python package with optional extras  
-**Performance Goals**: Package build time <5 minutes, install time <2 minutes  
-**Constraints**: Must comply with PyPI packaging standards, support modular installation  
+**Language/Version**: Python 3.11+ (per clarifications)
+**Primary Dependencies**: setuptools, wheel, build (packaging tools); existing module dependencies (pdfplumber, mlx-vlm, lightning-whisper-mlx, etc.)
+**Storage**: File system only (package distribution files)
+**Testing**: pytest (existing test framework)
+**Target Platform**: PyPI distribution for cross-platform Python installation
+**Project Type**: Single Python package with optional extras
+**Performance Goals**: Package build time <5 minutes, install time <2 minutes
+**Constraints**: Must comply with PyPI packaging standards, support modular installation
 **Scale/Scope**: 4 modules (pdf, image, audio, text) with optional extras
 
 ## Constitution Check
@@ -98,7 +98,7 @@ specs/012-prepare-this-repository/
 ### Source Code (repository root)
 
 ```
-anyfile_to_ai/              # Main package directory
+anything_to_ai/              # Main package directory
 ├── __init__.py            # Package initialization
 ├── pdf_extractor/         # PDF processing module
 ├── image_processor/       # Image processing module
@@ -213,8 +213,8 @@ _This section describes what the /tasks command will do - DO NOT execute during 
 
 _These phases are beyond the scope of the /plan command_
 
-**Phase 3**: Task execution (/tasks command creates tasks.md)  
-**Phase 4**: Implementation (execute tasks.md following constitutional principles)  
+**Phase 3**: Task execution (/tasks command creates tasks.md)
+**Phase 4**: Implementation (execute tasks.md following constitutional principles)
 **Phase 5**: Validation (run tests, execute quickstart.md, performance validation)
 
 ## Complexity Tracking

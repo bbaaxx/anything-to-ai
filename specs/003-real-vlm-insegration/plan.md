@@ -216,8 +216,8 @@ _This section describes what the /tasks command will do - DO NOT execute during 
 
 _These phases are beyond the scope of the /plan command_
 
-**Phase 3**: Task execution (/tasks command creates tasks.md)  
-**Phase 4**: Implementation (execute tasks.md following constitutional principles)  
+**Phase 3**: Task execution (/tasks command creates tasks.md)
+**Phase 4**: Implementation (execute tasks.md following constitutional principles)
 **Phase 5**: Validation (run tests, execute quickstart.md, performance validation)
 
 ## Complexity Tracking

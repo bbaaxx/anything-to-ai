@@ -1,16 +1,14 @@
 """Streaming/pagination for large files."""
+
 import time
 import os
-from typing import Generator, Optional
+from collections.abc import Generator
 import pdfplumber
 from .models import PageResult, ExtractionConfig
 from .exceptions import PDFNotFoundError, PDFCorruptedError
 
 
-def extract_text_streaming(
-    file_path: str,
-    config: Optional[ExtractionConfig] = None
-) -> Generator[PageResult, None, None]:
+def extract_text_streaming(file_path: str, config: ExtractionConfig | None = None) -> Generator[PageResult, None, None]:
     """
     Stream text extraction page by page (generator).
 
@@ -39,12 +37,7 @@ def extract_text_streaming(
                 text = page.extract_text() or ""
                 page_time = time.time() - page_start
 
-                page_result = PageResult(
-                    page_number=page_num,
-                    text=text,
-                    char_count=len(text),
-                    extraction_time=page_time
-                )
+                page_result = PageResult(page_number=page_num, text=text, char_count=len(text), extraction_time=page_time)
 
                 # Call progress callback if provided
                 if config.progress_callback:

@@ -73,7 +73,7 @@ When creating this spec from a user prompt:
 
 ### Primary User Story
 
-As a developer contributing to the anyfile-to-ai project, I need automated code quality checks and comprehensive testing to ensure that my changes meet quality standards before they are merged. The system should automatically validate code style, detect common errors, and run tests to verify functionality without requiring manual intervention.
+As a developer contributing to the anything-to-ai project, I need automated code quality checks and comprehensive testing to ensure that my changes meet quality standards before they are merged. The system should automatically validate code style, detect common errors, and run tests to verify functionality without requiring manual intervention.
 
 ### Acceptance Scenarios
 

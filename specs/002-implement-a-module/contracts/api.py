@@ -4,7 +4,8 @@ This module defines the expected function signatures and return types
 that match the functional requirements from the specification.
 """
 
-from typing import List, Optional, Dict, Any, Callable
+from typing import Any
+from collections.abc import Callable
 from dataclasses import dataclass
 
 # Progress callback signature
@@ -14,6 +15,7 @@ ProgressCallback = Callable[[int, int], None]  # (current_image, total_images)
 @dataclass
 class ImageDocument:
     """Contract for image document representation."""
+
     file_path: str
     format: str
     width: int
@@ -25,9 +27,10 @@ class ImageDocument:
 @dataclass
 class DescriptionResult:
     """Contract for individual image processing result."""
+
     image_path: str
     description: str
-    confidence_score: Optional[float]
+    confidence_score: float | None
     processing_time: float
     model_used: str
     prompt_used: str
@@ -37,29 +40,31 @@ class DescriptionResult:
 @dataclass
 class ProcessingResult:
     """Contract for complete processing operation result."""
+
     success: bool
-    results: List[DescriptionResult]
+    results: list[DescriptionResult]
     total_images: int
     successful_count: int
     failed_count: int
     total_processing_time: float
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
 
 @dataclass
 class ProcessingConfig:
     """Contract for processing configuration."""
+
     model_name: str = "mlx-community/Qwen2-VL-2B-Instruct-4bit"
     description_style: str = "detailed"
     max_description_length: int = 500
     batch_size: int = 4
-    progress_callback: Optional[ProgressCallback] = None
+    progress_callback: ProgressCallback | None = None
     prompt_template: str = "Describe this image in a {style} manner."
     timeout_seconds: int = 60
 
 
 # Core Processing Functions (FR-003, FR-004)
-def process_image(file_path: str, config: Optional[ProcessingConfig] = None) -> DescriptionResult:
+def process_image(file_path: str, config: ProcessingConfig | None = None) -> DescriptionResult:
     """Process single image and generate descriptive text.
 
     Args:
@@ -74,10 +79,9 @@ def process_image(file_path: str, config: Optional[ProcessingConfig] = None) -> 
         UnsupportedFormatError: Image format not supported
         ProcessingError: VLM processing failed
     """
-    pass
 
 
-def process_images(file_paths: List[str], config: Optional[ProcessingConfig] = None) -> ProcessingResult:
+def process_images(file_paths: list[str], config: ProcessingConfig | None = None) -> ProcessingResult:
     """Process multiple images in batch (FR-007).
 
     Args:
@@ -91,7 +95,6 @@ def process_images(file_paths: List[str], config: Optional[ProcessingConfig] = N
         ValidationError: Invalid input parameters
         ProcessingError: Batch processing failed
     """
-    pass
 
 
 # Validation Functions (FR-001, FR-002)
@@ -109,21 +112,18 @@ def validate_image(file_path: str) -> ImageDocument:
         UnsupportedFormatError: Format not supported
         CorruptedImageError: File corrupted or unreadable
     """
-    pass
 
 
-def get_supported_formats() -> List[str]:
+def get_supported_formats() -> list[str]:
     """Get list of supported image formats (FR-001).
 
     Returns:
         List of supported file extensions
     """
-    pass
 
 
 # Progress and Streaming Functions (FR-005)
-def process_images_streaming(file_paths: List[str],
-                           config: Optional[ProcessingConfig] = None) -> List[DescriptionResult]:
+def process_images_streaming(file_paths: list[str], config: ProcessingConfig | None = None) -> list[DescriptionResult]:
     """Process images with streaming progress updates.
 
     Args:
@@ -137,14 +137,10 @@ def process_images_streaming(file_paths: List[str],
         ValidationError: Invalid configuration
         ProcessingError: Streaming processing failed
     """
-    pass
 
 
 # Configuration Functions (FR-009, FR-010)
-def create_config(description_style: str = "detailed",
-                 max_length: int = 500,
-                 batch_size: int = 4,
-                 progress_callback: Optional[ProgressCallback] = None) -> ProcessingConfig:
+def create_config(description_style: str = "detailed", max_length: int = 500, batch_size: int = 4, progress_callback: ProgressCallback | None = None) -> ProcessingConfig:
     """Create processing configuration with validation.
 
     Args:
@@ -159,10 +155,9 @@ def create_config(description_style: str = "detailed",
     Raises:
         ValidationError: Invalid configuration parameters
     """
-    pass
 
 
-def get_image_info(file_path: str) -> Dict[str, Any]:
+def get_image_info(file_path: str) -> dict[str, Any]:
     """Get image information without processing (similar to PDF get_info).
 
     Args:
@@ -175,4 +170,3 @@ def get_image_info(file_path: str) -> Dict[str, Any]:
         ImageNotFoundError: File doesn't exist
         CorruptedImageError: File unreadable
     """
-    pass

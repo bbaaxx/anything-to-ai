@@ -1,10 +1,10 @@
 """Markdown formatting for PDF extraction results."""
 
-from typing import Dict, Any
-from anyfile_to_ai.pdf_extractor.models import ExtractionResult
+from typing import Any
+from anything_to_ai.pdf_extractor.models import ExtractionResult
 
 
-def format_markdown(result: Dict[str, Any]) -> str:
+def format_markdown(result: dict[str, Any]) -> str:
     """
     Format PDF extraction result as markdown.
 

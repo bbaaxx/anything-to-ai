@@ -1,8 +1,8 @@
 """Contract tests for CLI output formatting functions."""
 
 import json
-from anyfile_to_ai.image_processor.cli import format_output, format_single_result
-from anyfile_to_ai.image_processor import ProcessingResult, DescriptionResult
+from anything_to_ai.image_processor.cli import format_output, format_single_result
+from anything_to_ai.image_processor import ProcessingResult, DescriptionResult
 
 
 class TestCliOutputFormattingContract:
@@ -24,7 +24,7 @@ class TestCliOutputFormattingContract:
             total_images=1,
             successful_count=1,
             failed_count=0,
-            total_processing_time=1.5
+            total_processing_time=1.5,
         )
         output = format_output(result, "plain")
         assert isinstance(output, str)
@@ -38,7 +38,7 @@ class TestCliOutputFormattingContract:
             total_images=1,
             successful_count=1,
             failed_count=0,
-            total_processing_time=1.5
+            total_processing_time=1.5,
         )
         output = format_output(result, "json")
         assert isinstance(output, str)
@@ -54,7 +54,7 @@ class TestCliOutputFormattingContract:
             total_images=1,
             successful_count=1,
             failed_count=0,
-            total_processing_time=1.5
+            total_processing_time=1.5,
         )
         output = format_output(result, "csv")
         assert isinstance(output, str)
@@ -69,7 +69,7 @@ class TestCliOutputFormattingContract:
             processing_time=1.2,
             model_used="test-model",
             prompt_used="test prompt",
-            success=True
+            success=True,
         )
         output = format_single_result(result, "plain")
         assert isinstance(output, str)
@@ -85,7 +85,7 @@ class TestCliOutputFormattingContract:
             processing_time=1.2,
             model_used="test-model",
             prompt_used="test prompt",
-            success=True
+            success=True,
         )
         output = format_single_result(result, "json")
         assert isinstance(output, str)
@@ -103,7 +103,7 @@ class TestCliOutputFormattingContract:
             processing_time=1.2,
             model_used="test-model",
             prompt_used="test prompt",
-            success=True
+            success=True,
         )
         output = format_single_result(result, "csv")
         assert isinstance(output, str)

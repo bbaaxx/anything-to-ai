@@ -1,7 +1,7 @@
 """Enhanced data models for PDF extraction with image description support."""
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Any
+from typing import Any
 from .models import ExtractionConfig, PageResult, ExtractionResult
 
 
@@ -11,11 +11,11 @@ class EnhancedExtractionConfig(ExtractionConfig):
 
     # Image processing settings
     include_images: bool = False
-    image_processing_config: Optional[Any] = None
+    image_processing_config: Any | None = None
 
     # Error handling settings
     image_fallback_text: str = "[Image: processing failed]"
-    max_images_per_page: Optional[int] = None
+    max_images_per_page: int | None = None
 
     # Performance settings
     image_batch_size: int = 4
@@ -61,10 +61,10 @@ class ImageContext:
     format: str  # e.g., "JPEG", "PNG"
 
     # Processing results
-    pil_image: Optional[Any] = None  # PIL Image object
-    description: Optional[str] = None
+    pil_image: Any | None = None  # PIL Image object
+    description: str | None = None
     processing_status: str = "pending"  # pending, success, failed
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
     def __post_init__(self):
         """Validate ImageContext fields."""
@@ -92,8 +92,8 @@ class EnhancedPageResult(PageResult):
     images_found: int = 0
     images_processed: int = 0
     images_failed: int = 0
-    image_contexts: List[ImageContext] = field(default_factory=list)
-    enhanced_text: Optional[str] = None  # Text with inline image descriptions
+    image_contexts: list[ImageContext] = field(default_factory=list)
+    enhanced_text: str | None = None  # Text with inline image descriptions
 
     def __post_init__(self):
         """Validate EnhancedPageResult fields."""
@@ -120,11 +120,11 @@ class EnhancedExtractionResult(ExtractionResult):
     total_images_processed: int = 0
     total_images_failed: int = 0
     image_processing_time: float = 0.0
-    vision_model_used: Optional[str] = None
+    vision_model_used: str | None = None
 
     # Enhanced content
-    enhanced_pages: List[EnhancedPageResult] = field(default_factory=list)
-    combined_enhanced_text: Optional[str] = None
+    enhanced_pages: list[EnhancedPageResult] = field(default_factory=list)
+    combined_enhanced_text: str | None = None
 
     def __post_init__(self):
         """Validate EnhancedExtractionResult fields."""
@@ -148,12 +148,12 @@ def validate_enhanced_extraction_config(config: EnhancedExtractionConfig) -> boo
     """Validate enhanced extraction configuration."""
     try:
         return (
-            isinstance(config.include_images, bool) and
-            isinstance(config.image_fallback_text, str) and
-            (config.max_images_per_page is None or (isinstance(config.max_images_per_page, int) and config.max_images_per_page > 0)) and
-            isinstance(config.image_batch_size, int) and
-            1 <= config.image_batch_size <= 10 and
-            isinstance(config.parallel_image_processing, bool)
+            isinstance(config.include_images, bool)
+            and isinstance(config.image_fallback_text, str)
+            and (config.max_images_per_page is None or (isinstance(config.max_images_per_page, int) and config.max_images_per_page > 0))
+            and isinstance(config.image_batch_size, int)
+            and 1 <= config.image_batch_size <= 10
+            and isinstance(config.parallel_image_processing, bool)
         )
     except (AttributeError, TypeError):
         return False
@@ -163,13 +163,18 @@ def validate_image_context(context: ImageContext) -> bool:
     """Validate image context."""
     try:
         return (
-            isinstance(context.page_number, int) and context.page_number >= 1 and
-            isinstance(context.sequence_number, int) and context.sequence_number >= 1 and
-            isinstance(context.bounding_box, tuple) and len(context.bounding_box) == 4 and
-            isinstance(context.width, int) and context.width > 0 and
-            isinstance(context.height, int) and context.height > 0 and
-            isinstance(context.format, str) and
-            context.processing_status in ["pending", "success", "failed"]
+            isinstance(context.page_number, int)
+            and context.page_number >= 1
+            and isinstance(context.sequence_number, int)
+            and context.sequence_number >= 1
+            and isinstance(context.bounding_box, tuple)
+            and len(context.bounding_box) == 4
+            and isinstance(context.width, int)
+            and context.width > 0
+            and isinstance(context.height, int)
+            and context.height > 0
+            and isinstance(context.format, str)
+            and context.processing_status in ["pending", "success", "failed"]
         )
     except (AttributeError, TypeError):
         return False
@@ -179,12 +184,15 @@ def validate_enhanced_page_result(result: EnhancedPageResult) -> bool:
     """Validate enhanced page result."""
     try:
         return (
-            isinstance(result.images_found, int) and result.images_found >= 0 and
-            isinstance(result.images_processed, int) and result.images_processed >= 0 and
-            isinstance(result.images_failed, int) and result.images_failed >= 0 and
-            result.images_processed + result.images_failed <= result.images_found and
-            isinstance(result.image_contexts, list) and
-            len(result.image_contexts) == result.images_found
+            isinstance(result.images_found, int)
+            and result.images_found >= 0
+            and isinstance(result.images_processed, int)
+            and result.images_processed >= 0
+            and isinstance(result.images_failed, int)
+            and result.images_failed >= 0
+            and result.images_processed + result.images_failed <= result.images_found
+            and isinstance(result.image_contexts, list)
+            and len(result.image_contexts) == result.images_found
         )
     except (AttributeError, TypeError):
         return False
@@ -194,12 +202,16 @@ def validate_enhanced_extraction_result(result: EnhancedExtractionResult) -> boo
     """Validate enhanced extraction result."""
     try:
         return (
-            isinstance(result.total_images_found, int) and result.total_images_found >= 0 and
-            isinstance(result.total_images_processed, int) and result.total_images_processed >= 0 and
-            isinstance(result.total_images_failed, int) and result.total_images_failed >= 0 and
-            result.total_images_processed + result.total_images_failed <= result.total_images_found and
-            isinstance(result.image_processing_time, float) and result.image_processing_time >= 0.0 and
-            isinstance(result.enhanced_pages, list)
+            isinstance(result.total_images_found, int)
+            and result.total_images_found >= 0
+            and isinstance(result.total_images_processed, int)
+            and result.total_images_processed >= 0
+            and isinstance(result.total_images_failed, int)
+            and result.total_images_failed >= 0
+            and result.total_images_processed + result.total_images_failed <= result.total_images_found
+            and isinstance(result.image_processing_time, float)
+            and result.image_processing_time >= 0.0
+            and isinstance(result.enhanced_pages, list)
         )
     except (AttributeError, TypeError):
         return False

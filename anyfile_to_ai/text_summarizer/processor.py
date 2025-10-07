@@ -2,7 +2,7 @@
 
 import time
 from pathlib import Path
-from typing import Optional, Any, Dict
+from typing import Any
 
 from .models import SummaryResult, SummaryMetadata
 from .chunker import chunk_text
@@ -19,9 +19,9 @@ class TextSummarizer:
 
     def __init__(
         self,
-        llm_client: Optional[Any] = None,
-        chunk_size: Optional[int] = None,
-        chunk_overlap: Optional[int] = None,
+        llm_client: Any | None = None,
+        chunk_size: int | None = None,
+        chunk_overlap: int | None = None,
         model: str = "llama3.2:latest",
         provider: str = "ollama",
     ):
@@ -73,16 +73,15 @@ class TextSummarizer:
             return 2000, 200  # Small chunk size with small overlap
 
         # Medium models
-        elif any(name in model_lower for name in ["3b", "7b", "llama3.2", "mistral", "qwen"]):
+        if any(name in model_lower for name in ["3b", "7b", "llama3.2", "mistral", "qwen"]):
             return 4000, 300  # Medium chunk size
 
         # Large models can handle bigger chunks
-        elif any(name in model_lower for name in ["8b", "13b", "30b", "70b", "llama3.1", "llama3"]):
+        if any(name in model_lower for name in ["8b", "13b", "30b", "70b", "llama3.1", "llama3"]):
             return 6000, 400  # Large chunk size
 
         # Default conservative settings
-        else:
-            return 3000, 250  # Conservative defaults
+        return 3000, 250  # Conservative defaults
 
     def _build_prompt(self, text: str, is_chunk: bool = False) -> str:
         """Build prompt for LLM summarization using the template file."""
@@ -92,7 +91,7 @@ class TextSummarizer:
         prompt = _PROMPT_TEMPLATE.format(instruction=instruction, text=text)
         return prompt
 
-    def summarize(self, text: str, include_metadata: bool = True, progress_emitter: Optional[Any] = None) -> SummaryResult:
+    def summarize(self, text: str, include_metadata: bool = True, progress_emitter: Any | None = None) -> SummaryResult:
         """
         Summarize text.
 
@@ -147,10 +146,9 @@ class TextSummarizer:
                 processing_time=processing_time,
             )
             return SummaryResult(summary=result["summary"], tags=result["tags"], metadata=metadata)
-        else:
-            return SummaryResult(summary=result["summary"], tags=result["tags"])
+        return SummaryResult(summary=result["summary"], tags=result["tags"])
 
-    def _summarize_direct(self, text: str) -> Dict[str, Any]:
+    def _summarize_direct(self, text: str) -> dict[str, Any]:
         """Directly summarize text without chunking."""
         prompt = self._build_prompt(text, is_chunk=False)
         response = self.adapter.call(prompt)
@@ -162,7 +160,7 @@ class TextSummarizer:
 
         return result
 
-    def _summarize_chunked(self, text: str, word_count: int, progress_emitter: Optional[Any] = None) -> Dict[str, Any]:
+    def _summarize_chunked(self, text: str, word_count: int, progress_emitter: Any | None = None) -> dict[str, Any]:
         """Summarize text using chunking and hierarchical summarization."""
         # Split into chunks
         chunks = chunk_text(text, self.chunk_size, self.chunk_overlap)
@@ -193,10 +191,10 @@ class TextSummarizer:
 
 
 def create_summarizer(
-    llm_client: Optional[Any] = None,
+    llm_client: Any | None = None,
     *,
-    chunk_size: Optional[int] = None,
-    chunk_overlap: Optional[int] = None,
+    chunk_size: int | None = None,
+    chunk_overlap: int | None = None,
     model: str = "llama3.2:latest",
     provider: str = "ollama",
 ) -> TextSummarizer:

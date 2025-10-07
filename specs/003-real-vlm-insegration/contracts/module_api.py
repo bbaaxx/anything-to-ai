@@ -3,22 +3,23 @@ API Contract: Image Processor Module Interface
 Defines the public API that must be maintained for backward compatibility.
 """
 
-from typing import List, Optional, Dict, Any
+from typing import Any
 from dataclasses import dataclass
 
 
 @dataclass
 class DescriptionResult:
     """Enhanced result with both VLM description and technical metadata."""
+
     image_path: str
     description: str  # Real VLM description (no longer mock)
-    confidence_score: Optional[float]
+    confidence_score: float | None
     processing_time: float
     model_used: str  # Environment-configured VLM model
     prompt_used: str
     success: bool
     # New fields for VLM integration
-    technical_metadata: Dict[str, Any]  # Format, dimensions, file size
+    technical_metadata: dict[str, Any]  # Format, dimensions, file size
     vlm_processing_time: float  # Separate VLM processing time
     model_version: str  # VLM model version information
 
@@ -26,18 +27,31 @@ class DescriptionResult:
 @dataclass
 class ProcessingConfig:
     """Enhanced configuration with VLM model settings."""
+
     # Existing fields (backward compatibility)
     model_name: str  # Now reads from VISION_MODEL environment variable
     description_style: str = "detailed"
     max_description_length: int = 500
     batch_size: int = 4
-    progress_callback: Optional[Any] = None
+    progress_callback: Any | None = None
     prompt_template: str = "Describe this image in a {style} manner."
     timeout_seconds: int = 60
     # New VLM-specific fields
     vlm_timeout_behavior: str = "error"  # "error", "fallback", "continue"
     auto_download_models: bool = True
     validate_model_before_load: bool = True
+
+
+@dataclass
+class ProcessingResult:
+    """Enhanced batch processing result with VLM metadata."""
+
+    total_images: int
+    successful_count: int
+    failed_count: int
+    total_processing_time: float
+    results: list[DescriptionResult]
+    errors: list[dict[str, Any]]
 
 
 def create_config(**kwargs) -> ProcessingConfig:
@@ -54,10 +68,9 @@ def create_config(**kwargs) -> ProcessingConfig:
         VLMConfigurationError: If VISION_MODEL not set and no model provided
         VLMModelNotFoundError: If specified model not available
     """
-    ...
 
 
-def process_images(image_paths: List[str], config: ProcessingConfig) -> 'ProcessingResult':
+def process_images(image_paths: list[str], config: ProcessingConfig) -> "ProcessingResult":
     """
     Process images with real VLM integration.
 
@@ -77,7 +90,6 @@ def process_images(image_paths: List[str], config: ProcessingConfig) -> 'Process
         VLMTimeoutError: If processing exceeds timeout
         ImageProcessingError: Existing errors preserved
     """
-    ...
 
 
 def validate_model_availability(model_name: str) -> bool:
@@ -92,10 +104,9 @@ def validate_model_availability(model_name: str) -> bool:
     Returns:
         bool: True if model available, False otherwise
     """
-    ...
 
 
-def get_available_models() -> List[str]:
+def get_available_models() -> list[str]:
     """
     Get list of available VLM models.
 
@@ -104,7 +115,6 @@ def get_available_models() -> List[str]:
     Returns:
         List[str]: Available VLM model identifiers
     """
-    ...
 
 
 # Environment Variable Contract
@@ -131,22 +141,15 @@ JSON_OUTPUT_SCHEMA = {
                     "model_used": {"type": "string"},  # VLM model name
                     "success": {"type": "boolean"},
                     # Enhanced fields
-                    "technical_metadata": {
-                        "type": "object",
-                        "properties": {
-                            "format": {"type": "string"},
-                            "dimensions": {"type": "array", "items": {"type": "integer"}},
-                            "file_size": {"type": "integer"}
-                        }
-                    },
+                    "technical_metadata": {"type": "object", "properties": {"format": {"type": "string"}, "dimensions": {"type": "array", "items": {"type": "integer"}}, "file_size": {"type": "integer"}}},
                     "vlm_processing_time": {"type": "number"},
-                    "model_version": {"type": "string"}
+                    "model_version": {"type": "string"},
                 },
-                "required": ["image_path", "description", "processing_time", "model_used", "success", "technical_metadata"]
-            }
-        }
+                "required": ["image_path", "description", "processing_time", "model_used", "success", "technical_metadata"],
+            },
+        },
     },
-    "required": ["success", "total_images", "successful_count", "failed_count", "total_processing_time", "results"]
+    "required": ["success", "total_images", "successful_count", "failed_count", "total_processing_time", "results"],
 }
 
 # CLI Contract (Exact Backward Compatibility)
@@ -159,7 +162,7 @@ CLI_ARGUMENTS = [
     "--output",  # str: output file path
     "--format",  # choices=['plain', 'json', 'csv']
     "--verbose",  # bool: verbose output
-    "--quiet"  # bool: quiet mode
+    "--quiet",  # bool: quiet mode
 ]
 
 # Error Hierarchy Contract (Extended)
@@ -169,5 +172,5 @@ EXCEPTION_HIERARCHY = {
     "VLMModelLoadError": "VLM model loading failures (new)",
     "VLMProcessingError": "VLM processing failures (new)",
     "VLMTimeoutError": "VLM processing timeout (new)",
-    "VLMModelNotFoundError": "Specified model unavailable (new)"
+    "VLMModelNotFoundError": "Specified model unavailable (new)",
 }

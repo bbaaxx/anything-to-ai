@@ -175,14 +175,7 @@ class EnhancedExtractionError(Exception):
 class PartialExtractionError(EnhancedExtractionError):
     """Raised when extraction partially succeeds but has significant failures."""
 
-    def __init__(
-        self,
-        message: str,
-        file_path: str = None,
-        partial_result: dict = None,
-        failed_pages: list = None,
-        failed_images: list = None
-    ):
+    def __init__(self, message: str, file_path: str = None, partial_result: dict = None, failed_pages: list = None, failed_images: list = None):
         super().__init__(message, file_path, partial_result)
         self.failed_pages = failed_pages or []
         self.failed_images = failed_images or []

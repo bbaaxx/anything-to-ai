@@ -4,7 +4,7 @@ import pytest
 import tempfile
 import os
 from PIL import Image
-from anyfile_to_ai.image_processor import process_image, ProcessingConfig
+from anything_to_ai.image_processor import process_image, ProcessingConfig
 
 
 class TestPdfIntegration:
@@ -13,9 +13,9 @@ class TestPdfIntegration:
     @pytest.fixture
     def sample_image(self):
         """Create a sample image for integration testing."""
-        with tempfile.NamedTemporaryFile(suffix='.jpg', delete=False) as f:
-            img = Image.new('RGB', (100, 100), color='blue')
-            img.save(f.name, 'JPEG')
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
+            img = Image.new("RGB", (100, 100), color="blue")
+            img.save(f.name, "JPEG")
             yield f.name
         os.unlink(f.name)
 
@@ -23,12 +23,12 @@ class TestPdfIntegration:
         """Test image processor can be imported alongside PDF processor."""
         # Test that both modules can be imported without conflicts
         try:
-            import anyfile_to_ai.pdf_extractor
-            import anyfile_to_ai.image_processor
+            import anything_to_ai.pdf_extractor
+            import anything_to_ai.image_processor
 
             # Both should be importable
-            assert hasattr(pdf_extractor, 'extract_text')
-            assert hasattr(image_processor, 'process_image')
+            assert hasattr(pdf_extractor, "extract_text")
+            assert hasattr(image_processor, "process_image")
 
         except ImportError as e:
             pytest.skip(f"PDF extractor not available: {e}")
@@ -36,8 +36,8 @@ class TestPdfIntegration:
     def test_unified_document_processing_workflow(self, sample_image):
         """Test unified workflow processing both PDF and image content."""
         try:
-            from anyfile_to_ai.pdf_extractor import extract_text
-            from anyfile_to_ai.image_processor import process_image
+            from anything_to_ai.pdf_extractor import extract_text
+            from anything_to_ai.image_processor import process_image
 
             # Simulate processing document with both text and images
             def process_document_assets(pdf_path, image_paths):
@@ -47,7 +47,7 @@ class TestPdfIntegration:
                 # Process PDF content (simulated)
                 if pdf_path:
                     # Would normally extract text here
-                    results['pdf_content'] = "Sample PDF text content"
+                    results["pdf_content"] = "Sample PDF text content"
 
                 # Process associated images
                 image_descriptions = []
@@ -56,14 +56,14 @@ class TestPdfIntegration:
                     if result.success:
                         image_descriptions.append(result.description)
 
-                results['image_descriptions'] = image_descriptions
+                results["image_descriptions"] = image_descriptions
                 return results
 
             # Test the integration
             assets = process_document_assets(None, [sample_image])
 
-            assert 'image_descriptions' in assets
-            assert len(assets['image_descriptions']) >= 0  # May be empty if processing fails
+            assert "image_descriptions" in assets
+            assert len(assets["image_descriptions"]) >= 0  # May be empty if processing fails
 
         except ImportError:
             pytest.skip("PDF extractor not available for integration testing")
@@ -71,8 +71,8 @@ class TestPdfIntegration:
     def test_consistent_error_handling_patterns(self, sample_image):
         """Test that error handling patterns are consistent between modules."""
         try:
-            from anyfile_to_ai.pdf_extractor.exceptions import PDFExtractionError
-            from anyfile_to_ai.image_processor.exceptions import ImageProcessingError
+            from anything_to_ai.pdf_extractor.exceptions import PDFExtractionError
+            from anything_to_ai.image_processor.exceptions import ImageProcessingError
 
             # Both should inherit from Exception and follow similar patterns
             assert issubclass(PDFExtractionError, Exception)
@@ -83,8 +83,8 @@ class TestPdfIntegration:
             image_error = ImageProcessingError("Test error", "test.jpg")
 
             # Both should have message attributes
-            assert hasattr(pdf_error, 'message')
-            assert hasattr(image_error, 'message')
+            assert hasattr(pdf_error, "message")
+            assert hasattr(image_error, "message")
 
         except ImportError:
             pytest.skip("PDF extractor not available for error pattern testing")
@@ -97,11 +97,7 @@ class TestPdfIntegration:
         def unified_progress_handler(current, total):
             """Unified progress tracking across processing types."""
             percentage = (current / total) * 100
-            progress_calls.append({
-                'current': current,
-                'total': total,
-                'percentage': percentage
-            })
+            progress_calls.append({"current": current, "total": total, "percentage": percentage})
 
         config = ProcessingConfig(progress_callback=unified_progress_handler)
 
@@ -113,14 +109,10 @@ class TestPdfIntegration:
 
     def test_configuration_pattern_consistency(self):
         """Test that configuration patterns are consistent between modules."""
-        from anyfile_to_ai.image_processor import ProcessingConfig, create_config
+        from anything_to_ai.image_processor import ProcessingConfig, create_config
 
         # Test that config creation follows expected patterns
-        config = create_config(
-            description_style="detailed",
-            max_length=500,
-            batch_size=4
-        )
+        config = create_config(description_style="detailed", max_length=500, batch_size=4)
 
         assert isinstance(config, ProcessingConfig)
         assert config.description_style == "detailed"
@@ -144,25 +136,23 @@ class TestPdfIntegration:
 
     def test_module_version_compatibility(self):
         """Test that module versions are compatible."""
-        import anyfile_to_ai.image_processor
 
         # Should have version information
-        assert hasattr(image_processor, '__version__')
+        assert hasattr(image_processor, "__version__")
         assert isinstance(image_processor.__version__, str)
 
     def test_api_surface_consistency(self):
         """Test that API surface follows consistent patterns."""
-        import anyfile_to_ai.image_processor
 
         # Core functions should be available
         expected_functions = [
-            'process_image',
-            'process_images',
-            'validate_image',
-            'get_supported_formats',
-            'process_images_streaming',
-            'create_config',
-            'get_image_info'
+            "process_image",
+            "process_images",
+            "validate_image",
+            "get_supported_formats",
+            "process_images_streaming",
+            "create_config",
+            "get_image_info",
         ]
 
         for func_name in expected_functions:

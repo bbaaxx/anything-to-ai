@@ -6,7 +6,6 @@ including messages, requests, responses, and model information.
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional
 
 
 class MessageRole(str, Enum):
@@ -34,12 +33,16 @@ class Message:
 
     def __post_init__(self):
         """Validate message after initialization."""
-        if self.role not in [MessageRole.SYSTEM.value, MessageRole.USER.value, MessageRole.ASSISTANT.value]:
-            from anyfile_to_ai.llm_client.exceptions import ValidationError
+        if self.role not in [
+            MessageRole.SYSTEM.value,
+            MessageRole.USER.value,
+            MessageRole.ASSISTANT.value,
+        ]:
+            from anything_to_ai.llm_client.exceptions import ValidationError
 
             raise ValidationError(f"Invalid message role: {self.role}. Must be one of: system, user, assistant")
         if not self.content or not self.content.strip():
-            from anyfile_to_ai.llm_client.exceptions import ValidationError
+            from anything_to_ai.llm_client.exceptions import ValidationError
 
             raise ValidationError("Message content must not be empty")
 
@@ -55,7 +58,7 @@ class Usage:
     def __post_init__(self):
         """Validate usage statistics."""
         if self.prompt_tokens < 0 or self.completion_tokens < 0 or self.total_tokens < 0:
-            from anyfile_to_ai.llm_client.exceptions import ValidationError
+            from anything_to_ai.llm_client.exceptions import ValidationError
 
             raise ValidationError("Token counts must be non-negative")
 
@@ -67,19 +70,19 @@ class ModelInfo:
     id: str
     provider: str
     object: str = "model"
-    created: Optional[int] = None
-    owned_by: Optional[str] = None
-    context_length: Optional[int] = None
-    description: Optional[str] = None
+    created: int | None = None
+    owned_by: str | None = None
+    context_length: int | None = None
+    description: str | None = None
 
     def __post_init__(self):
         """Validate model info."""
         if not self.id:
-            from anyfile_to_ai.llm_client.exceptions import ValidationError
+            from anything_to_ai.llm_client.exceptions import ValidationError
 
             raise ValidationError("Model id must not be empty")
         if self.context_length is not None and self.context_length <= 0:
-            from anyfile_to_ai.llm_client.exceptions import ValidationError
+            from anything_to_ai.llm_client.exceptions import ValidationError
 
             raise ValidationError("Context length must be positive")
 
@@ -88,17 +91,17 @@ class ModelInfo:
 class LLMRequest:
     """Request for LLM completion."""
 
-    messages: List[Message]
-    model: Optional[str] = None
+    messages: list[Message]
+    model: str | None = None
     temperature: float = 0.7
-    max_tokens: Optional[int] = None
+    max_tokens: int | None = None
     stream: bool = False
-    request_id: Optional[str] = None
-    timeout_override: Optional[float] = None
+    request_id: str | None = None
+    timeout_override: float | None = None
 
     def __post_init__(self):
         """Validate request after initialization."""
-        from anyfile_to_ai.llm_client.exceptions import ValidationError
+        from anything_to_ai.llm_client.exceptions import ValidationError
 
         if not self.messages:
             raise ValidationError("Messages list must not be empty")
@@ -123,24 +126,28 @@ class LLMResponse:
     response_id: str
     provider: str
     latency_ms: float
-    usage: Optional[Usage] = None
+    usage: Usage | None = None
     retry_count: int = 0
     used_fallback: bool = False
-    fallback_provider: Optional[str] = None
+    fallback_provider: str | None = None
 
     def __post_init__(self):
         """Validate response after initialization."""
-        if self.finish_reason not in [FinishReason.STOP.value, FinishReason.LENGTH.value, FinishReason.ERROR.value]:
-            from anyfile_to_ai.llm_client.exceptions import ValidationError
+        if self.finish_reason not in [
+            FinishReason.STOP.value,
+            FinishReason.LENGTH.value,
+            FinishReason.ERROR.value,
+        ]:
+            from anything_to_ai.llm_client.exceptions import ValidationError
 
             raise ValidationError(f"Invalid finish_reason: {self.finish_reason}")
 
         if self.latency_ms < 0:
-            from anyfile_to_ai.llm_client.exceptions import ValidationError
+            from anything_to_ai.llm_client.exceptions import ValidationError
 
             raise ValidationError("Latency must be non-negative")
 
         if self.retry_count < 0:
-            from anyfile_to_ai.llm_client.exceptions import ValidationError
+            from anything_to_ai.llm_client.exceptions import ValidationError
 
             raise ValidationError("Retry count must be non-negative")

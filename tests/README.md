@@ -1,6 +1,6 @@
 # Tests
 
-This directory contains comprehensive test suites for the anyfile-to-ai project.
+This directory contains comprehensive test suites for the anything-to-ai project.
 
 ## Test Structure
 

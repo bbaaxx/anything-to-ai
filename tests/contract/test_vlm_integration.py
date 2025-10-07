@@ -7,9 +7,7 @@ import pytest
 import os
 from unittest.mock import patch, MagicMock
 
-from anyfile_to_ai.image_processor.exceptions import (
-    ImageProcessingError
-)
+from anything_to_ai.image_processor.exceptions import ImageProcessingError
 
 
 class TestVLMIntegrationContract:
@@ -19,14 +17,14 @@ class TestVLMIntegrationContract:
         """Test that VLMConfiguration class is available."""
         # This should FAIL initially - VLM config classes not implemented
         try:
-            from anyfile_to_ai.image_processor.config import VLMConfig
+            from anything_to_ai.image_processor.config import VLMConfig
 
             # Should be able to create configuration
             config = VLMConfig(
                 model_name="google/gemma-3-4b",
                 timeout_seconds=60,
                 timeout_behavior="error",
-                auto_download=True
+                auto_download=True,
             )
 
             assert config.model_name == "google/gemma-3-4b"
@@ -41,10 +39,10 @@ class TestVLMIntegrationContract:
         """Test that VLMModel protocol interface is defined."""
         # This should FAIL initially - VLM model protocol not implemented
         try:
-            from anyfile_to_ai.image_processor.vlm_model_impl import VLMModelProtocol
+            from anything_to_ai.image_processor.vlm_model_impl import VLMModelProtocol
 
             # Protocol should define required methods
-            required_methods = ['process_image', 'get_model_info', 'cleanup']
+            required_methods = ["process_image", "get_model_info", "cleanup"]
 
             for method_name in required_methods:
                 assert hasattr(VLMModelProtocol, method_name), f"Missing method: {method_name}"
@@ -56,13 +54,16 @@ class TestVLMIntegrationContract:
         """Test that VLMModelRegistry class is available."""
         # This should FAIL initially - VLM model registry not implemented
         try:
-            from anyfile_to_ai.image_processor.model_registry import VLMModelRegistry
+            from anything_to_ai.image_processor.model_registry import VLMModelRegistry
 
             registry = VLMModelRegistry()
 
             # Registry should have required methods
             required_methods = [
-                'validate_model', 'load_model', 'get_available_models', 'cleanup_models'
+                "validate_model",
+                "load_model",
+                "get_available_models",
+                "cleanup_models",
             ]
 
             for method_name in required_methods:
@@ -75,13 +76,13 @@ class TestVLMIntegrationContract:
         """Test that VLMProcessor class is available."""
         # This should FAIL initially - VLM processor not implemented
         try:
-            from anyfile_to_ai.image_processor.vlm_processor import VLMProcessor
+            from anything_to_ai.image_processor.vlm_processor import VLMProcessor
 
             # Should be able to create processor
             processor = VLMProcessor()
 
             # Processor should have required methods
-            required_methods = ['process_image_with_vlm', 'process_batch_with_vlm']
+            required_methods = ["process_image_with_vlm", "process_batch_with_vlm"]
 
             for method_name in required_methods:
                 assert hasattr(processor, method_name), f"Missing method: {method_name}"
@@ -93,9 +94,12 @@ class TestVLMIntegrationContract:
         """Test that VLM-specific exceptions are properly defined."""
         # This should FAIL initially - VLM exceptions not implemented
         try:
-            from anyfile_to_ai.image_processor.vlm_exceptions import (
-                VLMConfigurationError, VLMModelLoadError, VLMProcessingError,
-                VLMTimeoutError, VLMModelNotFoundError
+            from anything_to_ai.image_processor.vlm_exceptions import (
+                VLMConfigurationError,
+                VLMModelLoadError,
+                VLMProcessingError,
+                VLMTimeoutError,
+                VLMModelNotFoundError,
             )
 
             # All should inherit from ImageProcessingError
@@ -119,15 +123,19 @@ class TestVLMIntegrationContract:
         """Test that EnhancedResult structure is defined."""
         # This should FAIL initially - enhanced result not implemented
         try:
-            from anyfile_to_ai.image_processor.enhanced_result import EnhancedResult
+            from anything_to_ai.image_processor.enhanced_result import EnhancedResult
 
             # Should be able to create enhanced result
             result = EnhancedResult(
                 vlm_description="AI description",
-                technical_metadata={"format": "JPEG", "dimensions": [100, 100], "file_size": 1000},
+                technical_metadata={
+                    "format": "JPEG",
+                    "dimensions": [100, 100],
+                    "file_size": 1000,
+                },
                 model_info={"name": "google/gemma-3-4b", "version": "v1.0"},
                 processing_time=1.5,
-                confidence_score=0.95
+                confidence_score=0.95,
             )
 
             assert result.vlm_description == "AI description"
@@ -143,7 +151,7 @@ class TestVLMIntegrationContract:
         """Test model validation interface contract."""
         # This should FAIL initially - model validation not implemented
         try:
-            from anyfile_to_ai.image_processor.model_registry import VLMModelRegistry
+            from anything_to_ai.image_processor.model_registry import VLMModelRegistry
 
             registry = VLMModelRegistry()
 
@@ -162,25 +170,21 @@ class TestVLMIntegrationContract:
         """Test VLM processing interface contract."""
         # This should FAIL initially - VLM processing not implemented
         try:
-            from anyfile_to_ai.image_processor.vlm_processor import VLMProcessor
-            from anyfile_to_ai.image_processor.config import VLMConfig
+            from anything_to_ai.image_processor.vlm_processor import VLMProcessor
+            from anything_to_ai.image_processor.config import VLMConfig
 
             processor = VLMProcessor()
             config = VLMConfig(model_name="google/gemma-3-4b")
 
             # Should be able to process single image
             # This will fail because implementation doesn't exist
-            result = processor.process_image_with_vlm(
-                image_path="test.jpg",
-                prompt="Describe this image",
-                config=config
-            )
+            result = processor.process_image_with_vlm(image_path="test.jpg", prompt="Describe this image", config=config)
 
             # Result should have expected structure
             assert isinstance(result, dict)
-            assert 'description' in result
-            assert 'processing_time' in result
-            assert 'model_info' in result
+            assert "description" in result
+            assert "processing_time" in result
+            assert "model_info" in result
 
         except ImportError:
             pytest.fail("VLM processing interface not implemented")
@@ -189,8 +193,8 @@ class TestVLMIntegrationContract:
         """Test batch processing interface contract."""
         # This should FAIL initially - batch processing not implemented
         try:
-            from anyfile_to_ai.image_processor.vlm_processor import VLMProcessor
-            from anyfile_to_ai.image_processor.config import VLMConfig
+            from anything_to_ai.image_processor.vlm_processor import VLMProcessor
+            from anything_to_ai.image_processor.config import VLMConfig
 
             processor = VLMProcessor()
             config = VLMConfig(model_name="google/gemma-3-4b")
@@ -199,7 +203,7 @@ class TestVLMIntegrationContract:
             results = processor.process_batch_with_vlm(
                 image_paths=["test1.jpg", "test2.jpg"],
                 prompts=["Describe image 1", "Describe image 2"],
-                config=config
+                config=config,
             )
 
             assert isinstance(results, list)
@@ -212,26 +216,26 @@ class TestVLMIntegrationContract:
         """Test timeout behavior configuration contract."""
         # This should FAIL initially - timeout handling not implemented
         try:
-            from anyfile_to_ai.image_processor.config import VLMConfig
-            from anyfile_to_ai.image_processor.vlm_exceptions import VLMTimeoutError
+            from anything_to_ai.image_processor.config import VLMConfig
+            from anything_to_ai.image_processor.vlm_exceptions import VLMTimeoutError
 
             # Should support different timeout behaviors
             config_error = VLMConfig(
                 model_name="google/gemma-3-4b",
                 timeout_seconds=1,
-                timeout_behavior="error"
+                timeout_behavior="error",
             )
 
             config_fallback = VLMConfig(
                 model_name="google/gemma-3-4b",
                 timeout_seconds=1,
-                timeout_behavior="fallback"
+                timeout_behavior="fallback",
             )
 
             config_continue = VLMConfig(
                 model_name="google/gemma-3-4b",
                 timeout_seconds=1,
-                timeout_behavior="continue"
+                timeout_behavior="continue",
             )
 
             assert config_error.timeout_behavior == "error"
@@ -245,7 +249,7 @@ class TestVLMIntegrationContract:
         """Test model lifecycle management contract."""
         # This should FAIL initially - model lifecycle not implemented
         try:
-            from anyfile_to_ai.image_processor.model_registry import LoadedModel
+            from anything_to_ai.image_processor.model_registry import LoadedModel
 
             # Should be able to track model lifecycle
             loaded_model = LoadedModel(
@@ -254,7 +258,7 @@ class TestVLMIntegrationContract:
                 model_version="v1.0",
                 memory_usage=1000000,
                 load_time=5.0,
-                capabilities={"vision": True, "text": True}
+                capabilities={"vision": True, "text": True},
             )
 
             assert loaded_model.model_name == "google/gemma-3-4b"
@@ -268,16 +272,18 @@ class TestVLMIntegrationContract:
     def test_environment_configuration_integration(self):
         """Test environment variable integration contract."""
         # This should FAIL initially - environment integration not complete
-        with patch.dict(os.environ, {'VISION_MODEL': 'google/gemma-3-4b'}):
+        with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}):
             try:
-                from anyfile_to_ai.image_processor.config import load_vlm_config_from_env
+                from anything_to_ai.image_processor.config import (
+                    load_vlm_config_from_env,
+                )
 
                 config = load_vlm_config_from_env()
 
                 assert config.model_name == "google/gemma-3-4b"
-                assert hasattr(config, 'timeout_seconds')
-                assert hasattr(config, 'timeout_behavior')
-                assert hasattr(config, 'auto_download')
+                assert hasattr(config, "timeout_seconds")
+                assert hasattr(config, "timeout_behavior")
+                assert hasattr(config, "auto_download")
 
             except ImportError:
                 pytest.fail("Environment configuration loading not implemented")
@@ -286,7 +292,7 @@ class TestVLMIntegrationContract:
         """Test resource cleanup interface contract."""
         # This should FAIL initially - cleanup hooks not implemented
         try:
-            from anyfile_to_ai.image_processor.model_registry import VLMModelRegistry
+            from anything_to_ai.image_processor.model_registry import VLMModelRegistry
 
             registry = VLMModelRegistry()
 
@@ -303,13 +309,13 @@ class TestVLMIntegrationContract:
         """Test integration points with existing processor."""
         # This should FAIL initially - integration not implemented
         try:
-            from anyfile_to_ai.image_processor.processor import VLMProcessor
+            from anything_to_ai.image_processor.processor import VLMProcessor
 
             processor = VLMProcessor()
 
             # Should have methods that integrate VLM processing
             # This will fail because VLM integration not added yet
-            assert hasattr(processor, 'process_with_vlm')
+            assert hasattr(processor, "process_with_vlm")
 
         except (ImportError, AttributeError):
             pytest.fail("VLM integration with existing processor not implemented")

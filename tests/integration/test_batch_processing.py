@@ -4,7 +4,7 @@ import pytest
 import tempfile
 import os
 from PIL import Image
-from anyfile_to_ai.image_processor import process_images, ProcessingConfig
+from anything_to_ai.image_processor import process_images, ProcessingConfig
 
 
 class TestBatchProcessing:
@@ -14,9 +14,9 @@ class TestBatchProcessing:
     def sample_images(self):
         """Create temporary sample images for testing."""
         images = []
-        for i, (fmt, ext) in enumerate([('JPEG', '.jpg'), ('PNG', '.png'), ('GIF', '.gif')]):
+        for i, (fmt, ext) in enumerate([("JPEG", ".jpg"), ("PNG", ".png"), ("GIF", ".gif")]):
             with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as f:
-                img = Image.new('RGB', (100, 100), color=['red', 'green', 'blue'][i])
+                img = Image.new("RGB", (100, 100), color=["red", "green", "blue"][i])
                 img.save(f.name, fmt)
                 images.append(f.name)
 
@@ -46,11 +46,7 @@ class TestBatchProcessing:
 
     def test_batch_processing_with_custom_config(self, sample_images):
         """Test batch processing with custom configuration."""
-        config = ProcessingConfig(
-            batch_size=2,
-            description_style="brief",
-            max_description_length=200
-        )
+        config = ProcessingConfig(batch_size=2, description_style="brief", max_description_length=200)
         results = process_images(sample_images, config)
 
         assert results.success is True
@@ -71,7 +67,7 @@ class TestBatchProcessing:
             if result.success:
                 formats_processed.add(os.path.splitext(result.image_path)[1].lower())
 
-        expected_formats = {'.jpg', '.png', '.gif'}
+        expected_formats = {".jpg", ".png", ".gif"}
         assert formats_processed == expected_formats
 
     def test_batch_processing_performance_scaling(self, sample_images):

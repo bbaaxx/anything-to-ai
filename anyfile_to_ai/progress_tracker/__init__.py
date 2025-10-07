@@ -6,12 +6,12 @@ from .consumers import CallbackProgressConsumer, LoggingProgressConsumer
 from .cli_renderer import CLIProgressConsumer
 
 __all__ = [
-    "ProgressState",
-    "ProgressUpdate",
-    "UpdateType",
-    "ProgressEmitter",
-    "ProgressConsumer",
     "CLIProgressConsumer",
     "CallbackProgressConsumer",
     "LoggingProgressConsumer",
+    "ProgressConsumer",
+    "ProgressEmitter",
+    "ProgressState",
+    "ProgressUpdate",
+    "UpdateType",
 ]

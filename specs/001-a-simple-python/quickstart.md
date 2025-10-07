@@ -5,7 +5,7 @@
 ```bash
 # Clone repository
 git clone <repository-url>
-cd anyfile-to-ai
+cd anything-to-ai
 
 # Install dependencies
 pip install pdfplumber

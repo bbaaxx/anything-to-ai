@@ -6,7 +6,7 @@ and thread-safe operations.
 
 import threading
 import time
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class ModelCache:
@@ -19,10 +19,10 @@ class ModelCache:
             ttl: Time-to-live in seconds for cached entries (default: 300 = 5 minutes)
         """
         self.ttl = ttl
-        self._cache: Dict[str, Dict[str, Any]] = {}
+        self._cache: dict[str, dict[str, Any]] = {}
         self._lock = threading.Lock()
 
-    def get(self, key: str) -> Optional[Any]:
+    def get(self, key: str) -> Any | None:
         """Get cached value for key if not expired.
 
         Args:
@@ -53,7 +53,7 @@ class ModelCache:
         with self._lock:
             self._cache[key] = {"value": value, "expires_at": time.time() + self.ttl}
 
-    def invalidate(self, key: Optional[str] = None) -> None:
+    def invalidate(self, key: str | None = None) -> None:
         """Invalidate cache entry or entire cache.
 
         Args:

@@ -1,7 +1,7 @@
 """LLM adapter for text summarization."""
 
 import json
-from typing import Dict, Any
+from typing import Any
 
 from .exceptions import LLMError
 
@@ -22,7 +22,7 @@ class LLMAdapter:
     def call(self, prompt: str) -> str:
         """Call LLM client with prompt."""
         try:
-            from anyfile_to_ai.llm_client import LLMRequest, Message, MessageRole
+            from anything_to_ai.llm_client import LLMRequest, Message, MessageRole
 
             # Create request with user message
             request = LLMRequest(
@@ -39,7 +39,7 @@ class LLMAdapter:
             raise LLMError(f"LLM call failed: {e}")
 
     @staticmethod
-    def parse_response(response: str) -> Dict[str, Any]:  # noqa: C901
+    def parse_response(response: str) -> dict[str, Any]:  # noqa: C901
         """Parse LLM response to extract summary, tags, and language."""
         # Try to parse as JSON (whole response)
         try:
@@ -88,7 +88,7 @@ class LLMAdapter:
                 continue
 
             # Detect tags section
-            elif '"tags"' in line_lower or "'tags'" in line_lower or line_lower.startswith("tags:"):
+            if '"tags"' in line_lower or "'tags'" in line_lower or line_lower.startswith("tags:"):
                 in_tags = True
                 in_summary = False
                 # Try to extract from same line if format is: "tags": ["tag1", "tag2"]
@@ -167,7 +167,7 @@ def get_default_llm_client(model: str = "llama3.2:latest", provider: str = "olla
         Configured LLM client instance
     """
     try:
-        from anyfile_to_ai.llm_client import LLMClient, LLMConfig
+        from anything_to_ai.llm_client import LLMClient, LLMConfig
 
         # Map provider to base URL
         provider_urls = {

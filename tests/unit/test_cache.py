@@ -1,7 +1,7 @@
 """Unit tests for ModelCache."""
 
 import time
-from anyfile_to_ai.llm_client.cache import ModelCache
+from anything_to_ai.llm_client.cache import ModelCache
 
 
 class TestModelCache:

@@ -6,7 +6,7 @@ Skip if service is unavailable.
 
 import os
 import pytest
-from anyfile_to_ai.llm_client import (
+from anything_to_ai.llm_client import (
     LLMClient,
     LLMConfig,
     LLMRequest,
@@ -14,7 +14,7 @@ from anyfile_to_ai.llm_client import (
     Message,
     ModelInfo,
 )
-from anyfile_to_ai.llm_client.exceptions import (
+from anything_to_ai.llm_client.exceptions import (
     ConnectionError as LLMConnectionError,
     AuthenticationError,
 )
@@ -30,13 +30,19 @@ def check_lmstudio_available() -> bool:
         import httpx
 
         response = httpx.get(f"{LMSTUDIO_BASE_URL}/v1/models", timeout=5.0)
-        return response.status_code in [200, 401]  # 401 means auth required but service is up
+        return response.status_code in [
+            200,
+            401,
+        ]  # 401 means auth required but service is up
     except Exception:
         return False
 
 
 # Skip all tests if LM Studio is not running
-pytestmark = pytest.mark.skipif(not check_lmstudio_available(), reason="LM Studio service not available at localhost:1234")
+pytestmark = pytest.mark.skipif(
+    not check_lmstudio_available(),
+    reason="LM Studio service not available at localhost:1234",
+)
 
 
 @pytest.mark.integration
@@ -104,7 +110,11 @@ class TestLMStudioModelListing:
 
     def test_list_models_returns_models(self):
         """Test that list_models returns available models."""
-        config = LLMConfig(provider="lmstudio", base_url=LMSTUDIO_BASE_URL, api_key=os.environ.get("LMSTUDIO_API_KEY"))
+        config = LLMConfig(
+            provider="lmstudio",
+            base_url=LMSTUDIO_BASE_URL,
+            api_key=os.environ.get("LMSTUDIO_API_KEY"),
+        )
         client = LLMClient(config)
 
         try:
@@ -123,7 +133,12 @@ class TestLMStudioModelListing:
         """Test that model listing uses cache."""
         import time
 
-        config = LLMConfig(provider="lmstudio", base_url=LMSTUDIO_BASE_URL, api_key=os.environ.get("LMSTUDIO_API_KEY"), cache_ttl=60)
+        config = LLMConfig(
+            provider="lmstudio",
+            base_url=LMSTUDIO_BASE_URL,
+            api_key=os.environ.get("LMSTUDIO_API_KEY"),
+            cache_ttl=60,
+        )
         client = LLMClient(config)
 
         try:
@@ -149,7 +164,11 @@ class TestLMStudioGeneration:
 
     def test_basic_generation(self):
         """Test basic text generation."""
-        config = LLMConfig(provider="lmstudio", base_url=LMSTUDIO_BASE_URL, api_key=os.environ.get("LMSTUDIO_API_KEY"))
+        config = LLMConfig(
+            provider="lmstudio",
+            base_url=LMSTUDIO_BASE_URL,
+            api_key=os.environ.get("LMSTUDIO_API_KEY"),
+        )
         client = LLMClient(config)
 
         try:
@@ -160,7 +179,12 @@ class TestLMStudioGeneration:
         if len(models) == 0:
             pytest.skip("No models available in LM Studio")
 
-        request = LLMRequest(messages=[Message(role="user", content="Say 'test' and nothing else.")], model=models[0].id, temperature=0.0, max_tokens=10)
+        request = LLMRequest(
+            messages=[Message(role="user", content="Say 'test' and nothing else.")],
+            model=models[0].id,
+            temperature=0.0,
+            max_tokens=10,
+        )
 
         response = client.generate(request)
 
@@ -172,7 +196,11 @@ class TestLMStudioGeneration:
 
     def test_generation_with_specific_model(self):
         """Test generation with specific model selection."""
-        config = LLMConfig(provider="lmstudio", base_url=LMSTUDIO_BASE_URL, api_key=os.environ.get("LMSTUDIO_API_KEY"))
+        config = LLMConfig(
+            provider="lmstudio",
+            base_url=LMSTUDIO_BASE_URL,
+            api_key=os.environ.get("LMSTUDIO_API_KEY"),
+        )
         client = LLMClient(config)
 
         try:
@@ -186,7 +214,11 @@ class TestLMStudioGeneration:
         # Use first available model
         target_model = models[0].id
 
-        request = LLMRequest(messages=[Message(role="user", content="Hello")], model=target_model, temperature=0.5)
+        request = LLMRequest(
+            messages=[Message(role="user", content="Hello")],
+            model=target_model,
+            temperature=0.5,
+        )
 
         response = client.generate(request)
 
@@ -195,7 +227,11 @@ class TestLMStudioGeneration:
 
     def test_generation_response_metadata(self):
         """Test that response includes proper metadata."""
-        config = LLMConfig(provider="lmstudio", base_url=LMSTUDIO_BASE_URL, api_key=os.environ.get("LMSTUDIO_API_KEY"))
+        config = LLMConfig(
+            provider="lmstudio",
+            base_url=LMSTUDIO_BASE_URL,
+            api_key=os.environ.get("LMSTUDIO_API_KEY"),
+        )
         client = LLMClient(config)
 
         try:

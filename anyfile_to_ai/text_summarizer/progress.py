@@ -6,7 +6,11 @@ progress_tracker system.
 """
 
 try:
-    from anyfile_to_ai.progress_tracker import ProgressEmitter, CLIProgressConsumer, CallbackProgressConsumer
+    from anything_to_ai.progress_tracker import (
+        ProgressEmitter,
+        CLIProgressConsumer,
+        CallbackProgressConsumer,
+    )
 
     _PROGRESS_AVAILABLE = True
 except ImportError:
@@ -16,4 +20,4 @@ except ImportError:
     CallbackProgressConsumer = None
 
 
-__all__ = ["ProgressEmitter", "CLIProgressConsumer", "CallbackProgressConsumer"]
+__all__ = ["CLIProgressConsumer", "CallbackProgressConsumer", "ProgressEmitter"]

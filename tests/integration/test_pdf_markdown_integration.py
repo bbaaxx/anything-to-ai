@@ -1,6 +1,6 @@
 """Integration tests for PDF markdown output."""
 
-from anyfile_to_ai.pdf_extractor.markdown_formatter import format_markdown
+from anything_to_ai.pdf_extractor.markdown_formatter import format_markdown
 
 
 class TestPDFMarkdownIntegration:
@@ -29,7 +29,12 @@ class TestPDFMarkdownIntegration:
         """Test PDF without structure falls back to plain paragraphs."""
         result = {
             "filename": "plain.pdf",
-            "pages": [{"number": 1, "text": "Simple paragraph text without any structure markers or headings."}],
+            "pages": [
+                {
+                    "number": 1,
+                    "text": "Simple paragraph text without any structure markers or headings.",
+                },
+            ],
         }
 
         output = format_markdown(result)
@@ -43,7 +48,12 @@ class TestPDFMarkdownIntegration:
         """Test special characters are not escaped."""
         result = {
             "filename": "special.pdf",
-            "pages": [{"number": 1, "text": "Text with *asterisks*, [brackets], and #hashtags should be preserved."}],
+            "pages": [
+                {
+                    "number": 1,
+                    "text": "Text with *asterisks*, [brackets], and #hashtags should be preserved.",
+                },
+            ],
         }
 
         output = format_markdown(result)
@@ -80,7 +90,10 @@ class TestPDFMarkdownIntegration:
         """Test output is valid markdown."""
         result = {
             "filename": "valid.pdf",
-            "pages": [{"number": 1, "text": "Test content"}, {"number": 2, "text": "More content"}],
+            "pages": [
+                {"number": 1, "text": "Test content"},
+                {"number": 2, "text": "More content"},
+            ],
         }
 
         output = format_markdown(result)

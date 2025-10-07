@@ -1,7 +1,7 @@
 """VLM model entities and configuration classes."""
 
 from dataclasses import dataclass
-from typing import Optional, Dict, Any
+from typing import Any
 
 
 @dataclass
@@ -13,7 +13,7 @@ class ModelConfiguration:
     timeout_behavior: str = "error"  # "error", "fallback", "continue"
     auto_download: bool = True
     validation_enabled: bool = True
-    cache_dir: Optional[str] = None
+    cache_dir: str | None = None
 
     def __post_init__(self):
         """Validate configuration after initialization."""
@@ -41,19 +41,12 @@ class ModelConfiguration:
         """Check if models should be automatically downloaded."""
         return self.auto_download
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert configuration to dictionary."""
-        return {
-            "model_name": self.model_name,
-            "timeout_seconds": self.timeout_seconds,
-            "timeout_behavior": self.timeout_behavior,
-            "auto_download": self.auto_download,
-            "validation_enabled": self.validation_enabled,
-            "cache_dir": self.cache_dir
-        }
+        return {"model_name": self.model_name, "timeout_seconds": self.timeout_seconds, "timeout_behavior": self.timeout_behavior, "auto_download": self.auto_download, "validation_enabled": self.validation_enabled, "cache_dir": self.cache_dir}
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'ModelConfiguration':
+    def from_dict(cls, data: dict[str, Any]) -> "ModelConfiguration":
         """Create configuration from dictionary."""
         return cls(
             model_name=data["model_name"],
@@ -61,5 +54,5 @@ class ModelConfiguration:
             timeout_behavior=data.get("timeout_behavior", "error"),
             auto_download=data.get("auto_download", True),
             validation_enabled=data.get("validation_enabled", True),
-            cache_dir=data.get("cache_dir")
+            cache_dir=data.get("cache_dir"),
         )

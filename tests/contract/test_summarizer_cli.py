@@ -19,6 +19,7 @@ class TestCLIInterface:
 
         result = subprocess.run(
             [sys.executable, "-m", "text_summarizer", str(test_file)],
+            check=False,
             capture_output=True,
             text=True,
         )
@@ -31,6 +32,7 @@ class TestCLIInterface:
 
         result = subprocess.run(
             [sys.executable, "-m", "text_summarizer", "--stdin"],
+            check=False,
             input=input_text,
             capture_output=True,
             text=True,
@@ -44,6 +46,7 @@ class TestCLIInterface:
 
         result = subprocess.run(
             [sys.executable, "-m", "text_summarizer", str(test_file)],
+            check=False,
             capture_output=True,
             text=True,
         )
@@ -63,6 +66,7 @@ class TestCLIInterface:
 
         result = subprocess.run(
             [sys.executable, "-m", "text_summarizer", str(test_file), "--format", "plain"],
+            check=False,
             capture_output=True,
             text=True,
         )
@@ -78,6 +82,7 @@ class TestCLIInterface:
 
         result = subprocess.run(
             [sys.executable, "-m", "text_summarizer", str(test_file)],
+            check=False,
             capture_output=True,
             text=True,
         )
@@ -101,6 +106,7 @@ class TestCLIInterface:
                 "--output",
                 str(output_file),
             ],
+            check=False,
             capture_output=True,
             text=True,
         )
@@ -113,6 +119,7 @@ class TestCLIInterface:
         """Test that --help shows help message."""
         result = subprocess.run(
             [sys.executable, "-m", "text_summarizer", "--help"],
+            check=False,
             capture_output=True,
             text=True,
         )
@@ -126,6 +133,7 @@ class TestCLIInterface:
         # Empty input should be invalid
         result = subprocess.run(
             [sys.executable, "-m", "text_summarizer", "--stdin"],
+            check=False,
             input="",
             capture_output=True,
             text=True,
@@ -143,6 +151,7 @@ class TestCLIInterface:
 
         result = subprocess.run(
             [sys.executable, "-m", "text_summarizer", str(test_file)],
+            check=False,
             capture_output=True,
             text=True,
         )
@@ -158,6 +167,7 @@ class TestCLIInterface:
 
         result = subprocess.run(
             [sys.executable, "-m", "text_summarizer", str(test_file)],
+            check=False,
             capture_output=True,
             text=True,
         )
@@ -169,6 +179,7 @@ class TestCLIInterface:
         """Test that non-existent file produces appropriate error."""
         result = subprocess.run(
             [sys.executable, "-m", "text_summarizer", "/nonexistent/file.txt"],
+            check=False,
             capture_output=True,
             text=True,
         )

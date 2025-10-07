@@ -3,7 +3,11 @@
 import time
 
 
-from anyfile_to_ai.progress_tracker import CallbackProgressConsumer, ProgressEmitter, ProgressUpdate
+from anything_to_ai.progress_tracker import (
+    CallbackProgressConsumer,
+    ProgressEmitter,
+    ProgressUpdate,
+)
 
 
 class TestHierarchicalProgressIntegration:

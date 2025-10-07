@@ -4,13 +4,11 @@ This module defines the exception hierarchy for LLM client errors,
 providing specific exception types for different error conditions.
 """
 
-from typing import Optional
-
 
 class LLMError(Exception):
     """Base exception for all LLM client errors."""
 
-    def __init__(self, message: str, provider: Optional[str] = None, original_error: Optional[Exception] = None):
+    def __init__(self, message: str, provider: str | None = None, original_error: Exception | None = None):
         """Initialize LLM error.
 
         Args:
@@ -36,46 +34,30 @@ class LLMError(Exception):
 class ConfigurationError(LLMError):
     """Invalid configuration error."""
 
-    pass
-
 
 class ConnectionError(LLMError):
     """Service unreachable or connection failed."""
-
-    pass
 
 
 class AuthenticationError(LLMError):
     """API key invalid or missing when required."""
 
-    pass
-
 
 class ModelNotFoundError(LLMError):
     """Requested model not available."""
-
-    pass
 
 
 class RateLimitError(LLMError):
     """Rate limit exceeded."""
 
-    pass
-
 
 class TimeoutError(LLMError):
     """Request timed out."""
-
-    pass
 
 
 class ValidationError(LLMError):
     """Invalid request data."""
 
-    pass
-
 
 class GenerationError(LLMError):
     """Error during generation."""
-
-    pass

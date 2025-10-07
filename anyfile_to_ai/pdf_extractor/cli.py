@@ -42,7 +42,10 @@ class CLICommands:
             return None
 
         try:
-            from anyfile_to_ai.progress_tracker import ProgressEmitter, CLIProgressConsumer
+            from anything_to_ai.progress_tracker import (
+                ProgressEmitter,
+                CLIProgressConsumer,
+            )
 
             emitter = ProgressEmitter(total=None, label=label)
             emitter.add_consumer(CLIProgressConsumer())
@@ -54,7 +57,7 @@ class CLICommands:
     def _create_image_config(image_style: str):
         """Create image processing configuration."""
         try:
-            from anyfile_to_ai.image_processor.config import ProcessingConfig
+            from anything_to_ai.image_processor.config import ProcessingConfig
 
             return ProcessingConfig(style=image_style)
         except ImportError:
@@ -72,7 +75,10 @@ class CLICommands:
             for enhanced_page in processor.extract_with_images_streaming(file_path, enhanced_config):
                 enhanced_pages.append(enhanced_page)
                 if progress:
-                    print(f"Page {enhanced_page.page_number}: {enhanced_page.images_found} images found", file=sys.stderr)
+                    print(
+                        f"Page {enhanced_page.page_number}: {enhanced_page.images_found} images found",
+                        file=sys.stderr,
+                    )
 
             OutputFormatter.print_enhanced_output(enhanced_pages, enhanced_config.output_format, file_path, streaming=True)
         else:
@@ -103,9 +109,18 @@ class CLICommands:
             ConfigurationValidationError: (8, "Error: {e}"),
             PDFNotFoundError: (1, f"Error: PDF file not found: {file_path}"),
             PDFCorruptedError: (2, f"Error: PDF file is corrupted: {file_path}"),
-            PDFPasswordProtectedError: (3, f"Error: PDF file is password protected: {file_path}"),
-            PDFNoTextError: (4, f"Error: PDF contains no extractable text: {file_path}"),
-            ProcessingInterruptedError: (5, f"Error: PDF processing was interrupted: {file_path}"),
+            PDFPasswordProtectedError: (
+                3,
+                f"Error: PDF file is password protected: {file_path}",
+            ),
+            PDFNoTextError: (
+                4,
+                f"Error: PDF contains no extractable text: {file_path}",
+            ),
+            ProcessingInterruptedError: (
+                5,
+                f"Error: PDF processing was interrupted: {file_path}",
+            ),
         }
 
         for error_type, (code, template) in error_map.items():
@@ -168,7 +183,11 @@ class CLICommands:
                 CLICommands._extract_with_images(file_path, enhanced_config, stream, progress)
             else:
                 # Regular extraction (backward compatibility)
-                config = ExtractionConfig(streaming_enabled=stream, progress_callback=progress_callback, output_format=format_type)
+                config = ExtractionConfig(
+                    streaming_enabled=stream,
+                    progress_callback=progress_callback,
+                    output_format=format_type,
+                )
 
                 CLICommands._extract_regular(file_path, config, stream)
 
@@ -218,15 +237,38 @@ def main():
     extract_parser = subparsers.add_parser("extract", help="Extract text from PDF")
     extract_parser.add_argument("file_path", help="Path to PDF file")
     extract_parser.add_argument("--stream", action="store_true", help="Enable streaming mode for large files")
-    extract_parser.add_argument("--format", choices=["plain", "json", "csv", "markdown"], default="plain", help="Output format (default: plain)")
+    extract_parser.add_argument(
+        "--format",
+        choices=["plain", "json", "csv", "markdown"],
+        default="plain",
+        help="Output format (default: plain)",
+    )
     extract_parser.add_argument("--progress", action="store_true", help="Show progress information")
 
     # Enhanced image processing options
-    extract_parser.add_argument("--include-images", action="store_true", help="Include AI-generated descriptions of images found in PDF")
-    extract_parser.add_argument("--image-style", choices=["brief", "detailed", "technical"], default="detailed", help="Style of image descriptions (default: detailed)")
-    extract_parser.add_argument("--image-fallback", default="[Image: processing failed]", help="Fallback text when image processing fails")
+    extract_parser.add_argument(
+        "--include-images",
+        action="store_true",
+        help="Include AI-generated descriptions of images found in PDF",
+    )
+    extract_parser.add_argument(
+        "--image-style",
+        choices=["brief", "detailed", "technical"],
+        default="detailed",
+        help="Style of image descriptions (default: detailed)",
+    )
+    extract_parser.add_argument(
+        "--image-fallback",
+        default="[Image: processing failed]",
+        help="Fallback text when image processing fails",
+    )
     extract_parser.add_argument("--max-images", type=int, help="Maximum number of images to process per page")
-    extract_parser.add_argument("--batch-size", type=int, default=4, help="Batch size for image processing (1-10, default: 4)")
+    extract_parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=4,
+        help="Batch size for image processing (1-10, default: 4)",
+    )
 
     # Info command
     info_parser = subparsers.add_parser("info", help="Show PDF information")
@@ -250,7 +292,7 @@ def main():
             max_images=args.max_images,
             batch_size=args.batch_size,
         )
-    elif args.command == "info":
+    if args.command == "info":
         return CLICommands.info(args.file_path)
 
     return 0

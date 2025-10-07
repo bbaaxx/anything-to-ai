@@ -9,7 +9,7 @@ import tempfile
 from unittest.mock import patch
 from PIL import Image
 
-from anyfile_to_ai.image_processor import create_config, process_images
+from anything_to_ai.image_processor import create_config, process_images
 
 
 class TestBatchCleanup:
@@ -20,9 +20,9 @@ class TestBatchCleanup:
         """Create multiple temporary test images."""
         images = []
         for i in range(3):
-            tmp = tempfile.NamedTemporaryFile(suffix='.jpg', delete=False)
-            img = Image.new('RGB', (100, 100), color=['red', 'green', 'blue'][i])
-            img.save(tmp.name, 'JPEG')
+            tmp = tempfile.NamedTemporaryFile(suffix=".jpg", delete=False)
+            img = Image.new("RGB", (100, 100), color=["red", "green", "blue"][i])
+            img.save(tmp.name, "JPEG")
             images.append(tmp.name)
             tmp.close()
 
@@ -35,7 +35,7 @@ class TestBatchCleanup:
     def test_batch_processing_memory_cleanup(self, sample_images):
         """Test that batch processing cleans up VLM model memory."""
         # This should FAIL initially - batch cleanup not implemented
-        with patch.dict(os.environ, {'VISION_MODEL': 'google/gemma-3-4b'}):
+        with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}):
             config = create_config(batch_size=2)
 
             result = process_images(sample_images, config)
@@ -47,7 +47,9 @@ class TestBatchCleanup:
             # Memory cleanup should have occurred (hard to test directly)
             # But we can verify the interface exists
             try:
-                from anyfile_to_ai.image_processor.model_registry import VLMModelRegistry
+                from anything_to_ai.image_processor.model_registry import (
+                    VLMModelRegistry,
+                )
 
                 registry = VLMModelRegistry()
                 registry.cleanup_models()  # Should be safe to call
@@ -58,7 +60,7 @@ class TestBatchCleanup:
     def test_multiple_batch_operations_cleanup(self, sample_images):
         """Test cleanup between multiple batch operations."""
         # This should FAIL initially - inter-batch cleanup not implemented
-        with patch.dict(os.environ, {'VISION_MODEL': 'google/gemma-3-4b'}):
+        with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}):
             config = create_config(batch_size=1)
 
             # Process first batch
@@ -72,11 +74,11 @@ class TestBatchCleanup:
     def test_cleanup_on_processing_error(self, sample_images):
         """Test that cleanup occurs even when processing errors happen."""
         # This should FAIL initially - error cleanup not implemented
-        with patch.dict(os.environ, {'VISION_MODEL': 'google/gemma-3-4b'}):
+        with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}):
             config = create_config(batch_size=2)
 
             # Add invalid image to cause processing error
-            invalid_images = sample_images + ['nonexistent.jpg']
+            invalid_images = sample_images + ["nonexistent.jpg"]
 
             try:
                 process_images(invalid_images, config)
@@ -85,7 +87,9 @@ class TestBatchCleanup:
 
             # Cleanup should still have occurred
             try:
-                from anyfile_to_ai.image_processor.model_registry import VLMModelRegistry
+                from anything_to_ai.image_processor.model_registry import (
+                    VLMModelRegistry,
+                )
 
                 registry = VLMModelRegistry()
                 registry.cleanup_models()  # Should be safe
@@ -96,8 +100,8 @@ class TestBatchCleanup:
     def test_streaming_cleanup_integration(self, sample_images):
         """Test cleanup integration with streaming processing."""
         # This should FAIL initially - streaming cleanup not implemented
-        with patch.dict(os.environ, {'VISION_MODEL': 'google/gemma-3-4b'}):
-            from anyfile_to_ai.image_processor import process_images_streaming
+        with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}):
+            from anything_to_ai.image_processor import process_images_streaming
 
             config = create_config(batch_size=1)
 
@@ -108,5 +112,5 @@ class TestBatchCleanup:
             assert len(results) > 0
             final_result = results[-1]
 
-            if hasattr(final_result, 'results'):
+            if hasattr(final_result, "results"):
                 assert len(final_result.results) == 3

@@ -1,6 +1,6 @@
 """Integration tests for image markdown output."""
 
-from anyfile_to_ai.image_processor.markdown_formatter import format_markdown
+from anything_to_ai.image_processor.markdown_formatter import format_markdown
 
 
 class TestImageMarkdownIntegration:
@@ -14,7 +14,7 @@ class TestImageMarkdownIntegration:
                 "image_path": "/path/to/test.jpg",
                 "description": "A red car on a highway",
                 "processing_success": True,
-            }
+            },
         ]
 
         output = format_markdown(results)
@@ -64,7 +64,7 @@ class TestImageMarkdownIntegration:
                 "image_path": "failed.jpg",
                 "description": None,
                 "processing_success": False,
-            }
+            },
         ]
 
         output = format_markdown(results)
@@ -81,7 +81,7 @@ class TestImageMarkdownIntegration:
                 "image_path": "test.jpg",
                 "description": "Image with *emphasis* and [notes] and #tags",
                 "processing_success": True,
-            }
+            },
         ]
 
         output = format_markdown(results)
@@ -94,8 +94,18 @@ class TestImageMarkdownIntegration:
     def test_markdown_syntax_validity(self):
         """Test output markdown is syntactically valid."""
         results = [
-            {"filename": "img1.jpg", "image_path": "img1.jpg", "description": "First", "processing_success": True},
-            {"filename": "img2.jpg", "image_path": "img2.jpg", "description": "Second", "processing_success": True},
+            {
+                "filename": "img1.jpg",
+                "image_path": "img1.jpg",
+                "description": "First",
+                "processing_success": True,
+            },
+            {
+                "filename": "img2.jpg",
+                "image_path": "img2.jpg",
+                "description": "Second",
+                "processing_success": True,
+            },
         ]
 
         output = format_markdown(results)
@@ -108,9 +118,24 @@ class TestImageMarkdownIntegration:
     def test_mixed_success_and_failure(self):
         """Test batch with both successful and failed images."""
         results = [
-            {"filename": "good.jpg", "image_path": "good.jpg", "description": "Success", "processing_success": True},
-            {"filename": "bad.jpg", "image_path": "bad.jpg", "description": None, "processing_success": False},
-            {"filename": "good2.jpg", "image_path": "good2.jpg", "description": "Also success", "processing_success": True},
+            {
+                "filename": "good.jpg",
+                "image_path": "good.jpg",
+                "description": "Success",
+                "processing_success": True,
+            },
+            {
+                "filename": "bad.jpg",
+                "image_path": "bad.jpg",
+                "description": None,
+                "processing_success": False,
+            },
+            {
+                "filename": "good2.jpg",
+                "image_path": "good2.jpg",
+                "description": "Also success",
+                "processing_success": True,
+            },
         ]
 
         output = format_markdown(results)

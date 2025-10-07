@@ -3,7 +3,7 @@
 import asyncio
 import logging
 import time
-from typing import AsyncIterator, List, Optional
+from collections.abc import AsyncIterator
 
 from .models import ProgressConsumer, ProgressState, ProgressUpdate, UpdateType
 
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class ProgressEmitter:
     """Mutable progress state manager that generates ProgressUpdate events."""
 
-    def __init__(self, total: Optional[int], label: Optional[str] = None, throttle_interval: float = 0.1) -> None:
+    def __init__(self, total: int | None, label: str | None = None, throttle_interval: float = 0.1) -> None:
         """
         Create progress emitter.
 
@@ -31,12 +31,12 @@ class ProgressEmitter:
         self._current = 0
         self._total = total
         self._label = label
-        self._consumers: List[ProgressConsumer] = []
-        self._children: List["ProgressEmitter"] = []
-        self._weights: List[float] = []
+        self._consumers: list[ProgressConsumer] = []
+        self._children: list[ProgressEmitter] = []
+        self._weights: list[float] = []
         self._last_update_time = 0.0
         self._throttle_interval = throttle_interval
-        self._update_queue: Optional[asyncio.Queue] = None
+        self._update_queue: asyncio.Queue | None = None
 
     @property
     def current(self) -> int:
@@ -44,7 +44,7 @@ class ProgressEmitter:
         return self._current
 
     @property
-    def total(self) -> Optional[int]:
+    def total(self) -> int | None:
         """Total items (read-only)."""
         return self._total
 
@@ -100,7 +100,7 @@ class ProgressEmitter:
         if self._should_notify(force):
             self._notify_consumers(update_type, delta, force)
 
-    def update_total(self, new_total: Optional[int]) -> None:
+    def update_total(self, new_total: int | None) -> None:
         """
         Update total count (dynamic discovery).
         Always forces notification regardless of throttling.
@@ -140,7 +140,7 @@ class ProgressEmitter:
         if consumer in self._consumers:
             self._consumers.remove(consumer)
 
-    def create_child(self, total: Optional[int], weight: float = 1.0, label: Optional[str] = None) -> "ProgressEmitter":
+    def create_child(self, total: int | None, weight: float = 1.0, label: str | None = None) -> "ProgressEmitter":
         """
         Create child emitter for hierarchical progress.
 
@@ -252,7 +252,7 @@ class ProgressEmitter:
         normalized_weights = [w / total_weight for w in self._weights]
         weighted_sum = 0.0
 
-        for child, weight in zip(self._children, normalized_weights):
+        for child, weight in zip(self._children, normalized_weights, strict=False):
             if child.total is not None and child.total > 0:
                 child_percentage = (child.current / child.total) * 100.0
                 weighted_sum += child_percentage * weight

@@ -1,5 +1,5 @@
 def main():
-    print("Hello from anyfile-to-ai!")
+    print("Hello from anything-to-ai!")
 
 
 if __name__ == "__main__":

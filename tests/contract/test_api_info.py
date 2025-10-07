@@ -1,8 +1,11 @@
 """Contract tests for get_image_info() API function."""
 
 import pytest
-from anyfile_to_ai.image_processor import get_image_info
-from anyfile_to_ai.image_processor.exceptions import ImageNotFoundError, CorruptedImageError
+from anything_to_ai.image_processor import get_image_info
+from anything_to_ai.image_processor.exceptions import (
+    ImageNotFoundError,
+    CorruptedImageError,
+)
 
 
 class TestGetImageInfoContract:
@@ -17,7 +20,14 @@ class TestGetImageInfoContract:
     def test_get_image_info_required_fields(self):
         """Test get_image_info returns required metadata fields."""
         result = get_image_info("sample.jpg")
-        required_fields = ["file_path", "format", "width", "height", "file_size", "is_large_image"]
+        required_fields = [
+            "file_path",
+            "format",
+            "width",
+            "height",
+            "file_size",
+            "is_large_image",
+        ]
         for field in required_fields:
             assert field in result
 

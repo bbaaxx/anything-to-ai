@@ -19,7 +19,7 @@ def repo_root():
 def test_git_no_verify_flag_exists():
     """Verify git supports --no-verify flag."""
     # Test that git commit accepts --no-verify flag
-    result = subprocess.run(["git", "commit", "--help"], capture_output=True, text=True)
+    result = subprocess.run(["git", "commit", "--help"], check=False, capture_output=True, text=True)
     assert result.returncode == 0, "git commit --help failed"
 
     help_text = result.stdout.lower()
@@ -29,7 +29,7 @@ def test_git_no_verify_flag_exists():
 def test_precommit_skip_env_var():
     """Verify SKIP environment variable is supported by pre-commit."""
     # Check pre-commit documentation or help for SKIP variable
-    result = subprocess.run(["uv", "run", "pre-commit", "run", "--help"], capture_output=True, text=True)
+    result = subprocess.run(["uv", "run", "pre-commit", "run", "--help"], check=False, capture_output=True, text=True)
     assert result.returncode == 0, "pre-commit run --help failed"
 
     # SKIP is an environment variable, so it may not be in help text

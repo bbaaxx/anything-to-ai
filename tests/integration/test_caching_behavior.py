@@ -6,7 +6,7 @@ Requires Ollama or LM Studio running.
 
 import time
 import pytest
-from anyfile_to_ai.llm_client import LLMClient, LLMConfig
+from anything_to_ai.llm_client import LLMClient, LLMConfig
 
 
 def check_service_available() -> bool:
@@ -34,7 +34,10 @@ def check_service_available() -> bool:
     return False
 
 
-pytestmark = pytest.mark.skipif(not check_service_available(), reason="No LLM service available (Ollama or LM Studio)")
+pytestmark = pytest.mark.skipif(
+    not check_service_available(),
+    reason="No LLM service available (Ollama or LM Studio)",
+)
 
 
 @pytest.mark.integration

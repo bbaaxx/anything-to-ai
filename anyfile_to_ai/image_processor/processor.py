@@ -2,7 +2,7 @@
 
 import os
 import time
-from typing import Any, Dict
+from typing import Any
 from PIL import Image
 from .models import ImageDocument, DescriptionResult, ProcessingConfig
 from .exceptions import (
@@ -43,7 +43,7 @@ class VLMProcessor:
         except (VLMConfigurationError, VLMModelLoadError) as e:
             raise ModelLoadError(model_name, str(e))
         except Exception as e:
-            raise ModelLoadError(model_name, f"Unexpected error: {str(e)}")
+            raise ModelLoadError(model_name, f"Unexpected error: {e!s}")
 
     def validate_image(self, file_path: str) -> ImageDocument:
         """Validate image file and extract metadata."""
@@ -73,7 +73,7 @@ class VLMProcessor:
                     is_large_image=is_large,
                 )
 
-        except (IOError, OSError) as e:
+        except OSError as e:
             raise CorruptedImageError(file_path, str(e))
 
     def preprocess_image(self, image_document: ImageDocument) -> Any:
@@ -91,13 +91,9 @@ class VLMProcessor:
 
                 return img
         except Exception as e:
-            raise ProcessingError(
-                image_document.file_path, f"Preprocessing failed: {e}"
-            )
+            raise ProcessingError(image_document.file_path, f"Preprocessing failed: {e}")
 
-    def process_single_image(
-        self, image_document: ImageDocument, config: ProcessingConfig
-    ) -> DescriptionResult:
+    def process_single_image(self, image_document: ImageDocument, config: ProcessingConfig) -> DescriptionResult:
         """Process single image with VLM."""
         start_time = time.time()
 
@@ -117,11 +113,7 @@ class VLMProcessor:
             prompt = config.prompt_template.format(style=config.description_style)
 
             # Process with real VLM
-            vlm_result = self._vlm_processor.process_image_with_vlm(
-                image_document.file_path,
-                prompt,
-                vlm_config
-            )
+            vlm_result = self._vlm_processor.process_image_with_vlm(image_document.file_path, prompt, vlm_config)
 
             # Create technical metadata
             technical_metadata = self._create_technical_metadata(image_document)
@@ -130,9 +122,7 @@ class VLMProcessor:
 
             # Check timeout
             if processing_time > config.timeout_seconds:
-                raise ProcessingTimeoutError(
-                    image_document.file_path, config.timeout_seconds
-                )
+                raise ProcessingTimeoutError(image_document.file_path, config.timeout_seconds)
 
             return DescriptionResult(
                 image_path=image_document.file_path,
@@ -145,7 +135,7 @@ class VLMProcessor:
                 # Enhanced VLM fields
                 technical_metadata=technical_metadata,
                 vlm_processing_time=vlm_result["processing_time"],
-                model_version=vlm_result["model_info"]["version"]
+                model_version=vlm_result["model_info"]["version"],
             )
 
         except (VLMProcessingError, VLMConfigurationError) as e:
@@ -155,17 +145,11 @@ class VLMProcessor:
             processing_time = time.time() - start_time
             if isinstance(e, (ProcessingTimeoutError, ProcessingError)):
                 raise
-            else:
-                raise ProcessingError(image_document.file_path, str(e))
+            raise ProcessingError(image_document.file_path, str(e))
 
-    def _create_technical_metadata(self, image_doc: ImageDocument) -> Dict[str, Any]:
+    def _create_technical_metadata(self, image_doc: ImageDocument) -> dict[str, Any]:
         """Create technical metadata from image document."""
-        return {
-            "format": image_doc.format,
-            "dimensions": [image_doc.width, image_doc.height],
-            "file_size": image_doc.file_size,
-            "is_large_image": image_doc.is_large_image
-        }
+        return {"format": image_doc.format, "dimensions": [image_doc.width, image_doc.height], "file_size": image_doc.file_size, "is_large_image": image_doc.is_large_image}
 
     def process_with_vlm(self, image_path: str, config: ProcessingConfig) -> DescriptionResult:
         """Public method to process image with VLM (for backward compatibility)."""

@@ -1,6 +1,5 @@
 """Text chunking for large documents."""
 
-from typing import List
 from .models import TextChunk
 
 
@@ -8,7 +7,7 @@ def chunk_text(
     text: str,
     chunk_size: int = 10000,
     overlap: int = 500,
-) -> List[TextChunk]:
+) -> list[TextChunk]:
     """
     Split text into overlapping chunks.
 
@@ -46,7 +45,7 @@ def chunk_text(
                 content=text,
                 start_word=0,
                 end_word=len(words),
-            )
+            ),
         ]
 
     # Create chunks with overlap
@@ -65,7 +64,7 @@ def chunk_text(
                 content=chunk_content,
                 start_word=start,
                 end_word=end,
-            )
+            ),
         )
 
         chunk_index += 1

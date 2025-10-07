@@ -1,6 +1,6 @@
 """Data models for text summarizer module."""
 
-from typing import List, Literal, Optional
+from typing import Literal
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -25,13 +25,13 @@ class SummaryMetadata(BaseModel):
 
     input_length: int = Field(..., gt=0, description="Word count of input")
     chunked: bool = Field(..., description="Whether text was chunked")
-    chunk_count: Optional[int] = Field(default=None, ge=1, description="Number of chunks")
-    detected_language: Optional[str] = Field(default=None, description="ISO 639-1 language code")
+    chunk_count: int | None = Field(default=None, ge=1, description="Number of chunks")
+    detected_language: str | None = Field(default=None, description="ISO 639-1 language code")
     processing_time: float = Field(..., ge=0.0, description="Processing time in seconds")
 
     @field_validator("chunk_count")
     @classmethod
-    def validate_chunk_count(cls, v: Optional[int], info) -> Optional[int]:
+    def validate_chunk_count(cls, v: int | None, info) -> int | None:
         """Validate chunk_count is provided when chunked=True."""
         values = info.data
         if values.get("chunked") and v is None:
@@ -43,12 +43,12 @@ class SummaryResult(BaseModel):
     """Result of text summarization."""
 
     summary: str = Field(..., min_length=1, description="Generated summary")
-    tags: List[str] = Field(..., min_length=3, description="Content tags (minimum 3)")
-    metadata: Optional[SummaryMetadata] = Field(default=None, description="Processing metadata")
+    tags: list[str] = Field(..., min_length=3, description="Content tags (minimum 3)")
+    metadata: SummaryMetadata | None = Field(default=None, description="Processing metadata")
 
     @field_validator("tags")
     @classmethod
-    def validate_tags(cls, v: List[str]) -> List[str]:
+    def validate_tags(cls, v: list[str]) -> list[str]:
         """Validate that there are at least 3 non-empty tags."""
         if len(v) < 3:
             raise ValueError("Must have at least 3 tags")

@@ -3,7 +3,7 @@ Data models for audio processing module.
 """
 
 from dataclasses import dataclass
-from typing import Optional, List, Dict, Callable
+from collections.abc import Callable
 
 
 @dataclass
@@ -14,6 +14,7 @@ class AudioDocument:
     Created after validating an audio file but before processing.
     All fields are required and validated according to spec constraints.
     """
+
     file_path: str
     format: str  # mp3, wav, m4a
     duration: float  # seconds
@@ -30,15 +31,16 @@ class TranscriptionResult:
     Represents the result of transcribing a single audio file.
     success=True indicates successful transcription, False indicates failure.
     """
+
     audio_path: str
     text: str
-    confidence_score: Optional[float]  # 0.0-1.0
+    confidence_score: float | None  # 0.0-1.0
     processing_time: float  # seconds
     model_used: str  # e.g., "medium"
     quantization: str  # none, 4bit, 8bit
-    detected_language: Optional[str]  # ISO 639-1 code (e.g., "en")
+    detected_language: str | None  # ISO 639-1 code (e.g., "en")
     success: bool
-    error_message: Optional[str]
+    error_message: str | None
 
 
 @dataclass
@@ -49,13 +51,14 @@ class TranscriptionConfig:
     Encapsulates all transcription settings in a single validated object.
     Use create_config() factory function to instantiate with validation.
     """
+
     model: str = "medium"
     quantization: str = "none"  # Changed from "4bit" due to MLX compatibility
     batch_size: int = 12
-    language: Optional[str] = None  # ISO 639-1 code, None for auto-detect
+    language: str | None = None  # ISO 639-1 code, None for auto-detect
     output_format: str = "plain"  # plain or json
     timeout_seconds: int = 600
-    progress_callback: Optional[Callable[[int, int], None]] = None
+    progress_callback: Callable[[int, int], None] | None = None
     verbose: bool = False
     max_duration_seconds: int = 7200  # 2 hours
 
@@ -68,11 +71,12 @@ class ProcessingResult:
     Stores results of processing multiple audio files with statistics.
     success=True if at least one file succeeded.
     """
+
     success: bool
-    results: List[TranscriptionResult]
+    results: list[TranscriptionResult]
     total_files: int
     successful_count: int
     failed_count: int
     total_processing_time: float  # seconds
     average_processing_time: float  # seconds
-    error_summary: Optional[Dict[str, int]]  # error type -> count
+    error_summary: dict[str, int] | None  # error type -> count

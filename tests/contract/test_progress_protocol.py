@@ -7,7 +7,7 @@ the ProgressConsumer protocol and handle edge cases appropriately.
 
 import inspect
 import pytest
-from anyfile_to_ai.progress_tracker import (
+from anything_to_ai.progress_tracker import (
     ProgressState,
     ProgressUpdate,
     UpdateType,
@@ -41,13 +41,13 @@ class TestProgressConsumerProtocol:
         """All consumers must implement on_progress method."""
         for ConsumerClass in [CLIProgressConsumer, LoggingProgressConsumer]:
             assert hasattr(ConsumerClass, "on_progress")
-            assert callable(getattr(ConsumerClass, "on_progress"))
+            assert callable(ConsumerClass.on_progress)
 
     def test_consumer_must_have_on_complete_method(self):
         """All consumers must implement on_complete method."""
         for ConsumerClass in [CLIProgressConsumer, LoggingProgressConsumer]:
             assert hasattr(ConsumerClass, "on_complete")
-            assert callable(getattr(ConsumerClass, "on_complete"))
+            assert callable(ConsumerClass.on_complete)
 
     def test_on_progress_accepts_progress_update(self):
         """on_progress must accept ProgressUpdate argument."""
@@ -141,42 +141,42 @@ class TestProgressEmitterContract:
     def test_emitter_has_update_method(self):
         """ProgressEmitter must have update(increment, force) method."""
         assert hasattr(ProgressEmitter, "update")
-        assert callable(getattr(ProgressEmitter, "update"))
+        assert callable(ProgressEmitter.update)
 
     def test_emitter_has_set_current_method(self):
         """ProgressEmitter must have set_current(value, force) method."""
         assert hasattr(ProgressEmitter, "set_current")
-        assert callable(getattr(ProgressEmitter, "set_current"))
+        assert callable(ProgressEmitter.set_current)
 
     def test_emitter_has_update_total_method(self):
         """ProgressEmitter must have update_total(new_total) method."""
         assert hasattr(ProgressEmitter, "update_total")
-        assert callable(getattr(ProgressEmitter, "update_total"))
+        assert callable(ProgressEmitter.update_total)
 
     def test_emitter_has_complete_method(self):
         """ProgressEmitter must have complete() method."""
         assert hasattr(ProgressEmitter, "complete")
-        assert callable(getattr(ProgressEmitter, "complete"))
+        assert callable(ProgressEmitter.complete)
 
     def test_emitter_has_add_consumer_method(self):
         """ProgressEmitter must have add_consumer(consumer) method."""
         assert hasattr(ProgressEmitter, "add_consumer")
-        assert callable(getattr(ProgressEmitter, "add_consumer"))
+        assert callable(ProgressEmitter.add_consumer)
 
     def test_emitter_has_remove_consumer_method(self):
         """ProgressEmitter must have remove_consumer(consumer) method."""
         assert hasattr(ProgressEmitter, "remove_consumer")
-        assert callable(getattr(ProgressEmitter, "remove_consumer"))
+        assert callable(ProgressEmitter.remove_consumer)
 
     def test_emitter_has_create_child_method(self):
         """ProgressEmitter must have create_child() method."""
         assert hasattr(ProgressEmitter, "create_child")
-        assert callable(getattr(ProgressEmitter, "create_child"))
+        assert callable(ProgressEmitter.create_child)
 
     def test_emitter_has_stream_method(self):
         """ProgressEmitter must have async stream() method."""
         assert hasattr(ProgressEmitter, "stream")
-        method = getattr(ProgressEmitter, "stream")
+        method = ProgressEmitter.stream
         assert callable(method)
         assert inspect.isasyncgenfunction(method)
 

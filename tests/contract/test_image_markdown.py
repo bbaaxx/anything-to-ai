@@ -15,6 +15,7 @@ class TestImageMarkdownContract:
 
         result = subprocess.run(
             ["python", "-m", "image_processor", str(test_file), "--format", "markdown"],
+            check=False,
             capture_output=True,
             text=True,
         )
@@ -23,18 +24,31 @@ class TestImageMarkdownContract:
 
     def test_output_starts_with_heading(self):
         """Assert output starts with '# Image Descriptions'."""
-        from anyfile_to_ai.image_processor.markdown_formatter import format_markdown
+        from anything_to_ai.image_processor.markdown_formatter import format_markdown
 
-        results = [{"filename": "test.jpg", "image_path": "/path/test.jpg", "description": "A test image"}]
+        results = [
+            {
+                "filename": "test.jpg",
+                "image_path": "/path/test.jpg",
+                "description": "A test image",
+            },
+        ]
         output = format_markdown(results)
 
         assert output.startswith("# Image Descriptions"), "Output must start with main heading"
 
     def test_contains_markdown_image_syntax(self):
         """Assert contains '![alt](path)' markdown image syntax."""
-        from anyfile_to_ai.image_processor.markdown_formatter import format_markdown
+        from anything_to_ai.image_processor.markdown_formatter import format_markdown
 
-        results = [{"filename": "test.jpg", "image_path": "test.jpg", "description": "A test image", "processing_success": True}]
+        results = [
+            {
+                "filename": "test.jpg",
+                "image_path": "test.jpg",
+                "description": "A test image",
+                "processing_success": True,
+            },
+        ]
         output = format_markdown(results)
 
         assert "![" in output and "](" in output, "Must contain markdown image syntax"
@@ -42,11 +56,21 @@ class TestImageMarkdownContract:
 
     def test_each_image_has_section(self):
         """Verify each image has '## filename' section."""
-        from anyfile_to_ai.image_processor.markdown_formatter import format_markdown
+        from anything_to_ai.image_processor.markdown_formatter import format_markdown
 
         results = [
-            {"filename": "image1.jpg", "image_path": "image1.jpg", "description": "First image", "processing_success": True},
-            {"filename": "image2.jpg", "image_path": "image2.jpg", "description": "Second image", "processing_success": True},
+            {
+                "filename": "image1.jpg",
+                "image_path": "image1.jpg",
+                "description": "First image",
+                "processing_success": True,
+            },
+            {
+                "filename": "image2.jpg",
+                "image_path": "image2.jpg",
+                "description": "Second image",
+                "processing_success": True,
+            },
         ]
         output = format_markdown(results)
 
@@ -55,9 +79,16 @@ class TestImageMarkdownContract:
 
     def test_vlm_failure_fallback(self):
         """Test VLM failure fallback: generic 'Description unavailable'."""
-        from anyfile_to_ai.image_processor.markdown_formatter import format_markdown
+        from anything_to_ai.image_processor.markdown_formatter import format_markdown
 
-        results = [{"filename": "test.jpg", "image_path": "test.jpg", "description": None, "processing_success": False}]
+        results = [
+            {
+                "filename": "test.jpg",
+                "image_path": "test.jpg",
+                "description": None,
+                "processing_success": False,
+            },
+        ]
         output = format_markdown(results)
 
         # Should have generic fallback
@@ -65,7 +96,7 @@ class TestImageMarkdownContract:
 
     def test_special_characters_not_escaped(self):
         """Test special characters in descriptions are not escaped."""
-        from anyfile_to_ai.image_processor.markdown_formatter import format_markdown
+        from anything_to_ai.image_processor.markdown_formatter import format_markdown
 
         results = [
             {
@@ -73,7 +104,7 @@ class TestImageMarkdownContract:
                 "image_path": "test.jpg",
                 "description": "Image with *asterisks* and [brackets]",
                 "processing_success": True,
-            }
+            },
         ]
         output = format_markdown(results)
 

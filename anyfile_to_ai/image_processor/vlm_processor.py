@@ -1,6 +1,6 @@
 """VLM processor for single and batch image processing."""
 
-from typing import List, Dict, Any
+from typing import Any
 import time
 
 from .vlm_models import ModelConfiguration
@@ -19,7 +19,7 @@ def _convert_config(config) -> ModelConfiguration:
             timeout_behavior=config.timeout_behavior,
             auto_download=config.auto_download,
             validation_enabled=config.validate_before_load,
-            cache_dir=config.cache_dir
+            cache_dir=config.cache_dir,
         )
     return config
 
@@ -31,12 +31,7 @@ class VLMProcessor:
         self.registry = get_global_registry()
         self._current_model = None
 
-    def process_image_with_vlm(
-        self,
-        image_path: str,
-        prompt: str,
-        config
-    ) -> Dict[str, Any]:
+    def process_image_with_vlm(self, image_path: str, prompt: str, config) -> dict[str, Any]:
         """
         Process single image with VLM.
 
@@ -69,56 +64,29 @@ class VLMProcessor:
             start_time = time.time()
 
             try:
-                result = self._process_with_timeout(
-                    self._current_model,
-                    image_path,
-                    prompt,
-                    config.timeout_seconds
-                )
+                result = self._process_with_timeout(self._current_model, image_path, prompt, config.timeout_seconds)
 
                 processing_time = time.time() - start_time
 
-                return {
-                    "description": result["description"],
-                    "confidence_score": result.get("confidence_score"),
-                    "processing_time": processing_time,
-                    "model_info": loaded_model.model_info
-                }
+                return {"description": result["description"], "confidence_score": result.get("confidence_score"), "processing_time": processing_time, "model_info": loaded_model.model_info}
 
             except VLMTimeoutError:
                 processing_time = time.time() - start_time
 
                 # Handle timeout based on configuration
                 if config.timeout_behavior == "error":
-                    raise VLMTimeoutError(
-                        f"VLM processing timed out after {config.timeout_seconds} seconds",
-                        timeout_seconds=config.timeout_seconds,
-                        actual_time=processing_time,
-                        image_path=image_path,
-                        model_name=config.model_name
-                    )
-                elif config.timeout_behavior == "fallback":
+                    raise VLMTimeoutError(f"VLM processing timed out after {config.timeout_seconds} seconds", timeout_seconds=config.timeout_seconds, actual_time=processing_time, image_path=image_path, model_name=config.model_name)
+                if config.timeout_behavior == "fallback":
                     return self._create_fallback_result(image_path, loaded_model, processing_time)
-                else:  # continue
-                    return self._create_timeout_result(image_path, loaded_model, processing_time)
+                # continue
+                return self._create_timeout_result(image_path, loaded_model, processing_time)
 
         except Exception as e:
             if isinstance(e, (VLMProcessingError, VLMTimeoutError)):
                 raise
-            else:
-                raise VLMProcessingError(
-                    f"VLM processing failed: {str(e)}",
-                    image_path=image_path,
-                    model_name=config.model_name,
-                    error_details=str(e)
-                )
+            raise VLMProcessingError(f"VLM processing failed: {e!s}", image_path=image_path, model_name=config.model_name, error_details=str(e))
 
-    def process_batch_with_vlm(
-        self,
-        image_paths: List[str],
-        prompts: List[str],
-        config
-    ) -> List[Dict[str, Any]]:
+    def process_batch_with_vlm(self, image_paths: list[str], prompts: list[str], config) -> list[dict[str, Any]]:
         """
         Process batch of images with VLM.
 
@@ -134,10 +102,7 @@ class VLMProcessor:
             VLMProcessingError: If batch processing fails
         """
         if len(image_paths) != len(prompts):
-            raise VLMProcessingError(
-                "Number of image paths must match number of prompts",
-                error_details=f"Images: {len(image_paths)}, Prompts: {len(prompts)}"
-            )
+            raise VLMProcessingError("Number of image paths must match number of prompts", error_details=f"Images: {len(image_paths)}, Prompts: {len(prompts)}")
 
         results = []
         successful = 0
@@ -150,7 +115,7 @@ class VLMProcessor:
             # Ensure model is loaded once for the batch
             self._ensure_model_loaded(config)
 
-            for image_path, prompt in zip(image_paths, prompts):
+            for image_path, prompt in zip(image_paths, prompts, strict=False):
                 try:
                     result = self.process_image_with_vlm(image_path, prompt, config)
                     results.append(result)
@@ -158,13 +123,7 @@ class VLMProcessor:
 
                 except Exception as e:
                     # For batch processing, continue with other images on individual failures
-                    error_result = {
-                        "description": f"Error processing {image_path}: {str(e)}",
-                        "confidence_score": None,
-                        "processing_time": 0.0,
-                        "model_info": {"name": config.model_name, "version": "unknown"},
-                        "error": str(e)
-                    }
+                    error_result = {"description": f"Error processing {image_path}: {e!s}", "confidence_score": None, "processing_time": 0.0, "model_info": {"name": config.model_name, "version": "unknown"}, "error": str(e)}
                     results.append(error_result)
                     failed += 1
 
@@ -174,20 +133,15 @@ class VLMProcessor:
             return results
 
         except Exception as e:
-            raise VLMProcessingError(
-                f"Batch VLM processing failed: {str(e)}",
-                model_name=config.model_name,
-                error_details=f"Processed {successful}/{len(image_paths)} images successfully"
-            )
+            raise VLMProcessingError(f"Batch VLM processing failed: {e!s}", model_name=config.model_name, error_details=f"Processed {successful}/{len(image_paths)} images successfully")
 
     def _ensure_model_loaded(self, config: ModelConfiguration) -> LoadedModel:
         """Ensure VLM model is loaded and ready."""
         if not self.registry.is_model_loaded(config.model_name):
             return self.registry.load_model(config)
-        else:
-            return self.registry.get_current_model()
+        return self.registry.get_current_model()
 
-    def _process_with_timeout(self, model, image_path: str, prompt: str, timeout_seconds: int) -> Dict[str, Any]:
+    def _process_with_timeout(self, model, image_path: str, prompt: str, timeout_seconds: int) -> dict[str, Any]:
         """Process image with timeout handling."""
         import signal
 
@@ -211,29 +165,21 @@ class VLMProcessor:
         finally:
             signal.signal(signal.SIGALRM, old_handler)
 
-    def _create_fallback_result(self, image_path: str, loaded_model: LoadedModel, processing_time: float) -> Dict[str, Any]:
+    def _create_fallback_result(self, image_path: str, loaded_model: LoadedModel, processing_time: float) -> dict[str, Any]:
         """Create fallback result when VLM times out."""
         import os
+
         filename = os.path.basename(image_path)
 
-        return {
-            "description": f"Timeout fallback description for {filename}",
-            "confidence_score": None,
-            "processing_time": processing_time,
-            "model_info": loaded_model.model_info
-        }
+        return {"description": f"Timeout fallback description for {filename}", "confidence_score": None, "processing_time": processing_time, "model_info": loaded_model.model_info}
 
-    def _create_timeout_result(self, image_path: str, loaded_model: LoadedModel, processing_time: float) -> Dict[str, Any]:
+    def _create_timeout_result(self, image_path: str, loaded_model: LoadedModel, processing_time: float) -> dict[str, Any]:
         """Create partial result when VLM times out but should continue."""
         import os
+
         filename = os.path.basename(image_path)
 
-        return {
-            "description": f"Partial description for {filename} (processing interrupted)",
-            "confidence_score": None,
-            "processing_time": processing_time,
-            "model_info": loaded_model.model_info
-        }
+        return {"description": f"Partial description for {filename} (processing interrupted)", "confidence_score": None, "processing_time": processing_time, "model_info": loaded_model.model_info}
 
     def _cleanup_batch_resources(self):
         """Clean up resources after batch processing."""

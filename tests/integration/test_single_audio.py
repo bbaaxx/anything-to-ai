@@ -17,7 +17,6 @@ class TestSingleAudioIntegration:
     def test_process_single_audio_with_defaults(self, sample_audio_path):
         """Test processing single audio file with default configuration."""
         pytest.skip("Test audio file not available yet")
-        import anyfile_to_ai.audio_processor
 
         # Create default config
         config = audio_processor.create_config()
@@ -38,7 +37,6 @@ class TestSingleAudioIntegration:
     def test_process_single_audio_returns_confidence_score(self, sample_audio_path):
         """Test that transcription returns confidence score."""
         pytest.skip("Test audio file not available yet")
-        import anyfile_to_ai.audio_processor
 
         config = audio_processor.create_config()
         result = audio_processor.process_audio(sample_audio_path, config)
@@ -49,7 +47,6 @@ class TestSingleAudioIntegration:
     def test_process_with_tiny_model(self, sample_audio_path):
         """Test processing with tiny model for speed."""
         pytest.skip("Test audio file not available yet")
-        import anyfile_to_ai.audio_processor
 
         config = audio_processor.create_config(model="tiny", quantization="4bit")
         result = audio_processor.process_audio(sample_audio_path, config)
@@ -60,7 +57,6 @@ class TestSingleAudioIntegration:
     def test_process_with_language_auto_detect(self, sample_audio_path):
         """Test language auto-detection."""
         pytest.skip("Test audio file not available yet")
-        import anyfile_to_ai.audio_processor
 
         config = audio_processor.create_config(language=None)  # Auto-detect
         result = audio_processor.process_audio(sample_audio_path, config)

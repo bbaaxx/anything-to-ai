@@ -8,7 +8,7 @@ version: 0.1.0
 functions:
   process_audio:
     description: Process single audio file and generate transcribed text
-    signature: (file_path: str, config: TranscriptionConfig = None) -> TranscriptionResult
+    signature: "(file_path: str, config: TranscriptionConfig = None) -> TranscriptionResult"
     parameters:
       file_path:
         type: str

@@ -1,6 +1,6 @@
 """Model validation and loading logic for VLM integration."""
 
-from typing import List, Optional, Dict, Any
+from typing import Any
 
 from .vlm_models import ModelConfiguration
 from .model_registry import LoadedModel, get_global_registry
@@ -12,7 +12,7 @@ class ModelLoader:
 
     def __init__(self):
         self.registry = get_global_registry()
-        self._validation_cache: Dict[str, bool] = {}
+        self._validation_cache: dict[str, bool] = {}
 
     def validate_model_availability(self, model_name: str) -> bool:
         """
@@ -26,7 +26,7 @@ class ModelLoader:
         """
         return self.registry.validate_model(model_name)
 
-    def get_available_models(self) -> List[str]:
+    def get_available_models(self) -> list[str]:
         """
         Get list of available VLM models.
 
@@ -74,12 +74,7 @@ class ModelLoader:
         if config.validation_enabled:
             if not self.validate_model_availability(config.model_name):
                 available_models = self.get_available_models()
-                raise VLMModelNotFoundError(
-                    f"Model '{config.model_name}' is not available",
-                    model_name=config.model_name,
-                    available_models=available_models,
-                    suggested_fix=f"Try one of: {', '.join(available_models[:3])}"
-                )
+                raise VLMModelNotFoundError(f"Model '{config.model_name}' is not available", model_name=config.model_name, available_models=available_models, suggested_fix=f"Try one of: {', '.join(available_models[:3])}")
 
         # Load the model
         return self.load_model_if_needed(config)
@@ -95,16 +90,11 @@ class ModelLoader:
         Returns:
             LoadedModel: Preloaded model instance
         """
-        config = ModelConfiguration(
-            model_name=model_name,
-            validation_enabled=kwargs.get('validate', True),
-            auto_download=kwargs.get('auto_download', True),
-            **kwargs
-        )
+        config = ModelConfiguration(model_name=model_name, validation_enabled=kwargs.get("validate", True), auto_download=kwargs.get("auto_download", True), **kwargs)
 
         return self.validate_and_load_model(config)
 
-    def check_model_compatibility(self, model_name: str) -> Dict[str, Any]:
+    def check_model_compatibility(self, model_name: str) -> dict[str, Any]:
         """
         Check model compatibility and requirements.
 
@@ -114,13 +104,7 @@ class ModelLoader:
         Returns:
             Dict containing compatibility information
         """
-        compatibility_info = {
-            "model_name": model_name,
-            "available": False,
-            "compatible": False,
-            "requirements_met": False,
-            "issues": []
-        }
+        compatibility_info = {"model_name": model_name, "available": False, "compatible": False, "requirements_met": False, "issues": []}
 
         try:
             # Check availability
@@ -135,11 +119,11 @@ class ModelLoader:
                 compatibility_info["issues"].append("Model not available")
 
         except Exception as e:
-            compatibility_info["issues"].append(f"Validation error: {str(e)}")
+            compatibility_info["issues"].append(f"Validation error: {e!s}")
 
         return compatibility_info
 
-    def get_model_info(self, model_name: str) -> Optional[Dict[str, Any]]:
+    def get_model_info(self, model_name: str) -> dict[str, Any] | None:
         """
         Get detailed model information.
 
@@ -161,7 +145,7 @@ class ModelLoader:
                 "framework": "MLX",
                 "capabilities": ["vision", "text"],
                 "estimated_memory": "1GB",  # Would be model-specific
-                "supported_formats": ["JPEG", "PNG", "WEBP"]
+                "supported_formats": ["JPEG", "PNG", "WEBP"],
             }
 
         except Exception:
@@ -171,7 +155,7 @@ class ModelLoader:
         """Clean up models that are no longer needed."""
         self.registry.cleanup_models()
 
-    def get_loading_progress(self, model_name: str) -> Optional[Dict[str, Any]]:
+    def get_loading_progress(self, model_name: str) -> dict[str, Any] | None:
         """
         Get model loading progress if available.
 
@@ -187,7 +171,7 @@ class ModelLoader:
 
 
 # Global model loader instance
-_global_loader: Optional[ModelLoader] = None
+_global_loader: ModelLoader | None = None
 
 
 def get_global_model_loader() -> ModelLoader:
@@ -207,7 +191,7 @@ def validate_model_availability(model_name: str) -> bool:
     return loader.validate_model_availability(model_name)
 
 
-def get_available_models() -> List[str]:
+def get_available_models() -> list[str]:
     """Get list of available VLM models."""
     loader = get_global_model_loader()
     return loader.get_available_models()

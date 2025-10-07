@@ -15,13 +15,12 @@ class TestBatchAudioProcessing:
         return [
             "sample-data/audio/speech.mp3",
             "sample-data/audio/spanish.m4a",
-            "sample-data/audio/long.mp3"
+            "sample-data/audio/long.mp3",
         ]
 
     def test_batch_process_multiple_files(self, sample_audio_files):
         """Test batch processing multiple audio files."""
         pytest.skip("Test audio files not available yet")
-        import anyfile_to_ai.audio_processor
 
         config = audio_processor.create_config()
         result = audio_processor.process_audio_batch(sample_audio_files, config)
@@ -38,7 +37,6 @@ class TestBatchAudioProcessing:
     def test_batch_process_with_progress_callback(self, sample_audio_files):
         """Test batch processing with progress callback."""
         pytest.skip("Test audio files not available yet")
-        import anyfile_to_ai.audio_processor
 
         progress_calls = []
 
@@ -56,8 +54,7 @@ class TestBatchAudioProcessing:
 
     def test_batch_process_empty_list(self):
         """Test batch processing with empty file list."""
-        import anyfile_to_ai.audio_processor
-        from anyfile_to_ai.audio_processor import ValidationError
+        from anything_to_ai.audio_processor import ValidationError
 
         config = audio_processor.create_config()
 
@@ -67,13 +64,12 @@ class TestBatchAudioProcessing:
     def test_batch_process_handles_mixed_success_failure(self):
         """Test batch processing with mix of successful and failed files."""
         pytest.skip("Test audio files not available yet")
-        import anyfile_to_ai.audio_processor
 
         # Include non-existent file
         files = [
             "sample-data/audio/speech.mp3",
             "sample-data/audio/nonexistent.mp3",
-            "sample-data/audio/spanish.m4a"
+            "sample-data/audio/spanish.m4a",
         ]
 
         config = audio_processor.create_config()

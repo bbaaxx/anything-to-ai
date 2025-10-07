@@ -14,27 +14,25 @@ class TestStreamingProgress:
     def test_streaming_with_progress_callback(self):
         """Test streaming PDF extraction with progress reporting."""
         try:
-            from anyfile_to_ai.pdf_extractor.image_integration import PDFImageProcessor
-            from anyfile_to_ai.pdf_extractor.enhanced_models import EnhancedExtractionConfig
+            from anything_to_ai.pdf_extractor.image_integration import PDFImageProcessor
+            from anything_to_ai.pdf_extractor.enhanced_models import (
+                EnhancedExtractionConfig,
+            )
 
             progress_calls = []
 
             def progress_callback(current, total):
                 progress_calls.append((current, total))
 
-            config = EnhancedExtractionConfig(
-                include_images=True,
-                progress_callback=progress_callback
-            )
+            config = EnhancedExtractionConfig(include_images=True, progress_callback=progress_callback)
             processor = PDFImageProcessor()
 
-            with patch('os.path.exists', return_value=True):
-                with patch.dict('os.environ', {'VISION_MODEL': 'test-model'}):
-                    stream = processor.extract_with_images_streaming("test.pdf", config)
-                    pages = list(stream)
+            with patch("os.path.exists", return_value=True), patch.dict("os.environ", {"VISION_MODEL": "test-model"}):
+                stream = processor.extract_with_images_streaming("test.pdf", config)
+                pages = list(stream)
 
-                    assert len(pages) >= 0
-                    assert len(progress_calls) >= 0
+                assert len(pages) >= 0
+                assert len(progress_calls) >= 0
 
         except ImportError:
             pytest.fail("Streaming progress not implemented yet")
@@ -46,7 +44,7 @@ class TestProgressReporting:
     def test_image_processing_progress_updates(self):
         """Test that progress is reported during image processing."""
         try:
-            from anyfile_to_ai.pdf_extractor.cli import CLIProgressReporter
+            from anything_to_ai.pdf_extractor.cli import CLIProgressReporter
 
             reporter = CLIProgressReporter()
 

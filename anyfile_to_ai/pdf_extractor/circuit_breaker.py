@@ -2,7 +2,6 @@
 
 import time
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass
@@ -11,7 +10,7 @@ class VLMCircuitBreaker:
 
     failure_count: int = 0
     failure_threshold: int = 3
-    last_failure_time: Optional[float] = None
+    last_failure_time: float | None = None
     recovery_timeout: float = 60.0
     state: str = "CLOSED"  # CLOSED, OPEN, HALF_OPEN
 
@@ -19,12 +18,12 @@ class VLMCircuitBreaker:
         """Check if VLM processing is allowed."""
         if self.state == "CLOSED":
             return True
-        elif self.state == "OPEN":
+        if self.state == "OPEN":
             if self.last_failure_time and (time.time() - self.last_failure_time) > self.recovery_timeout:
                 self.state = "HALF_OPEN"
                 return True
             return False
-        elif self.state == "HALF_OPEN":
+        if self.state == "HALF_OPEN":
             return True
         return False
 

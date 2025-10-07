@@ -1,9 +1,9 @@
 """Markdown formatting for audio transcription results."""
 
-from typing import Dict, Any
+from typing import Any
 
 
-def format_markdown(result: Dict[str, Any]) -> str:
+def format_markdown(result: dict[str, Any]) -> str:
     """
     Format audio transcription result as markdown.
 

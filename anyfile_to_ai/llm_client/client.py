@@ -4,14 +4,12 @@ This module orchestrates adapter selection, retry logic, fallback handling,
 and caching for LLM operations.
 """
 
-from typing import List
-
-from anyfile_to_ai.llm_client.adapters import get_adapter
-from anyfile_to_ai.llm_client.cache import ModelCache
-from anyfile_to_ai.llm_client.config import LLMConfig
-from anyfile_to_ai.llm_client.exceptions import LLMError
-from anyfile_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo
-from anyfile_to_ai.llm_client.retry import RetryHandler
+from anything_to_ai.llm_client.adapters import get_adapter
+from anything_to_ai.llm_client.cache import ModelCache
+from anything_to_ai.llm_client.config import LLMConfig
+from anything_to_ai.llm_client.exceptions import LLMError
+from anything_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo
+from anything_to_ai.llm_client.retry import RetryHandler
 
 
 class LLMClient:
@@ -118,8 +116,7 @@ class LLMClient:
                 used_fallback=False,
                 fallback_provider=None,
             )
-        else:
-            last_error = result["error"]
+        last_error = result["error"]
 
         # Try fallback adapters
         for fallback_config, fallback_adapter in self.fallback_adapters:
@@ -148,14 +145,13 @@ class LLMClient:
                     used_fallback=True,
                     fallback_provider=fallback_config.provider,
                 )
-            else:
-                last_error = result["error"]
-                continue
+            last_error = result["error"]
+            continue
 
         # All providers failed
         raise last_error
 
-    def list_models(self, use_cache: bool = True) -> List[ModelInfo]:
+    def list_models(self, use_cache: bool = True) -> list[ModelInfo]:
         """List available models from provider.
 
         Uses caching to minimize API calls. Cache is keyed by provider URL.

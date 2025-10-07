@@ -13,7 +13,16 @@ class TestPDFMarkdownContract:
         test_file.write_bytes(b"%PDF-1.4\n%%EOF\n")  # Minimal invalid PDF to test CLI
 
         result = subprocess.run(
-            ["python", "-m", "pdf_extractor", "extract", str(test_file), "--format", "markdown"],
+            [
+                "python",
+                "-m",
+                "pdf_extractor",
+                "extract",
+                str(test_file),
+                "--format",
+                "markdown",
+            ],
+            check=False,
             capture_output=True,
             text=True,
         )
@@ -24,7 +33,7 @@ class TestPDFMarkdownContract:
         """Assert output starts with '# PDF Document:'."""
         # This test will be implemented after formatter exists
         # For now, it should fail (TDD requirement)
-        from anyfile_to_ai.pdf_extractor.markdown_formatter import format_markdown
+        from anything_to_ai.pdf_extractor.markdown_formatter import format_markdown
 
         result = {"filename": "test.pdf", "pages": []}
         output = format_markdown(result)
@@ -33,7 +42,7 @@ class TestPDFMarkdownContract:
 
     def test_contains_page_sections(self):
         """Assert contains '## Page N' sections."""
-        from anyfile_to_ai.pdf_extractor.markdown_formatter import format_markdown
+        from anything_to_ai.pdf_extractor.markdown_formatter import format_markdown
 
         result = {"filename": "test.pdf", "pages": [{"number": 1, "text": "Content"}]}
         output = format_markdown(result)
@@ -42,9 +51,12 @@ class TestPDFMarkdownContract:
 
     def test_markdown_syntax_valid(self):
         """Verify markdown syntax validity."""
-        from anyfile_to_ai.pdf_extractor.markdown_formatter import format_markdown
+        from anything_to_ai.pdf_extractor.markdown_formatter import format_markdown
 
-        result = {"filename": "test.pdf", "pages": [{"number": 1, "text": "Test content"}]}
+        result = {
+            "filename": "test.pdf",
+            "pages": [{"number": 1, "text": "Test content"}],
+        }
         output = format_markdown(result)
 
         # Basic markdown structure checks
@@ -54,9 +66,12 @@ class TestPDFMarkdownContract:
 
     def test_fallback_no_structure(self):
         """Test fallback: no structure → plain paragraphs."""
-        from anyfile_to_ai.pdf_extractor.markdown_formatter import format_markdown
+        from anything_to_ai.pdf_extractor.markdown_formatter import format_markdown
 
-        result = {"filename": "test.pdf", "pages": [{"number": 1, "text": "Simple paragraph text without structure."}]}
+        result = {
+            "filename": "test.pdf",
+            "pages": [{"number": 1, "text": "Simple paragraph text without structure."}],
+        }
         output = format_markdown(result)
 
         # Should output as plain paragraphs, not detect false structure
@@ -65,11 +80,16 @@ class TestPDFMarkdownContract:
 
     def test_special_characters_not_escaped(self):
         """Test special characters are not escaped (per research.md decision)."""
-        from anyfile_to_ai.pdf_extractor.markdown_formatter import format_markdown
+        from anything_to_ai.pdf_extractor.markdown_formatter import format_markdown
 
         result = {
             "filename": "test.pdf",
-            "pages": [{"number": 1, "text": "Text with *asterisks* and [brackets] and #hashtags"}],
+            "pages": [
+                {
+                    "number": 1,
+                    "text": "Text with *asterisks* and [brackets] and #hashtags",
+                },
+            ],
         }
         output = format_markdown(result)
 

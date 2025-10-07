@@ -2,7 +2,7 @@
 Whisper model loading and caching.
 """
 
-from anyfile_to_ai.audio_processor.exceptions import ModelLoadError
+from anything_to_ai.audio_processor.exceptions import ModelLoadError
 
 
 class WhisperModelLoader:
@@ -35,10 +35,7 @@ class WhisperModelLoader:
             ModelLoadError: If model loading fails
         """
         # Check if we already have the right model loaded
-        if (self._model is not None and
-                self._current_model_name == model_name and
-                self._current_quantization == quantization and
-                self._current_batch_size == batch_size):
+        if self._model is not None and self._current_model_name == model_name and self._current_quantization == quantization and self._current_batch_size == batch_size:
             return self._model
 
         try:
@@ -48,11 +45,7 @@ class WhisperModelLoader:
             quant = None if quantization == "none" else quantization
 
             # Load model
-            self._model = LightningWhisperMLX(
-                model=model_name,
-                batch_size=batch_size,
-                quant=quant
-            )
+            self._model = LightningWhisperMLX(model=model_name, batch_size=batch_size, quant=quant)
 
             # Cache model parameters
             self._current_model_name = model_name
@@ -63,8 +56,8 @@ class WhisperModelLoader:
 
         except Exception as e:
             raise ModelLoadError(
-                f"Failed to load Whisper model '{model_name}': {str(e)}",
-                model_name=model_name
+                f"Failed to load Whisper model '{model_name}': {e!s}",
+                model_name=model_name,
             )
 
     def clear_cache(self):

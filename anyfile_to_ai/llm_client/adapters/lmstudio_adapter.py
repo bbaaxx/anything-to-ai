@@ -5,19 +5,23 @@ This adapter provides integration with LM Studio's OpenAI-compatible API with op
 
 import time
 import uuid
-from typing import Dict, List
 
 import httpx
 
-from anyfile_to_ai.llm_client.adapters.base import BaseAdapter
-from anyfile_to_ai.llm_client.exceptions import AuthenticationError, ConnectionError, GenerationError, TimeoutError
-from anyfile_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo, Usage
+from anything_to_ai.llm_client.adapters.base import BaseAdapter
+from anything_to_ai.llm_client.exceptions import (
+    AuthenticationError,
+    ConnectionError,
+    GenerationError,
+    TimeoutError,
+)
+from anything_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo, Usage
 
 
 class LMStudioAdapter(BaseAdapter):
     """Adapter for LM Studio LLM service."""
 
-    def _get_headers(self) -> Dict[str, str]:
+    def _get_headers(self) -> dict[str, str]:
         """Get HTTP headers including authentication if configured.
 
         Returns:
@@ -49,7 +53,11 @@ class LMStudioAdapter(BaseAdapter):
         timeout = request.timeout_override if request.timeout_override else self.config.timeout
 
         # Build request payload
-        payload = {"messages": [{"role": msg.role, "content": msg.content} for msg in request.messages], "temperature": request.temperature, "stream": False}
+        payload = {
+            "messages": [{"role": msg.role, "content": msg.content} for msg in request.messages],
+            "temperature": request.temperature,
+            "stream": False,
+        }
 
         if request.model:
             payload["model"] = request.model
@@ -80,7 +88,11 @@ class LMStudioAdapter(BaseAdapter):
             # Parse usage statistics
             usage = None
             if "usage" in data:
-                usage = Usage(prompt_tokens=data["usage"]["prompt_tokens"], completion_tokens=data["usage"]["completion_tokens"], total_tokens=data["usage"]["total_tokens"])
+                usage = Usage(
+                    prompt_tokens=data["usage"]["prompt_tokens"],
+                    completion_tokens=data["usage"]["completion_tokens"],
+                    total_tokens=data["usage"]["total_tokens"],
+                )
 
             return LLMResponse(
                 content=content,
@@ -95,15 +107,31 @@ class LMStudioAdapter(BaseAdapter):
         except AuthenticationError:
             raise
         except httpx.TimeoutException as e:
-            raise TimeoutError(f"Request to LM Studio timed out after {timeout}s", provider="lmstudio", original_error=e)
+            raise TimeoutError(
+                f"Request to LM Studio timed out after {timeout}s",
+                provider="lmstudio",
+                original_error=e,
+            )
         except httpx.ConnectError as e:
-            raise ConnectionError(f"Failed to connect to LM Studio at {self.config.base_url}", provider="lmstudio", original_error=e)
+            raise ConnectionError(
+                f"Failed to connect to LM Studio at {self.config.base_url}",
+                provider="lmstudio",
+                original_error=e,
+            )
         except httpx.HTTPStatusError as e:
-            raise GenerationError(f"LM Studio returned error: {e.response.status_code} - {e.response.text}", provider="lmstudio", original_error=e)
+            raise GenerationError(
+                f"LM Studio returned error: {e.response.status_code} - {e.response.text}",
+                provider="lmstudio",
+                original_error=e,
+            )
         except Exception as e:
-            raise GenerationError(f"Unexpected error during generation: {e}", provider="lmstudio", original_error=e)
+            raise GenerationError(
+                f"Unexpected error during generation: {e}",
+                provider="lmstudio",
+                original_error=e,
+            )
 
-    def list_models(self) -> List[ModelInfo]:
+    def list_models(self) -> list[ModelInfo]:
         """List available models from LM Studio.
 
         Returns:
@@ -134,7 +162,7 @@ class LMStudioAdapter(BaseAdapter):
                         object=model_data.get("object", "model"),
                         created=model_data.get("created"),
                         owned_by=model_data.get("owned_by"),
-                    )
+                    ),
                 )
 
             return models
@@ -142,7 +170,11 @@ class LMStudioAdapter(BaseAdapter):
         except AuthenticationError:
             raise
         except httpx.ConnectError as e:
-            raise ConnectionError(f"Failed to connect to LM Studio at {self.config.base_url}", provider="lmstudio", original_error=e)
+            raise ConnectionError(
+                f"Failed to connect to LM Studio at {self.config.base_url}",
+                provider="lmstudio",
+                original_error=e,
+            )
         except Exception as e:
             raise ConnectionError(f"Failed to list models: {e}", provider="lmstudio", original_error=e)
 

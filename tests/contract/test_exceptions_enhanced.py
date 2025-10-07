@@ -6,7 +6,7 @@ All tests should FAIL initially until implementation is complete.
 
 import pytest
 
-from anyfile_to_ai.pdf_extractor.exceptions import (
+from anything_to_ai.pdf_extractor.exceptions import (
     ImageExtractionError,
     ImageNotFoundInPDFError,
     ImageCroppingError,
@@ -17,7 +17,7 @@ from anyfile_to_ai.pdf_extractor.exceptions import (
     VLMCircuitBreakerError,
     EnhancedExtractionError,
     PartialExtractionError,
-    ConfigurationValidationError
+    ConfigurationValidationError,
 )
 
 
@@ -26,28 +26,20 @@ class TestImageExtractionErrorContract:
 
     def test_image_extraction_error_structure(self):
         """Test ImageExtractionError base exception structure."""
-        error = ImageExtractionError(
-            "Test error",
-            file_path="test.pdf",
-            details={'key': 'value'}
-        )
+        error = ImageExtractionError("Test error", file_path="test.pdf", details={"key": "value"})
 
-        assert hasattr(error, 'file_path')
-        assert hasattr(error, 'details')
+        assert hasattr(error, "file_path")
+        assert hasattr(error, "details")
         assert error.file_path == "test.pdf"
-        assert error.details == {'key': 'value'}
+        assert error.details == {"key": "value"}
 
     def test_image_not_found_error_structure(self):
         """Test ImageNotFoundInPDFError structure."""
-        error = ImageNotFoundInPDFError(
-            page_number=1,
-            image_index=0,
-            file_path="test.pdf"
-        )
+        error = ImageNotFoundInPDFError(page_number=1, image_index=0, file_path="test.pdf")
 
         assert isinstance(error, ImageExtractionError)
-        assert hasattr(error, 'page_number')
-        assert hasattr(error, 'image_index')
+        assert hasattr(error, "page_number")
+        assert hasattr(error, "image_index")
         assert error.page_number == 1
         assert error.image_index == 0
 
@@ -57,13 +49,13 @@ class TestImageExtractionErrorContract:
             page_number=1,
             bounding_box=(0, 0, 100, 100),
             file_path="test.pdf",
-            reason="Invalid coordinates"
+            reason="Invalid coordinates",
         )
 
         assert isinstance(error, ImageExtractionError)
-        assert hasattr(error, 'page_number')
-        assert hasattr(error, 'bounding_box')
-        assert hasattr(error, 'reason')
+        assert hasattr(error, "page_number")
+        assert hasattr(error, "bounding_box")
+        assert hasattr(error, "reason")
         assert error.bounding_box == (0, 0, 100, 100)
         assert error.reason == "Invalid coordinates"
 
@@ -82,65 +74,50 @@ class TestVLMErrorContract:
         error = VLMConfigurationError(
             "Model not found",
             config_key="VISION_MODEL",
-            expected_value="valid-model-name"
+            expected_value="valid-model-name",
         )
 
         assert isinstance(error, Exception)
-        assert hasattr(error, 'config_key')
-        assert hasattr(error, 'expected_value')
+        assert hasattr(error, "config_key")
+        assert hasattr(error, "expected_value")
         assert error.config_key == "VISION_MODEL"
         assert error.expected_value == "valid-model-name"
 
     def test_vlm_service_error_structure(self):
         """Test VLMServiceError base structure."""
-        error = VLMServiceError(
-            "Service failed",
-            model_name="test-model",
-            retry_count=2
-        )
+        error = VLMServiceError("Service failed", model_name="test-model", retry_count=2)
 
         assert isinstance(error, Exception)
-        assert hasattr(error, 'model_name')
-        assert hasattr(error, 'retry_count')
+        assert hasattr(error, "model_name")
+        assert hasattr(error, "retry_count")
         assert error.model_name == "test-model"
         assert error.retry_count == 2
 
     def test_vlm_timeout_error_structure(self):
         """Test VLMTimeoutError structure."""
-        error = VLMTimeoutError(
-            timeout_seconds=30.0,
-            model_name="test-model"
-        )
+        error = VLMTimeoutError(timeout_seconds=30.0, model_name="test-model")
 
         assert isinstance(error, VLMServiceError)
-        assert hasattr(error, 'timeout_seconds')
+        assert hasattr(error, "timeout_seconds")
         assert error.timeout_seconds == 30.0
 
     def test_vlm_memory_error_structure(self):
         """Test VLMMemoryError structure."""
-        error = VLMMemoryError(
-            required_memory="2GB",
-            available_memory="1GB",
-            model_name="test-model"
-        )
+        error = VLMMemoryError(required_memory="2GB", available_memory="1GB", model_name="test-model")
 
         assert isinstance(error, VLMServiceError)
-        assert hasattr(error, 'required_memory')
-        assert hasattr(error, 'available_memory')
+        assert hasattr(error, "required_memory")
+        assert hasattr(error, "available_memory")
         assert error.required_memory == "2GB"
         assert error.available_memory == "1GB"
 
     def test_vlm_circuit_breaker_error_structure(self):
         """Test VLMCircuitBreakerError structure."""
-        error = VLMCircuitBreakerError(
-            failure_count=5,
-            threshold=3,
-            model_name="test-model"
-        )
+        error = VLMCircuitBreakerError(failure_count=5, threshold=3, model_name="test-model")
 
         assert isinstance(error, VLMServiceError)
-        assert hasattr(error, 'failure_count')
-        assert hasattr(error, 'threshold')
+        assert hasattr(error, "failure_count")
+        assert hasattr(error, "threshold")
         assert error.failure_count == 5
         assert error.threshold == 3
 
@@ -158,15 +135,11 @@ class TestEnhancedExtractionErrorContract:
 
     def test_enhanced_extraction_error_structure(self):
         """Test EnhancedExtractionError base structure."""
-        error = EnhancedExtractionError(
-            "Extraction failed",
-            file_path="test.pdf",
-            partial_result={"pages": []}
-        )
+        error = EnhancedExtractionError("Extraction failed", file_path="test.pdf", partial_result={"pages": []})
 
         assert isinstance(error, Exception)
-        assert hasattr(error, 'file_path')
-        assert hasattr(error, 'partial_result')
+        assert hasattr(error, "file_path")
+        assert hasattr(error, "partial_result")
         assert error.file_path == "test.pdf"
         assert error.partial_result == {"pages": []}
 
@@ -177,12 +150,12 @@ class TestEnhancedExtractionErrorContract:
             file_path="test.pdf",
             partial_result={"pages": []},
             failed_pages=[1, 3],
-            failed_images=[0, 2, 4]
+            failed_images=[0, 2, 4],
         )
 
         assert isinstance(error, EnhancedExtractionError)
-        assert hasattr(error, 'failed_pages')
-        assert hasattr(error, 'failed_images')
+        assert hasattr(error, "failed_pages")
+        assert hasattr(error, "failed_images")
         assert error.failed_pages == [1, 3]
         assert error.failed_images == [0, 2, 4]
 
@@ -191,13 +164,13 @@ class TestEnhancedExtractionErrorContract:
         error = ConfigurationValidationError(
             field_name="batch_size",
             field_value=15,
-            validation_error="must be between 1 and 10"
+            validation_error="must be between 1 and 10",
         )
 
         assert isinstance(error, Exception)
-        assert hasattr(error, 'field_name')
-        assert hasattr(error, 'field_value')
-        assert hasattr(error, 'validation_error')
+        assert hasattr(error, "field_name")
+        assert hasattr(error, "field_value")
+        assert hasattr(error, "validation_error")
         assert error.field_name == "batch_size"
         assert error.field_value == 15
 
@@ -209,10 +182,10 @@ class TestExceptionHierarchyInterfaceContract:
         """Test exception hierarchy interface has required methods."""
         interface = ExceptionHierarchyInterface()
 
-        assert hasattr(interface, 'validate_base_exception_structure')
-        assert hasattr(interface, 'validate_image_extraction_error')
-        assert hasattr(interface, 'validate_vlm_configuration_error')
-        assert hasattr(interface, 'validate_vlm_service_error')
+        assert hasattr(interface, "validate_base_exception_structure")
+        assert hasattr(interface, "validate_image_extraction_error")
+        assert hasattr(interface, "validate_vlm_configuration_error")
+        assert hasattr(interface, "validate_vlm_service_error")
 
     def test_base_exception_structure_validation(self):
         """Test base exception structure validation."""
@@ -256,6 +229,7 @@ class TestErrorRecoveryStrategyContract:
 
     def test_unknown_exception_handling(self):
         """Test handling of unknown exception types."""
+
         class UnknownException(Exception):
             pass
 
@@ -318,10 +292,10 @@ class TestExceptionImplementationContract:
     def test_enhanced_exceptions_importable(self):
         """Test that enhanced exceptions can be imported."""
         try:
-            from anyfile_to_ai.pdf_extractor.exceptions import (
+            from anything_to_ai.pdf_extractor.exceptions import (
                 ImageExtractionError,
                 VLMConfigurationError,
-                EnhancedExtractionError
+                EnhancedExtractionError,
             )
 
             # Should be able to create instances
@@ -339,11 +313,11 @@ class TestExceptionImplementationContract:
     def test_exception_hierarchy_implementation(self):
         """Test that exception hierarchy is properly implemented."""
         try:
-            from anyfile_to_ai.pdf_extractor.exceptions import (
+            from anything_to_ai.pdf_extractor.exceptions import (
                 ImageExtractionError,
                 ImageNotFoundInPDFError,
                 VLMServiceError,
-                VLMTimeoutError
+                VLMTimeoutError,
             )
 
             # Test inheritance

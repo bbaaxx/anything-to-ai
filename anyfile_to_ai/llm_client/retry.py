@@ -4,7 +4,8 @@ This module provides retry handling with exponential backoff and configurable de
 """
 
 import time
-from typing import Any, Callable, Dict, Optional
+from typing import Any
+from collections.abc import Callable
 
 
 class RetryHandler:
@@ -46,8 +47,8 @@ class RetryHandler:
         self,
         func: Callable[[], Any],
         retry_on_exceptions: tuple = (Exception,),
-        on_retry: Optional[Callable[[Exception, int], None]] = None,
-    ) -> Dict[str, Any]:
+        on_retry: Callable[[Exception, int], None] | None = None,
+    ) -> dict[str, Any]:
         """Execute function with retry logic.
 
         Args:

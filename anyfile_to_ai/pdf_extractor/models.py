@@ -1,6 +1,7 @@
 """Data models for PDF extraction."""
+
 from dataclasses import dataclass
-from typing import List, Optional, Callable
+from collections.abc import Callable
 
 
 @dataclass
@@ -18,7 +19,7 @@ class PDFDocument:
             raise ValueError("page_count must be positive integer")
         if self.file_size < 0:
             raise ValueError("file_size must be non-negative")
-        if not self.file_path.endswith('.pdf'):
+        if not self.file_path.endswith(".pdf"):
             raise ValueError("file_path must have .pdf extension")
 
 
@@ -48,11 +49,11 @@ class ExtractionResult:
     """Complete result of text extraction operation."""
 
     success: bool
-    pages: List[PageResult]
+    pages: list[PageResult]
     total_pages: int
     total_chars: int
     processing_time: float
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
     def __post_init__(self):
         """Validate ExtractionResult fields."""
@@ -75,7 +76,7 @@ class ExtractionConfig:
     """Configuration for PDF text extraction."""
 
     streaming_enabled: bool = True
-    progress_callback: Optional[ProgressCallback] = None
+    progress_callback: ProgressCallback | None = None
     output_format: str = "plain"  # "plain" or "json"
 
     def __post_init__(self):

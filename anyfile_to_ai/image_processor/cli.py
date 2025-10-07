@@ -1,7 +1,6 @@
 """Command-line interface for image processing module."""
 
 import argparse
-from typing import List, Optional
 from .models import ProcessingResult, DescriptionResult
 
 
@@ -76,12 +75,11 @@ def _handle_image_output(results, parsed_args):
             f.write(output_text)
         if not parsed_args.quiet:
             print(f"Results saved to {parsed_args.output}", file=sys.stderr)
-    else:
-        if not parsed_args.quiet:
-            print(output_text)
+    elif not parsed_args.quiet:
+        print(output_text)
 
 
-def main(args: Optional[List[str]] = None) -> int:
+def main(args: list[str] | None = None) -> int:
     """Main CLI entry point."""
     import sys
 
@@ -135,7 +133,7 @@ def format_output(result: ProcessingResult, format_type: str) -> str:
         results_list = [{"filename": os.path.basename(r.image_path), "image_path": r.image_path, "description": r.description, "processing_success": r.success} for r in result.results]
         return format_markdown(results_list)
 
-    elif format_type == "json":
+    if format_type == "json":
         import json
 
         data = {
@@ -162,7 +160,7 @@ def format_output(result: ProcessingResult, format_type: str) -> str:
         }
         return json.dumps(data, indent=2)
 
-    elif format_type == "csv":
+    if format_type == "csv":
         import csv
         import io
 
@@ -188,32 +186,32 @@ def format_output(result: ProcessingResult, format_type: str) -> str:
                     tech_meta.get("file_size", ""),
                     r.model_used,
                     getattr(r, "model_version", ""),
-                ]
+                ],
             )
 
         return output.getvalue()
 
-    else:  # plain format
-        lines = []
-        lines.append(f"Processed {result.total_images} images")
-        lines.append(f"Successful: {result.successful_count}, Failed: {result.failed_count}")
-        lines.append(f"Total time: {result.total_processing_time:.2f}s")
+    # plain format
+    lines = []
+    lines.append(f"Processed {result.total_images} images")
+    lines.append(f"Successful: {result.successful_count}, Failed: {result.failed_count}")
+    lines.append(f"Total time: {result.total_processing_time:.2f}s")
+    lines.append("")
+
+    for r in result.results:
+        status = "✓" if r.success else "✗"
+        lines.append(f"{status} {r.image_path}")
+        if r.success and r.description:
+            lines.append(f"   {r.description}")
+
+            # Add technical metadata in plain format
+            tech_meta = getattr(r, "technical_metadata", {}) or {}
+            if tech_meta:
+                dims = tech_meta.get("dimensions", [0, 0])
+                lines.append(f"   Format: {tech_meta.get('format', 'Unknown')}, Size: {dims[0]}x{dims[1]}, {tech_meta.get('file_size', 0)} bytes")
         lines.append("")
 
-        for r in result.results:
-            status = "✓" if r.success else "✗"
-            lines.append(f"{status} {r.image_path}")
-            if r.success and r.description:
-                lines.append(f"   {r.description}")
-
-                # Add technical metadata in plain format
-                tech_meta = getattr(r, "technical_metadata", {}) or {}
-                if tech_meta:
-                    dims = tech_meta.get("dimensions", [0, 0])
-                    lines.append(f"   Format: {tech_meta.get('format', 'Unknown')}, Size: {dims[0]}x{dims[1]}, {tech_meta.get('file_size', 0)} bytes")
-            lines.append("")
-
-        return "\n".join(lines)
+    return "\n".join(lines)
 
 
 def format_single_result(result: DescriptionResult, format_type: str) -> str:
@@ -235,35 +233,35 @@ def format_single_result(result: DescriptionResult, format_type: str) -> str:
         }
         return json.dumps(data, indent=2)
 
-    elif format_type == "csv":
+    if format_type == "csv":
         tech_meta = result.technical_metadata or {}
         dims = tech_meta.get("dimensions", [0, 0])
         return (
             f"{result.image_path},{result.description},{result.confidence_score},{result.processing_time},{result.success},{tech_meta.get('format', '')},{dims[0]},{dims[1]},{tech_meta.get('file_size', 0)},{result.model_used},{result.model_version}"
         )
 
-    else:  # plain format
-        lines = [f"Image: {result.image_path}"]
-        if result.success:
-            lines.append(f"Description: {result.description}")
-            if result.confidence_score is not None:
-                lines.append(f"Confidence: {result.confidence_score:.2f}")
-            lines.append(f"Processing time: {result.processing_time:.2f}s")
-            if result.model_used:
-                lines.append(f"Model: {result.model_used}")
+    # plain format
+    lines = [f"Image: {result.image_path}"]
+    if result.success:
+        lines.append(f"Description: {result.description}")
+        if result.confidence_score is not None:
+            lines.append(f"Confidence: {result.confidence_score:.2f}")
+        lines.append(f"Processing time: {result.processing_time:.2f}s")
+        if result.model_used:
+            lines.append(f"Model: {result.model_used}")
 
-            # Add technical metadata if available
-            if result.technical_metadata:
-                tech_meta = result.technical_metadata
-                dims = tech_meta.get("dimensions", [0, 0])
-                lines.append(f"Format: {tech_meta.get('format', 'Unknown')}, Size: {dims[0]}x{dims[1]}, {tech_meta.get('file_size', 0)} bytes")
-        else:
-            lines.append("Status: Failed")
+        # Add technical metadata if available
+        if result.technical_metadata:
+            tech_meta = result.technical_metadata
+            dims = tech_meta.get("dimensions", [0, 0])
+            lines.append(f"Format: {tech_meta.get('format', 'Unknown')}, Size: {dims[0]}x{dims[1]}, {tech_meta.get('file_size', 0)} bytes")
+    else:
+        lines.append("Status: Failed")
 
-        return "\n".join(lines)
+    return "\n".join(lines)
 
 
-def expand_image_paths(paths: List[str]) -> List[str]:
+def expand_image_paths(paths: list[str]) -> list[str]:
     """Expand directory paths and glob patterns to image files."""
     import os
     import glob

@@ -4,7 +4,7 @@ import pytest
 import tempfile
 import os
 from PIL import Image
-from anyfile_to_ai.image_processor import process_image, ProcessingConfig
+from anything_to_ai.image_processor import process_image, ProcessingConfig
 
 
 class TestSingleImageProcessing:
@@ -13,10 +13,10 @@ class TestSingleImageProcessing:
     @pytest.fixture
     def sample_image(self):
         """Create a temporary sample image for testing."""
-        with tempfile.NamedTemporaryFile(suffix='.jpg', delete=False) as f:
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
             # Create a simple 100x100 RGB image
-            img = Image.new('RGB', (100, 100), color='red')
-            img.save(f.name, 'JPEG')
+            img = Image.new("RGB", (100, 100), color="red")
+            img.save(f.name, "JPEG")
             yield f.name
         os.unlink(f.name)
 
@@ -36,10 +36,7 @@ class TestSingleImageProcessing:
     def test_single_image_with_custom_config(self, sample_image):
         """Test single image processing with custom configuration."""
         # Scenario from quickstart: Custom configuration
-        config = ProcessingConfig(
-            description_style="brief",
-            max_description_length=200
-        )
+        config = ProcessingConfig(description_style="brief", max_description_length=200)
         result = process_image(sample_image, config)
 
         # Verify configuration is respected
@@ -49,10 +46,7 @@ class TestSingleImageProcessing:
 
     def test_single_image_detailed_style(self, sample_image):
         """Test single image processing with detailed style."""
-        config = ProcessingConfig(
-            description_style="detailed",
-            max_description_length=800
-        )
+        config = ProcessingConfig(description_style="detailed", max_description_length=800)
         result = process_image(sample_image, config)
 
         assert result.success is True
@@ -61,10 +55,7 @@ class TestSingleImageProcessing:
 
     def test_single_image_technical_style(self, sample_image):
         """Test single image processing with technical style."""
-        config = ProcessingConfig(
-            description_style="technical",
-            max_description_length=500
-        )
+        config = ProcessingConfig(description_style="technical", max_description_length=500)
         result = process_image(sample_image, config)
 
         assert result.success is True
@@ -84,11 +75,11 @@ class TestSingleImageProcessing:
         result = process_image(sample_image)
 
         # Verify all required metadata is present
-        assert hasattr(result, 'confidence_score')
-        assert hasattr(result, 'processing_time')
-        assert hasattr(result, 'model_used')
-        assert hasattr(result, 'prompt_used')
-        assert hasattr(result, 'success')
+        assert hasattr(result, "confidence_score")
+        assert hasattr(result, "processing_time")
+        assert hasattr(result, "model_used")
+        assert hasattr(result, "prompt_used")
+        assert hasattr(result, "success")
 
         # Verify data types
         assert isinstance(result.image_path, str)

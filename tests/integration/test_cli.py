@@ -1,5 +1,6 @@
 """Contract tests for CLI interface."""
-from anyfile_to_ai.pdf_extractor.cli import CLICommands
+
+from anything_to_ai.pdf_extractor.cli import CLICommands
 
 
 class TestCLIExtractContract:
@@ -28,9 +29,7 @@ class TestCLIExtractContract:
 
     def test_extract_command_with_all_options(self):
         """Test extract command with all options combined."""
-        exit_code = CLICommands.extract(
-            "sample.pdf", stream=True, format_type="json", progress=True
-        )
+        exit_code = CLICommands.extract("sample.pdf", stream=True, format_type="json", progress=True)
         assert isinstance(exit_code, int)
 
 

@@ -3,22 +3,18 @@ Batch processing with progress updates.
 """
 
 import time
-from typing import List, Optional
 from collections import defaultdict
-from anyfile_to_ai.audio_processor.models import (
+from anything_to_ai.audio_processor.models import (
     TranscriptionResult,
     TranscriptionConfig,
-    ProcessingResult
+    ProcessingResult,
 )
-from anyfile_to_ai.audio_processor.exceptions import ValidationError
-from anyfile_to_ai.audio_processor.processor import process_audio
-from anyfile_to_ai.audio_processor.progress import ProgressTracker
+from anything_to_ai.audio_processor.exceptions import ValidationError
+from anything_to_ai.audio_processor.processor import process_audio
+from anything_to_ai.audio_processor.progress import ProgressTracker
 
 
-def process_audio_batch(
-    file_paths: List[str],
-    config: Optional[TranscriptionConfig] = None
-) -> ProcessingResult:
+def process_audio_batch(file_paths: list[str], config: TranscriptionConfig | None = None) -> ProcessingResult:
     """
     Process multiple audio files in batch.
 
@@ -38,11 +34,12 @@ def process_audio_batch(
 
     # Use default config if not provided
     if config is None:
-        from anyfile_to_ai.audio_processor.config import create_config
+        from anything_to_ai.audio_processor.config import create_config
+
         config = create_config()
 
     # Initialize results
-    results: List[TranscriptionResult] = []
+    results: list[TranscriptionResult] = []
     error_counts: defaultdict = defaultdict(int)
     start_time = time.time()
 
@@ -72,7 +69,7 @@ def process_audio_batch(
                 quantization=config.quantization,
                 detected_language=None,
                 success=False,
-                error_message=str(e)
+                error_message=str(e),
             )
             results.append(failed_result)
 
@@ -86,10 +83,7 @@ def process_audio_batch(
     total_processing_time = time.time() - start_time
     successful_count = sum(1 for r in results if r.success)
     failed_count = len(results) - successful_count
-    average_processing_time = (
-        sum(r.processing_time for r in results) / len(results)
-        if results else 0.0
-    )
+    average_processing_time = sum(r.processing_time for r in results) / len(results) if results else 0.0
 
     # Create error summary
     error_summary = dict(error_counts) if error_counts else None
@@ -102,7 +96,7 @@ def process_audio_batch(
         failed_count=failed_count,
         total_processing_time=total_processing_time,
         average_processing_time=average_processing_time,
-        error_summary=error_summary
+        error_summary=error_summary,
     )
 
 
@@ -120,17 +114,16 @@ def _categorize_error(error_message: str) -> str:
 
     if "not found" in error_lower or "no such file" in error_lower:
         return "file_not_found"
-    elif "unsupported format" in error_lower:
+    if "unsupported format" in error_lower:
         return "unsupported_format"
-    elif "no speech" in error_lower:
+    if "no speech" in error_lower:
         return "no_speech_detected"
-    elif "duration exceeded" in error_lower or "2-hour" in error_lower:
+    if "duration exceeded" in error_lower or "2-hour" in error_lower:
         return "duration_exceeded"
-    elif "corrupted" in error_lower:
+    if "corrupted" in error_lower:
         return "corrupted_audio"
-    elif "model" in error_lower and "load" in error_lower:
+    if "model" in error_lower and "load" in error_lower:
         return "model_load_error"
-    elif "timeout" in error_lower:
+    if "timeout" in error_lower:
         return "processing_timeout"
-    else:
-        return "other_error"
+    return "other_error"

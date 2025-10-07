@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "anyfile_to_ai"
+name = "anything_to_ai"
 version = "0.1.0"
 description = "Universal file processor with AI-powered text extraction, image analysis, audio transcription, and text summarization"
 readme = "README.md"
@@ -58,6 +58,7 @@ all = [
 dev = [
     "pytest>=8.4.2",
     "pytest-cov>=6.0.0",
+    "pytest-rerunfailures>=14.0",
     "pre-commit>=4.0.0",
     "ruff>=0.13.2",
     "setuptools>=61.0",
@@ -73,8 +74,8 @@ audio-processor = "anyfile_to_ai.audio_processor.__main__:main"
 text-summarizer = "anyfile_to_ai.text_summarizer.__main__:main"
 
 [project.urls]
-Repository = "https://github.com/yourusername/anyfile-to-ai"
-Documentation = "https://github.com/yourusername/anyfile-to-ai#readme"
+Repository = "https://github.com/yourusername/anything-to-ai"
+Documentation = "https://github.com/yourusername/anything-to-ai#readme"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -87,7 +88,15 @@ addopts = [
     "--cov=anyfile_to_ai",
     "--cov-report=term-missing",
     "--cov-report=html",
-    "--cov-fail-under=70",
+    "--cov-fail-under=80",
+    "--reruns=3",
+    "--reruns-delay=1",
+]
+markers = [
+    "flaky: marks tests as flaky and should be quarantined",
+    "slow: marks tests as slow running",
+    "integration: marks tests as integration tests",
+    "contract: marks tests as contract tests",
 ]
 
 [tool.ruff]
@@ -99,9 +108,60 @@ select = [
     "W",   # pycodestyle warnings
     "F",   # pyflakes
     "C901", # too complex (McCabe complexity)
+    "C",   # mccabe complexity
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "A",   # flake8-builtins
+    "COM", # flake8-commas
+    "C4",  # flake8-comprehensions
+    "DTZ", # flake8-datetimez
+    "T10", # flake8-debugger
+    "EM",  # flake8-errmsg
+    "FA",  # flake8-future-annotations
+    "ISC", # flake8-implicit-str-concat
+    "ICN", # flake8-import-conventions
+    "G",   # flake8-logging-format
+    "INP", # flake8-no-pep420
+    "PIE", # flake8-pie
+    "T20", # flake8-print
+    "PT",  # flake8-pytest-style
+    "Q",   # flake8-quotes
+    "RSE", # flake8-raise
+    "RET", # flake8-return
+    "SIM", # flake8-simplify
+    "TID", # flake8-tidy-imports
+    "TCH", # flake8-type-checking
+    "ARG", # flake8-unused-arguments
+    "PTH", # flake8-use-pathlib
+    "ERA", # eradicate
+    "PL",  # pylint
+    "TRY", # tryceratops
+    "FLY", # flynt
+    "NPY", # numpy
+    "RUF", # ruff-specific rules
 ]
 
-ignore = []
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "PLR0911", # too many return statements
+    "PLR0912", # too many branches
+    "PLR0913", # too many arguments
+    "PLR0915", # too many statements
+    "PLR2004", # magic value comparison
+    "TRY003", # raise specific exception
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.pylint]
+max-args = 7
+max-locals = 15
+max-returns = 6
+max-branches = 12
+max-statements = 50
+max-public-methods = 20
 
 [tool.ruff.lint.pycodestyle]
 max-line-length = 250
@@ -122,7 +182,7 @@ omit = [
 ]
 
 [tool.coverage.report]
-fail_under = 70
+fail_under = 80
 precision = 2
 show_missing = true
 skip_covered = false
@@ -141,3 +201,9 @@ directory = "htmlcov"
 
 [tool.setuptools.package-data]
 anyfile_to_ai = ["**/*.txt", "**/*.md"]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.3.0",
+    "ruff>=0.13.2",
+]

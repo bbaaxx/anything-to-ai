@@ -1,4 +1,4 @@
-# MarkItDown vs anyfile-to-ai: Comprehensive Analysis
+# MarkItDown vs anything-to-ai: Comprehensive Analysis
 
 **Report Date:** October 2, 2025
 **Analysis Type:** Comparative Feature & Architecture Assessment
@@ -7,10 +7,10 @@
 
 ## Executive Summary
 
-This report compares Microsoft's **MarkItDown** library with the **anyfile-to-ai** project. While both handle document processing, they serve fundamentally different purposes:
+This report compares Microsoft's **MarkItDown** library with the **anything-to-ai** project. While both handle document processing, they serve fundamentally different purposes:
 
 - **MarkItDown**: Unified document-to-markdown converter optimized for LLM consumption
-- **anyfile-to-ai**: Modular AI-powered document processing pipeline with LLM integration
+- **anything-to-ai**: Modular AI-powered document processing pipeline with LLM integration
 
 **Key Finding**: These systems are complementary rather than competitive. MarkItDown serves as an ideal format bridge for unsupported document types.
 
@@ -342,7 +342,7 @@ MarkItDown          Your Project
 
 ### Positioning Statement
 
-> "anyfile-to-ai is an AI-first document processing pipeline that goes beyond format conversion to deliver semantic understanding, intelligent summarization, and composable content workflows. While tools like MarkItDown normalize documents for LLM consumption, our pipeline processes content with vision language models, transcription engines, and summarization systems to extract actionable insights from multi-modal sources."
+> "anything-to-ai is an AI-first document processing pipeline that goes beyond format conversion to deliver semantic understanding, intelligent summarization, and composable content workflows. While tools like MarkItDown normalize documents for LLM consumption, our pipeline processes content with vision language models, transcription engines, and summarization systems to extract actionable insights from multi-modal sources."
 
 ---
 

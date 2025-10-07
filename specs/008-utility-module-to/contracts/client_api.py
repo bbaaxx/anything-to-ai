@@ -12,7 +12,7 @@ class TestLLMClientAPI:
 
     def test_create_client_with_config(self):
         """Client can be created with LLMConfig."""
-        from anyfile_to_ai.llm_client import LLMClient, LLMConfig
+        from anything_to_ai.llm_client import LLMClient, LLMConfig
 
         config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
         client = LLMClient(config)
@@ -22,7 +22,7 @@ class TestLLMClientAPI:
 
     def test_create_client_with_defaults(self):
         """Client can be created with minimal config."""
-        from anyfile_to_ai.llm_client import LLMClient, LLMConfig
+        from anything_to_ai.llm_client import LLMClient, LLMConfig
 
         config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
         client = LLMClient(config)
@@ -33,7 +33,7 @@ class TestLLMClientAPI:
 
     def test_generate_with_simple_message(self):
         """Client can generate completion from simple message."""
-        from anyfile_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
+        from anything_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
 
         config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
         client = LLMClient(config)
@@ -50,7 +50,7 @@ class TestLLMClientAPI:
 
     def test_generate_with_multiple_messages(self):
         """Client can handle conversation with multiple messages."""
-        from anyfile_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
+        from anything_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
 
         config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
         client = LLMClient(config)
@@ -59,7 +59,7 @@ class TestLLMClientAPI:
             messages=[
                 Message(role="system", content="You are a helpful assistant."),
                 Message(role="user", content="What is 2+2?"),
-            ]
+            ],
         )
 
         response = client.generate(request)
@@ -70,7 +70,7 @@ class TestLLMClientAPI:
 
     def test_generate_with_model_selection(self):
         """Client can generate with specific model."""
-        from anyfile_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
+        from anything_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
 
         config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
         client = LLMClient(config)
@@ -83,7 +83,7 @@ class TestLLMClientAPI:
 
     def test_list_models_returns_list(self):
         """Client can list available models."""
-        from anyfile_to_ai.llm_client import LLMClient, LLMConfig, ModelInfo
+        from anything_to_ai.llm_client import LLMClient, LLMConfig, ModelInfo
 
         config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
         client = LLMClient(config)
@@ -100,7 +100,7 @@ class TestLLMClientAPI:
 
     def test_list_models_uses_cache(self):
         """Second call to list_models uses cache (faster)."""
-        from anyfile_to_ai.llm_client import LLMClient, LLMConfig
+        from anything_to_ai.llm_client import LLMClient, LLMConfig
         import time
 
         config = LLMConfig(
@@ -125,7 +125,7 @@ class TestLLMClientAPI:
 
     def test_invalidate_cache(self):
         """Client can invalidate model list cache."""
-        from anyfile_to_ai.llm_client import LLMClient, LLMConfig
+        from anything_to_ai.llm_client import LLMClient, LLMConfig
 
         config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
         client = LLMClient(config)
@@ -142,7 +142,7 @@ class TestLLMClientAPI:
 
     def test_response_includes_usage_stats(self):
         """Response includes token usage statistics."""
-        from anyfile_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
+        from anything_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
 
         config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
         client = LLMClient(config)
@@ -159,7 +159,7 @@ class TestLLMClientAPI:
 
     def test_response_includes_latency(self):
         """Response includes latency measurement."""
-        from anyfile_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
+        from anything_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
 
         config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
         client = LLMClient(config)
@@ -176,8 +176,8 @@ class TestErrorHandlingContracts:
 
     def test_connection_error_when_service_unreachable(self):
         """Client raises ConnectionError when service is unreachable."""
-        from anyfile_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
-        from anyfile_to_ai.llm_client.exceptions import ConnectionError
+        from anything_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
+        from anything_to_ai.llm_client.exceptions import ConnectionError
 
         config = LLMConfig(
             provider="ollama",
@@ -193,16 +193,16 @@ class TestErrorHandlingContracts:
 
     def test_validation_error_on_empty_messages(self):
         """Client raises ValidationError for empty message list."""
-        from anyfile_to_ai.llm_client import LLMRequest
-        from anyfile_to_ai.llm_client.exceptions import ValidationError
+        from anything_to_ai.llm_client import LLMRequest
+        from anything_to_ai.llm_client.exceptions import ValidationError
 
         with pytest.raises(ValidationError):
             LLMRequest(messages=[])
 
     def test_validation_error_on_invalid_temperature(self):
         """Client raises ValidationError for invalid temperature."""
-        from anyfile_to_ai.llm_client import LLMRequest, Message
-        from anyfile_to_ai.llm_client.exceptions import ValidationError
+        from anything_to_ai.llm_client import LLMRequest, Message
+        from anything_to_ai.llm_client.exceptions import ValidationError
 
         with pytest.raises(ValidationError):
             LLMRequest(
@@ -212,8 +212,8 @@ class TestErrorHandlingContracts:
 
     def test_timeout_error_on_slow_response(self):
         """Client raises TimeoutError when request exceeds timeout."""
-        from anyfile_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
-        from anyfile_to_ai.llm_client.exceptions import TimeoutError
+        from anything_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
+        from anything_to_ai.llm_client.exceptions import TimeoutError
 
         config = LLMConfig(
             provider="ollama",
@@ -233,7 +233,7 @@ class TestRetryAndFallbackContracts:
 
     def test_retry_on_transient_failure(self):
         """Client retries on transient failures."""
-        from anyfile_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
+        from anything_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
 
         config = LLMConfig(provider="ollama", base_url="http://localhost:11434", max_retries=3)
         client = LLMClient(config)
@@ -247,7 +247,7 @@ class TestRetryAndFallbackContracts:
 
     def test_fallback_to_secondary_provider(self):
         """Client falls back to secondary provider on primary failure."""
-        from anyfile_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
+        from anything_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
 
         fallback_config = LLMConfig(provider="lmstudio", base_url="http://localhost:1234")
 

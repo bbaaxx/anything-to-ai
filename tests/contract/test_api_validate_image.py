@@ -1,8 +1,12 @@
 """Contract tests for validate_image() API function."""
 
 import pytest
-from anyfile_to_ai.image_processor import validate_image, ImageDocument
-from anyfile_to_ai.image_processor.exceptions import ImageNotFoundError, UnsupportedFormatError, CorruptedImageError
+from anything_to_ai.image_processor import validate_image, ImageDocument
+from anything_to_ai.image_processor.exceptions import (
+    ImageNotFoundError,
+    UnsupportedFormatError,
+    CorruptedImageError,
+)
 
 
 class TestValidateImageContract:
@@ -45,9 +49,9 @@ class TestValidateImageContract:
     def test_validate_image_metadata_fields(self):
         """Test validate_image returns all required metadata fields."""
         result = validate_image("sample.jpg")
-        assert hasattr(result, 'file_path')
-        assert hasattr(result, 'format')
-        assert hasattr(result, 'width')
-        assert hasattr(result, 'height')
-        assert hasattr(result, 'file_size')
-        assert hasattr(result, 'is_large_image')
+        assert hasattr(result, "file_path")
+        assert hasattr(result, "format")
+        assert hasattr(result, "width")
+        assert hasattr(result, "height")
+        assert hasattr(result, "file_size")
+        assert hasattr(result, "is_large_image")

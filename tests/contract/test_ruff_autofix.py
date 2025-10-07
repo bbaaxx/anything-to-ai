@@ -9,17 +9,16 @@ import tempfile
 from pathlib import Path
 
 
-
 def test_ruff_check_command_available():
     """Verify `ruff check` command works."""
-    result = subprocess.run(["uv", "run", "ruff", "--version"], capture_output=True, text=True)
+    result = subprocess.run(["uv", "run", "ruff", "--version"], check=False, capture_output=True, text=True)
     assert result.returncode == 0, f"ruff command failed: {result.stderr}"
     assert "ruff" in result.stdout.lower(), "Unexpected ruff version output"
 
 
 def test_ruff_format_command_available():
     """Verify `ruff format` command works."""
-    result = subprocess.run(["uv", "run", "ruff", "--version"], capture_output=True, text=True)
+    result = subprocess.run(["uv", "run", "ruff", "--version"], check=False, capture_output=True, text=True)
     assert result.returncode == 0, f"ruff command failed: {result.stderr}"
     assert "ruff" in result.stdout.lower(), "Unexpected ruff format version output"
 
@@ -32,7 +31,7 @@ def test_ruff_fixes_unused_imports():
 
     try:
         # Run ruff check with --fix
-        subprocess.run(["uv", "run", "ruff", "check", "--fix", str(temp_path)], capture_output=True, text=True)
+        subprocess.run(["uv", "run", "ruff", "check", "--fix", str(temp_path)], check=False, capture_output=True, text=True)
 
         # Read the fixed file
         content = temp_path.read_text()
@@ -52,7 +51,7 @@ def test_ruff_fixes_whitespace():
 
     try:
         # Run ruff format
-        subprocess.run(["uv", "run", "ruff", "format", str(temp_path)], capture_output=True, text=True)
+        subprocess.run(["uv", "run", "ruff", "format", str(temp_path)], check=False, capture_output=True, text=True)
 
         # Read the formatted file
         content = temp_path.read_text()
@@ -69,7 +68,7 @@ def test_ruff_fixes_whitespace():
 
 def test_ruff_reports_complexity():
     """Create temp file with high complexity, verify ruff reports C901."""
-    complex_code = '''
+    complex_code = """
 def complex_function(x):
     if x > 0:
         if x > 10:
@@ -92,14 +91,14 @@ def complex_function(x):
             return "20+"
         return "10+"
     return "low"
-'''
+"""
     with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
         f.write(complex_code)
         temp_path = Path(f.name)
 
     try:
         # Run ruff check (without --fix to see violations)
-        result = subprocess.run(["uv", "run", "ruff", "check", str(temp_path)], capture_output=True, text=True)
+        result = subprocess.run(["uv", "run", "ruff", "check", str(temp_path)], check=False, capture_output=True, text=True)
 
         # Verify C901 (complexity) violation is reported
         output = result.stdout + result.stderr
@@ -111,7 +110,7 @@ def complex_function(x):
 
 def test_ruff_does_not_autofix_complexity():
     """Verify C901 is not auto-fixed (manual intervention required)."""
-    complex_code = '''
+    complex_code = """
 def complex_function(x):
     if x > 0:
         if x > 10:
@@ -134,7 +133,7 @@ def complex_function(x):
             return "20+"
         return "10+"
     return "low"
-'''
+"""
     with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
         f.write(complex_code)
         temp_path = Path(f.name)
@@ -144,7 +143,7 @@ def complex_function(x):
         temp_path.read_text()
 
         # Run ruff check with --fix
-        subprocess.run(["uv", "run", "ruff", "check", "--fix", str(temp_path)], capture_output=True, text=True)
+        subprocess.run(["uv", "run", "ruff", "check", "--fix", str(temp_path)], check=False, capture_output=True, text=True)
 
         # Read the content after auto-fix
         fixed_content = temp_path.read_text()

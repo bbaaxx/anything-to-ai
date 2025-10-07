@@ -15,6 +15,7 @@ class TestAudioMarkdownContract:
 
         result = subprocess.run(
             ["python", "-m", "audio_processor", str(test_file), "--format", "markdown"],
+            check=False,
             capture_output=True,
             text=True,
         )
@@ -23,7 +24,7 @@ class TestAudioMarkdownContract:
 
     def test_output_starts_with_transcription_heading(self):
         """Assert output starts with '# Transcription:'."""
-        from anyfile_to_ai.audio_processor.markdown_formatter import format_markdown
+        from anything_to_ai.audio_processor.markdown_formatter import format_markdown
 
         result = {
             "filename": "test.mp3",
@@ -38,7 +39,7 @@ class TestAudioMarkdownContract:
 
     def test_metadata_section_present(self):
         """Assert metadata section with Duration, Model, Language."""
-        from anyfile_to_ai.audio_processor.markdown_formatter import format_markdown
+        from anything_to_ai.audio_processor.markdown_formatter import format_markdown
 
         result = {
             "filename": "test.mp3",
@@ -55,7 +56,7 @@ class TestAudioMarkdownContract:
 
     def test_timestamp_speaker_format(self):
         """Assert '## [timestamp] Speaker' format when available."""
-        from anyfile_to_ai.audio_processor.markdown_formatter import format_markdown
+        from anything_to_ai.audio_processor.markdown_formatter import format_markdown
 
         result = {
             "filename": "test.mp3",
@@ -63,7 +64,12 @@ class TestAudioMarkdownContract:
             "model": "whisper-large-v3",
             "language": "en",
             "segments": [
-                {"start": 0.0, "end": 5.0, "text": "Hello world", "speaker": "Speaker 1"},
+                {
+                    "start": 0.0,
+                    "end": 5.0,
+                    "text": "Hello world",
+                    "speaker": "Speaker 1",
+                },
                 {"start": 5.0, "end": 10.0, "text": "Goodbye", "speaker": "Speaker 2"},
             ],
         }
@@ -75,7 +81,7 @@ class TestAudioMarkdownContract:
 
     def test_fallback_no_speakers(self):
         """Test fallback: no speakers/timestamps → plain paragraphs."""
-        from anyfile_to_ai.audio_processor.markdown_formatter import format_markdown
+        from anything_to_ai.audio_processor.markdown_formatter import format_markdown
 
         result = {
             "filename": "test.mp3",
@@ -83,7 +89,11 @@ class TestAudioMarkdownContract:
             "model": "whisper-large-v3",
             "language": "en",
             "segments": [
-                {"start": 0.0, "end": 10.0, "text": "Plain transcript text without speakers."},
+                {
+                    "start": 0.0,
+                    "end": 10.0,
+                    "text": "Plain transcript text without speakers.",
+                },
             ],
         }
         output = format_markdown(result)
@@ -93,7 +103,7 @@ class TestAudioMarkdownContract:
 
     def test_special_characters_not_escaped(self):
         """Test special characters in transcript are not escaped."""
-        from anyfile_to_ai.audio_processor.markdown_formatter import format_markdown
+        from anything_to_ai.audio_processor.markdown_formatter import format_markdown
 
         result = {
             "filename": "test.mp3",

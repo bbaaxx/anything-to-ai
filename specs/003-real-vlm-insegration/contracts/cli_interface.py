@@ -3,10 +3,10 @@ API Contract: Command Line Interface
 Defines the CLI behavior that must be maintained for backward compatibility.
 """
 
-from typing import List, Optional
+import argparse
 
 
-def create_cli_parser() -> 'argparse.ArgumentParser':
+def create_cli_parser() -> "argparse.ArgumentParser":
     """
     Create command-line argument parser.
 
@@ -28,10 +28,9 @@ def create_cli_parser() -> 'argparse.ArgumentParser':
         export VISION_MODEL=google/gemma-3-4b
         python -m image_processor image.jpg --format json
     """
-    ...
 
 
-def main(args: Optional[List[str]] = None) -> int:
+def main(args: list[str] | None = None) -> int:
     """
     Main CLI entry point.
 
@@ -50,55 +49,19 @@ def main(args: Optional[List[str]] = None) -> int:
         - Returns 1 if VLM processing fails
         - Preserves all existing error handling behavior
     """
-    ...
 
 
 # CLI Argument Contract (Preserved Exactly)
 CLI_ARGUMENTS_SPEC = {
-    "images": {
-        "nargs": "+",
-        "help": "Image file paths or directories",
-        "type": str
-    },
-    "--style": {
-        "choices": ["detailed", "brief", "technical"],
-        "default": "detailed",
-        "help": "Description style preference"
-    },
-    "--max-length": {
-        "type": int,
-        "default": 500,
-        "metavar": "N",
-        "help": "Maximum description length in characters"
-    },
-    "--batch-size": {
-        "type": int,
-        "default": 4,
-        "metavar": "N",
-        "help": "Number of images to process simultaneously"
-    },
-    "--timeout": {
-        "type": int,
-        "default": 60,
-        "metavar": "SECONDS",
-        "help": "Processing timeout per image"
-    },
-    "--output": {
-        "help": "Output file path"
-    },
-    "--format": {
-        "choices": ["plain", "json", "csv"],
-        "default": "plain",
-        "help": "Output format"
-    },
-    "--verbose": {
-        "action": "store_true",
-        "help": "Enable verbose progress output"
-    },
-    "--quiet": {
-        "action": "store_true",
-        "help": "Suppress all output except results"
-    }
+    "images": {"nargs": "+", "help": "Image file paths or directories", "type": str},
+    "--style": {"choices": ["detailed", "brief", "technical"], "default": "detailed", "help": "Description style preference"},
+    "--max-length": {"type": int, "default": 500, "metavar": "N", "help": "Maximum description length in characters"},
+    "--batch-size": {"type": int, "default": 4, "metavar": "N", "help": "Number of images to process simultaneously"},
+    "--timeout": {"type": int, "default": 60, "metavar": "SECONDS", "help": "Processing timeout per image"},
+    "--output": {"help": "Output file path"},
+    "--format": {"choices": ["plain", "json", "csv"], "default": "plain", "help": "Output format"},
+    "--verbose": {"action": "store_true", "help": "Enable verbose progress output"},
+    "--quiet": {"action": "store_true", "help": "Suppress all output except results"},
 }
 
 # Output Format Contracts (Enhanced but Compatible)
@@ -131,15 +94,11 @@ JSON_FORMAT_SCHEMA = {
             "model_used": "string",  # VLM model name
             "success": "boolean",
             # New enhanced fields
-            "technical_metadata": {
-                "format": "string",
-                "dimensions": "[width, height]",
-                "file_size": "integer"
-            },
+            "technical_metadata": {"format": "string", "dimensions": "[width, height]", "file_size": "integer"},
             "vlm_processing_time": "number",
-            "model_version": "string"
-        }
-    ]
+            "model_version": "string",
+        },
+    ],
 }
 
 # CSV Format Contract (Enhanced Columns)
@@ -155,25 +114,16 @@ CSV_FORMAT_COLUMNS = [
     "height",
     "file_size",
     "model_used",
-    "model_version"
+    "model_version",
 ]
 
 # Exit Code Contract (Preserved)
-EXIT_CODES = {
-    0: "Success - all images processed successfully",
-    1: "Error - configuration, model loading, or processing failure"
-}
+EXIT_CODES = {0: "Success - all images processed successfully", 1: "Error - configuration, model loading, or processing failure"}
 
 # Environment Variable Requirements (New)
-REQUIRED_ENV_VARS = {
-    "VISION_MODEL": "VLM model identifier (e.g., 'google/gemma-3-4b')"
-}
+REQUIRED_ENV_VARS = {"VISION_MODEL": "VLM model identifier (e.g., 'google/gemma-3-4b')"}
 
-OPTIONAL_ENV_VARS = {
-    "VLM_TIMEOUT_BEHAVIOR": "Timeout behavior: 'error', 'fallback', 'continue'",
-    "VLM_AUTO_DOWNLOAD": "Auto-download models: 'true', 'false'",
-    "VLM_CACHE_DIR": "Model cache directory path"
-}
+OPTIONAL_ENV_VARS = {"VLM_TIMEOUT_BEHAVIOR": "Timeout behavior: 'error', 'fallback', 'continue'", "VLM_AUTO_DOWNLOAD": "Auto-download models: 'true', 'false'", "VLM_CACHE_DIR": "Model cache directory path"}
 
 # Error Message Contract (Enhanced)
 ERROR_MESSAGES = {
@@ -182,5 +132,5 @@ ERROR_MESSAGES = {
     "model_load_failed": "Error: Failed to load VLM model '{model}': {reason}",
     "processing_timeout": "Error: VLM processing timed out after {timeout} seconds.",
     "no_images_found": "No valid image files found",  # Existing
-    "processing_failed": "Error: {error_message}"  # Existing
+    "processing_failed": "Error: {error_message}",  # Existing
 }

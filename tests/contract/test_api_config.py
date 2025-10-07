@@ -1,8 +1,8 @@
 """Contract tests for create_config() API function."""
 
 import pytest
-from anyfile_to_ai.image_processor import create_config, ProcessingConfig
-from anyfile_to_ai.image_processor.exceptions import ValidationError
+from anything_to_ai.image_processor import create_config, ProcessingConfig
+from anything_to_ai.image_processor.exceptions import ValidationError
 
 
 class TestCreateConfigContract:
@@ -18,11 +18,7 @@ class TestCreateConfigContract:
 
     def test_create_config_with_parameters(self):
         """Test create_config with custom parameters."""
-        result = create_config(
-            description_style="brief",
-            max_length=200,
-            batch_size=2
-        )
+        result = create_config(description_style="brief", max_length=200, batch_size=2)
         assert isinstance(result, ProcessingConfig)
         assert result.description_style == "brief"
         assert result.max_description_length == 200
@@ -56,6 +52,7 @@ class TestCreateConfigContract:
 
     def test_create_config_with_progress_callback(self):
         """Test create_config accepts progress callback."""
+
         def callback(current, total):
             pass
 

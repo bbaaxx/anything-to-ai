@@ -1,7 +1,6 @@
 """VLM configuration loader from environment and integration."""
 
 import os
-from typing import Optional
 
 from .config import load_vlm_config_from_env
 from .vlm_models import ModelConfiguration
@@ -28,15 +27,11 @@ def load_vlm_configuration() -> ModelConfiguration:
             timeout_behavior=vlm_config.timeout_behavior,
             auto_download=vlm_config.auto_download,
             validation_enabled=vlm_config.validate_before_load,
-            cache_dir=vlm_config.cache_dir
+            cache_dir=vlm_config.cache_dir,
         )
 
     except Exception as e:
-        raise VLMConfigurationError(
-            f"Failed to load VLM configuration: {str(e)}",
-            config_field="VISION_MODEL",
-            suggested_fix="Set VISION_MODEL environment variable (e.g., export VISION_MODEL=google/gemma-3-4b)"
-        )
+        raise VLMConfigurationError(f"Failed to load VLM configuration: {e!s}", config_field="VISION_MODEL", suggested_fix="Set VISION_MODEL environment variable (e.g., export VISION_MODEL=google/gemma-3-4b)")
 
 
 def validate_vlm_environment() -> bool:
@@ -53,14 +48,14 @@ def validate_vlm_environment() -> bool:
         return False
 
 
-def get_model_name_from_env() -> Optional[str]:
+def get_model_name_from_env() -> str | None:
     """
     Get model name from environment variable.
 
     Returns:
         Optional[str]: Model name if set, None otherwise
     """
-    return os.getenv('VISION_MODEL')
+    return os.getenv("VISION_MODEL")
 
 
 def is_vlm_enabled() -> bool:
@@ -85,19 +80,9 @@ def create_default_vlm_config() -> ModelConfiguration:
     """
     model_name = get_model_name_from_env()
     if not model_name:
-        raise VLMConfigurationError(
-            "No VLM model configured",
-            config_field="VISION_MODEL",
-            suggested_fix="Set VISION_MODEL environment variable"
-        )
+        raise VLMConfigurationError("No VLM model configured", config_field="VISION_MODEL", suggested_fix="Set VISION_MODEL environment variable")
 
-    return ModelConfiguration(
-        model_name=model_name,
-        timeout_seconds=60,
-        timeout_behavior="error",
-        auto_download=True,
-        validation_enabled=True
-    )
+    return ModelConfiguration(model_name=model_name, timeout_seconds=60, timeout_behavior="error", auto_download=True, validation_enabled=True)
 
 
 def merge_processing_config_with_vlm(processing_config, vlm_config: ModelConfiguration):
@@ -115,13 +100,13 @@ def merge_processing_config_with_vlm(processing_config, vlm_config: ModelConfigu
     processing_config.model_name = vlm_config.model_name
 
     # Add VLM-specific fields if they don't exist
-    if not hasattr(processing_config, 'vlm_timeout_behavior'):
+    if not hasattr(processing_config, "vlm_timeout_behavior"):
         processing_config.vlm_timeout_behavior = vlm_config.timeout_behavior
 
-    if not hasattr(processing_config, 'auto_download_models'):
+    if not hasattr(processing_config, "auto_download_models"):
         processing_config.auto_download_models = vlm_config.auto_download
 
-    if not hasattr(processing_config, 'validate_model_before_load'):
+    if not hasattr(processing_config, "validate_model_before_load"):
         processing_config.validate_model_before_load = vlm_config.validation_enabled
 
     # Override timeout if VLM config specifies it

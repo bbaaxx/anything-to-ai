@@ -1,7 +1,7 @@
 """Image extraction service for PDF pages."""
 
 import os
-from typing import List, Any
+from typing import Any
 import pdfplumber
 
 from .enhanced_models import ImageContext
@@ -11,7 +11,7 @@ from .exceptions import PDFNotFoundError, PDFCorruptedError, ImageCroppingError
 class ImageExtractor:
     """Service for extracting images from PDF pages."""
 
-    def extract_page_images(self, page_number: int, file_path: str) -> List[ImageContext]:
+    def extract_page_images(self, page_number: int, file_path: str) -> list[ImageContext]:
         """Extract images from a specific PDF page."""
         if not os.path.exists(file_path):
             raise PDFNotFoundError(file_path)
@@ -26,8 +26,8 @@ class ImageExtractor:
 
                 for i, image_info in enumerate(page.images):
                     # Extract dimensions and validate
-                    width = int(image_info.get('width', 0))
-                    height = int(image_info.get('height', 0))
+                    width = int(image_info.get("width", 0))
+                    height = int(image_info.get("height", 0))
 
                     # Skip images with invalid dimensions
                     if width <= 0 or height <= 0:
@@ -36,15 +36,10 @@ class ImageExtractor:
                     context = ImageContext(
                         page_number=page_number,
                         sequence_number=len(image_contexts) + 1,  # Use actual sequence
-                        bounding_box=(
-                            image_info.get('x0', 0),
-                            image_info.get('y0', 0),
-                            image_info.get('x1', width),
-                            image_info.get('y1', height)
-                        ),
+                        bounding_box=(image_info.get("x0", 0), image_info.get("y0", 0), image_info.get("x1", width), image_info.get("y1", height)),
                         width=width,
                         height=height,
-                        format=image_info.get('format', 'JPEG')
+                        format=image_info.get("format", "JPEG"),
                     )
                     image_contexts.append(context)
 
@@ -67,6 +62,7 @@ class ImageExtractor:
 
                 # Suppress warnings from pdfplumber for corrupted image metadata
                 import warnings
+
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
                     try:
@@ -79,10 +75,8 @@ class ImageExtractor:
                     except Exception as crop_error:
                         # If direct cropping fails, try alternative method
                         if "invalid float value" in str(crop_error) or "Cannot set gray" in str(crop_error):
-                            raise ImageCroppingError(page_number, bounding_box, file_path,
-                                                    "PDF contains corrupted image metadata - image cannot be extracted")
-                        else:
-                            raise crop_error
+                            raise ImageCroppingError(page_number, bounding_box, file_path, "PDF contains corrupted image metadata - image cannot be extracted")
+                        raise crop_error
 
         except ImageCroppingError:
             # Re-raise ImageCroppingError as is

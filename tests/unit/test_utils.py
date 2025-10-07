@@ -3,74 +3,25 @@
 import tempfile
 import os
 from PIL import Image
-from anyfile_to_ai.image_processor.processor import SUPPORTED_FORMATS
-from anyfile_to_ai.image_processor.progress import ProgressTracker
-from anyfile_to_ai.image_processor.cli import expand_image_paths, format_output
-from anyfile_to_ai.image_processor.models import ProcessingResult, DescriptionResult
+from anything_to_ai.image_processor import get_supported_formats
+from anything_to_ai.image_processor.cli import expand_image_paths, format_output
+from anything_to_ai.image_processor.models import ProcessingResult, DescriptionResult
 
 
 class TestUtilityFunctions:
     """Unit tests for utility function logic."""
 
     def test_supported_formats_constant(self):
-        """Test SUPPORTED_FORMATS constant."""
-        expected_formats = {'JPEG', 'JPG', 'PNG', 'GIF', 'BMP', 'WEBP'}
-        assert SUPPORTED_FORMATS == expected_formats
-
-    def test_progress_tracker_initialization(self):
-        """Test ProgressTracker initialization."""
-        tracker = ProgressTracker(10)
-        assert tracker.total_items == 10
-        assert tracker.current_item == 0
-        assert tracker.callback is None
-
-    def test_progress_tracker_with_callback(self):
-        """Test ProgressTracker with callback function."""
-        calls = []
-
-        def callback(current, total):
-            calls.append((current, total))
-
-        tracker = ProgressTracker(5, callback)
-        tracker.update()
-        tracker.update(2)
-
-        assert len(calls) == 2
-        assert calls[0] == (1, 5)
-        assert calls[1] == (3, 5)
-
-    def test_progress_tracker_set_current(self):
-        """Test ProgressTracker set_current method."""
-        calls = []
-
-        def callback(current, total):
-            calls.append((current, total))
-
-        tracker = ProgressTracker(10, callback)
-        tracker.set_current(7)
-
-        assert tracker.current_item == 7
-        assert calls == [(7, 10)]
-
-    def test_progress_tracker_complete(self):
-        """Test ProgressTracker complete method."""
-        calls = []
-
-        def callback(current, total):
-            calls.append((current, total))
-
-        tracker = ProgressTracker(5, callback)
-        tracker.complete()
-
-        assert tracker.current_item == 5
-        assert calls == [(5, 5)]
+        """Test get_supported_formats function."""
+        expected_formats = {"JPEG", "JPG", "PNG", "GIF", "BMP", "WEBP"}
+        assert set(get_supported_formats()) == expected_formats
 
     def test_expand_image_paths_single_file(self):
         """Test expand_image_paths with single file."""
         # Create temporary image file
-        with tempfile.NamedTemporaryFile(suffix='.jpg', delete=False) as f:
-            img = Image.new('RGB', (10, 10), color='red')
-            img.save(f.name, 'JPEG')
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
+            img = Image.new("RGB", (10, 10), color="red")
+            img.save(f.name, "JPEG")
             temp_path = f.name
 
         try:
@@ -86,9 +37,9 @@ class TestUtilityFunctions:
         image_paths = []
 
         try:
-            for i, ext in enumerate(['jpg', 'png']):
-                img_path = os.path.join(temp_dir, f'image{i}.{ext}')
-                img = Image.new('RGB', (10, 10), color='red')
+            for i, ext in enumerate(["jpg", "png"]):
+                img_path = os.path.join(temp_dir, f"image{i}.{ext}")
+                img = Image.new("RGB", (10, 10), color="red")
                 img.save(img_path)
                 image_paths.append(img_path)
 
@@ -114,13 +65,13 @@ class TestUtilityFunctions:
                     processing_time=1.0,
                     model_used="test-model",
                     prompt_used="test prompt",
-                    success=True
-                )
+                    success=True,
+                ),
             ],
             total_images=1,
             successful_count=1,
             failed_count=0,
-            total_processing_time=1.0
+            total_processing_time=1.0,
         )
 
         output = format_output(result, "plain")
@@ -143,13 +94,13 @@ class TestUtilityFunctions:
                     processing_time=1.0,
                     model_used="test-model",
                     prompt_used="test prompt",
-                    success=True
-                )
+                    success=True,
+                ),
             ],
             total_images=1,
             successful_count=1,
             failed_count=0,
-            total_processing_time=1.0
+            total_processing_time=1.0,
         )
 
         output = format_output(result, "json")
@@ -172,17 +123,17 @@ class TestUtilityFunctions:
                     processing_time=1.0,
                     model_used="test-model",
                     prompt_used="test prompt",
-                    success=True
-                )
+                    success=True,
+                ),
             ],
             total_images=1,
             successful_count=1,
             failed_count=0,
-            total_processing_time=1.0
+            total_processing_time=1.0,
         )
 
         output = format_output(result, "csv")
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         assert len(lines) >= 2  # Header + data
         assert "image_path" in lines[0]  # Header row

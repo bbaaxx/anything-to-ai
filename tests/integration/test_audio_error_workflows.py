@@ -11,8 +11,7 @@ class TestAudioErrorWorkflows:
 
     def test_file_not_found_error(self):
         """Test handling of non-existent audio file."""
-        import anyfile_to_ai.audio_processor
-        from anyfile_to_ai.audio_processor import AudioNotFoundError
+        from anything_to_ai.audio_processor import AudioNotFoundError
 
         config = audio_processor.create_config()
 
@@ -24,8 +23,7 @@ class TestAudioErrorWorkflows:
     def test_unsupported_format_error(self):
         """Test handling of unsupported audio format."""
         pytest.skip("Test file not available yet")
-        import anyfile_to_ai.audio_processor
-        from anyfile_to_ai.audio_processor import UnsupportedFormatError
+        from anything_to_ai.audio_processor import UnsupportedFormatError
 
         config = audio_processor.create_config()
 
@@ -35,8 +33,7 @@ class TestAudioErrorWorkflows:
     def test_no_speech_detected_error(self):
         """Test handling of audio file with no speech."""
         pytest.skip("Test audio file not available yet")
-        import anyfile_to_ai.audio_processor
-        from anyfile_to_ai.audio_processor import NoSpeechDetectedError
+        from anything_to_ai.audio_processor import NoSpeechDetectedError
 
         config = audio_processor.create_config()
 
@@ -48,8 +45,7 @@ class TestAudioErrorWorkflows:
     def test_duration_exceeded_error(self):
         """Test handling of audio file exceeding 2-hour limit."""
         pytest.skip("Test audio file not available yet")
-        import anyfile_to_ai.audio_processor
-        from anyfile_to_ai.audio_processor import DurationExceededError
+        from anything_to_ai.audio_processor import DurationExceededError
 
         config = audio_processor.create_config()
 
@@ -60,8 +56,7 @@ class TestAudioErrorWorkflows:
 
     def test_validate_audio_file_not_found(self):
         """Test validation with non-existent file."""
-        import anyfile_to_ai.audio_processor
-        from anyfile_to_ai.audio_processor import AudioNotFoundError
+        from anything_to_ai.audio_processor import AudioNotFoundError
 
         with pytest.raises(AudioNotFoundError):
             audio_processor.validate_audio("nonexistent.mp3")
@@ -69,13 +64,12 @@ class TestAudioErrorWorkflows:
     def test_batch_process_continues_after_error(self):
         """Test that batch processing continues after individual file error."""
         pytest.skip("Test audio files not available yet")
-        import anyfile_to_ai.audio_processor
 
         # Mix valid and invalid files
         files = [
             "sample-data/audio/speech.mp3",
             "nonexistent.mp3",
-            "sample-data/audio/spanish.m4a"
+            "sample-data/audio/spanish.m4a",
         ]
 
         config = audio_processor.create_config()

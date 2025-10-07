@@ -6,7 +6,7 @@
   "required": [
     "pdf",
     "image",
-    "audio", 
+    "audio",
     "text",
     "all"
   ],

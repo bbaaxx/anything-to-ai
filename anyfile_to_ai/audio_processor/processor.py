@@ -5,27 +5,27 @@ Core audio processing functionality using Whisper.
 import os
 import time
 from pathlib import Path
-from typing import Optional, Dict, Any, List
-from anyfile_to_ai.audio_processor.models import (
+from typing import Any
+from anything_to_ai.audio_processor.models import (
     AudioDocument,
     TranscriptionResult,
-    TranscriptionConfig
+    TranscriptionConfig,
 )
-from anyfile_to_ai.audio_processor.exceptions import (
+from anything_to_ai.audio_processor.exceptions import (
     AudioNotFoundError,
     UnsupportedFormatError,
     CorruptedAudioError,
     DurationExceededError,
-    NoSpeechDetectedError
+    NoSpeechDetectedError,
 )
-from anyfile_to_ai.audio_processor.model_loader import get_model_loader
+from anything_to_ai.audio_processor.model_loader import get_model_loader
 
 
 # Supported audio formats
-SUPPORTED_FORMATS = ['m4a', 'mp3', 'wav']
+SUPPORTED_FORMATS = ["m4a", "mp3", "wav"]
 
 
-def get_supported_formats() -> List[str]:
+def get_supported_formats() -> list[str]:
     """
     Get list of supported audio formats.
 
@@ -60,20 +60,20 @@ def validate_audio(file_path: str) -> AudioDocument:
         raise AudioNotFoundError(f"Path is not a file: {file_path}", audio_path=file_path)
 
     # Get file extension
-    file_ext = Path(file_path).suffix.lower().lstrip('.')
+    file_ext = Path(file_path).suffix.lower().lstrip(".")
 
     # Validate format
     if file_ext not in SUPPORTED_FORMATS:
         raise UnsupportedFormatError(
             f"Unsupported audio format: {file_ext}. Supported formats: {', '.join(SUPPORTED_FORMATS)}",
-            audio_path=file_path
+            audio_path=file_path,
         )
 
     # Get file size
     try:
         file_size = os.path.getsize(file_path)
     except Exception as e:
-        raise CorruptedAudioError(f"Cannot read file size: {str(e)}", audio_path=file_path)
+        raise CorruptedAudioError(f"Cannot read file size: {e!s}", audio_path=file_path)
 
     # Extract audio metadata using ffprobe or similar
     # For now, use a simple approach with estimated values
@@ -89,7 +89,7 @@ def validate_audio(file_path: str) -> AudioDocument:
         if duration > 7200:
             raise DurationExceededError(
                 f"Audio duration ({duration}s) exceeds 2-hour limit (7200s)",
-                audio_path=file_path
+                audio_path=file_path,
             )
 
         return AudioDocument(
@@ -98,13 +98,13 @@ def validate_audio(file_path: str) -> AudioDocument:
             duration=duration,
             sample_rate=sample_rate,
             file_size=file_size,
-            channels=channels
+            channels=channels,
         )
 
     except (DurationExceededError, AudioNotFoundError, UnsupportedFormatError):
         raise
     except Exception as e:
-        raise CorruptedAudioError(f"Failed to extract audio metadata: {str(e)}", audio_path=file_path)
+        raise CorruptedAudioError(f"Failed to extract audio metadata: {e!s}", audio_path=file_path)
 
 
 def _estimate_duration(file_path: str, file_size: int) -> float:
@@ -126,7 +126,7 @@ def _estimate_duration(file_path: str, file_size: int) -> float:
     return max(1.0, estimated_duration)  # Minimum 1 second
 
 
-def get_audio_info(file_path: str) -> Dict[str, Any]:
+def get_audio_info(file_path: str) -> dict[str, Any]:
     """
     Get audio file metadata without processing.
 
@@ -148,14 +148,11 @@ def get_audio_info(file_path: str) -> Dict[str, Any]:
         "duration": audio_doc.duration,
         "sample_rate": audio_doc.sample_rate,
         "file_size": audio_doc.file_size,
-        "channels": audio_doc.channels
+        "channels": audio_doc.channels,
     }
 
 
-def process_audio(
-    file_path: str,
-    config: Optional[TranscriptionConfig] = None
-) -> TranscriptionResult:
+def process_audio(file_path: str, config: TranscriptionConfig | None = None) -> TranscriptionResult:
     """
     Process single audio file and generate transcribed text.
 
@@ -176,7 +173,8 @@ def process_audio(
     """
     # Use default config if not provided
     if config is None:
-        from anyfile_to_ai.audio_processor.config import create_config
+        from anything_to_ai.audio_processor.config import create_config
+
         config = create_config()
 
     # Validate audio file
@@ -186,7 +184,7 @@ def process_audio(
     if audio_doc.duration > config.max_duration_seconds:
         raise DurationExceededError(
             f"Audio duration ({audio_doc.duration}s) exceeds configured limit ({config.max_duration_seconds}s)",
-            audio_path=file_path
+            audio_path=file_path,
         )
 
     # Record start time
@@ -195,11 +193,7 @@ def process_audio(
     try:
         # Load model
         model_loader = get_model_loader()
-        whisper_model = model_loader.load_model(
-            config.model,
-            config.quantization,
-            config.batch_size
-        )
+        whisper_model = model_loader.load_model(config.model, config.quantization, config.batch_size)
 
         # Transcribe audio
         transcribe_kwargs = {"audio_path": file_path}
@@ -209,17 +203,14 @@ def process_audio(
         result = whisper_model.transcribe(**transcribe_kwargs)
 
         # Extract transcription text
-        text = result.get('text', '').strip()
+        text = result.get("text", "").strip()
 
         # Detect no speech
         if not text or len(text) < 5:  # Threshold for "no speech"
-            raise NoSpeechDetectedError(
-                "No speech detected in audio",
-                audio_path=file_path
-            )
+            raise NoSpeechDetectedError("No speech detected in audio", audio_path=file_path)
 
         # Extract metadata
-        detected_language = result.get('language', config.language)
+        detected_language = result.get("language", config.language)
         confidence_score = None  # lightning-whisper-mlx may not provide this
 
         # Calculate processing time
@@ -234,7 +225,7 @@ def process_audio(
             quantization=config.quantization,
             detected_language=detected_language,
             success=True,
-            error_message=None
+            error_message=None,
         )
 
     except NoSpeechDetectedError:
@@ -249,13 +240,13 @@ def process_audio(
             quantization=config.quantization,
             detected_language=None,
             success=False,
-            error_message="No speech detected in audio"
+            error_message="No speech detected in audio",
         )
 
     except Exception as e:
         # Return failed result for other errors
         processing_time = time.time() - start_time
-        error_msg = f"Transcription failed: {str(e)}"
+        error_msg = f"Transcription failed: {e!s}"
 
         return TranscriptionResult(
             audio_path=file_path,
@@ -266,5 +257,5 @@ def process_audio(
             quantization=config.quantization,
             detected_language=None,
             success=False,
-            error_message=error_msg
+            error_message=error_msg,
         )

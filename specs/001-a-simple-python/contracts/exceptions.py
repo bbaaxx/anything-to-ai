@@ -1,5 +1,6 @@
 # Exception Contracts: PDF Text Extraction Module
 
+
 class PDFExtractionError(Exception):
     """Base exception for PDF extraction errors"""
 
@@ -13,11 +14,13 @@ class PDFExtractionError(Exception):
             return f"{self.message}: {self.file_path}"
         return self.message
 
+
 class PDFNotFoundError(PDFExtractionError):
     """Raised when PDF file does not exist or is not accessible"""
 
     def __init__(self, file_path: str):
         super().__init__("PDF file not found or not accessible", file_path)
+
 
 class PDFCorruptedError(PDFExtractionError):
     """Raised when PDF file is corrupted or invalid"""
@@ -28,17 +31,20 @@ class PDFCorruptedError(PDFExtractionError):
             message += f": {details}"
         super().__init__(message, file_path)
 
+
 class PDFPasswordProtectedError(PDFExtractionError):
     """Raised when PDF requires password for access"""
 
     def __init__(self, file_path: str):
         super().__init__("PDF file is password protected", file_path)
 
+
 class PDFNoTextError(PDFExtractionError):
     """Raised when PDF contains no extractable text (images only)"""
 
     def __init__(self, file_path: str):
         super().__init__("PDF contains no extractable text (images only)", file_path)
+
 
 class ProcessingInterruptedError(PDFExtractionError):
     """Raised when PDF processing is interrupted mid-stream"""

@@ -1,7 +1,5 @@
 """CLI progress rendering using alive-progress."""
 
-from typing import Optional
-
 from alive_progress import alive_bar
 
 from .models import ProgressState, ProgressUpdate, UpdateType
@@ -10,7 +8,7 @@ from .models import ProgressState, ProgressUpdate, UpdateType
 class CLIProgressConsumer:
     """Renders progress to stderr using alive-progress."""
 
-    def __init__(self, show_percentage: bool = True, show_count: bool = True, title: Optional[str] = None) -> None:
+    def __init__(self, show_percentage: bool = True, show_count: bool = True, title: str | None = None) -> None:
         """
         Create CLI progress consumer.
 

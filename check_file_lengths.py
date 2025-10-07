@@ -21,7 +21,7 @@ def check_file_lengths():
             continue
 
         for python_file in Path(source_dir).rglob("*.py"):
-            with open(python_file, "r", encoding="utf-8") as f:
+            with open(python_file, encoding="utf-8") as f:
                 lines = f.readlines()
                 line_count = len([line for line in lines if line.strip()])  # Count non-empty lines
 
@@ -33,9 +33,8 @@ def check_file_lengths():
         for file_path, line_count in violations:
             print(f"  {file_path}: {line_count} lines (max: {MAX_LINES})")
         return False
-    else:
-        print("✅ All files comply with 250-line limit")
-        return True
+    print("✅ All files comply with 250-line limit")
+    return True
 
 
 if __name__ == "__main__":

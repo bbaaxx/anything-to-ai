@@ -4,17 +4,16 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Optional
 
 from .processor import summarize_text
 from .exceptions import InvalidInputError, LLMError, ValidationError
 
 
-def read_input(file_path: Optional[str], use_stdin: bool) -> str:
+def read_input(file_path: str | None, use_stdin: bool) -> str:
     """Read input text from file or stdin."""
     if use_stdin:
         return sys.stdin.read()
-    elif file_path:
+    if file_path:
         try:
             path = Path(file_path)
             return path.read_text(encoding="utf-8")
@@ -49,7 +48,7 @@ def format_output(result, output_format: str, include_metadata: bool) -> str:
             }
         return format_markdown(result_dict)
 
-    elif output_format == "json":
+    if output_format == "json":
         # Return JSON format
         data = {
             "summary": result.summary,
@@ -64,7 +63,7 @@ def format_output(result, output_format: str, include_metadata: bool) -> str:
                 "processing_time": result.metadata.processing_time,
             }
         return json.dumps(data, indent=2)
-    elif output_format == "plain":
+    if output_format == "plain":
         # Return plain text format
         lines = []
         lines.append("SUMMARY:")
@@ -87,11 +86,10 @@ def format_output(result, output_format: str, include_metadata: bool) -> str:
             lines.append(f"Processing time: {result.metadata.processing_time:.2f}s")
 
         return "\n".join(lines)
-    else:
-        raise ValueError(f"Unknown output format: {output_format}")
+    raise ValueError(f"Unknown output format: {output_format}")
 
 
-def write_output(content: str, output_path: Optional[str]) -> None:
+def write_output(content: str, output_path: str | None) -> None:
     """Write output to file or stdout."""
     if output_path:
         Path(output_path).write_text(content, encoding="utf-8")

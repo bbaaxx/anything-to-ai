@@ -1,44 +1,53 @@
 # API Contract: PDF Text Extraction Module
 # This file defines the programmatic interface contracts
 
-from typing import Optional, Callable, List, Dict, Any
+from typing import Any
+from collections.abc import Callable
 from dataclasses import dataclass
 
 # Progress callback signature
 ProgressCallback = Callable[[int, int], None]  # (current_page, total_pages)
 
+
 @dataclass
 class ExtractionConfig:
     """Configuration for PDF text extraction"""
+
     streaming_enabled: bool = True
-    progress_callback: Optional[ProgressCallback] = None
+    progress_callback: ProgressCallback | None = None
     output_format: str = "plain"  # "plain" or "json"
 
     def __post_init__(self):
         if self.output_format not in ["plain", "json"]:
             raise ValueError("output_format must be 'plain' or 'json'")
 
+
 @dataclass
 class PageResult:
     """Result from extracting a single page"""
+
     page_number: int
     text: str
     char_count: int
     extraction_time: float
 
+
 @dataclass
 class ExtractionResult:
     """Complete extraction result"""
+
     success: bool
-    pages: List[PageResult]
+    pages: list[PageResult]
     total_pages: int
     total_chars: int
     processing_time: float
-    error_message: Optional[str] = None
+    error_message: str | None = None
+
 
 # Core API Functions
 
-def extract_text(file_path: str, config: Optional[ExtractionConfig] = None) -> ExtractionResult:
+
+def extract_text(file_path: str, config: ExtractionConfig | None = None) -> ExtractionResult:
     """
     Extract text from PDF file
 
@@ -55,9 +64,9 @@ def extract_text(file_path: str, config: Optional[ExtractionConfig] = None) -> E
         PDFPasswordProtectedError: PDF requires password
         PDFNoTextError: PDF contains no extractable text
     """
-    pass
 
-def extract_text_streaming(file_path: str, config: Optional[ExtractionConfig] = None):
+
+def extract_text_streaming(file_path: str, config: ExtractionConfig | None = None):
     """
     Stream text extraction page by page (generator)
 
@@ -71,9 +80,9 @@ def extract_text_streaming(file_path: str, config: Optional[ExtractionConfig] = 
     Raises:
         Same exceptions as extract_text()
     """
-    pass
 
-def get_pdf_info(file_path: str) -> Dict[str, Any]:
+
+def get_pdf_info(file_path: str) -> dict[str, Any]:
     """
     Get basic PDF information without extracting text
 
@@ -87,16 +96,16 @@ def get_pdf_info(file_path: str) -> Dict[str, Any]:
         PDFNotFoundError: File does not exist
         PDFCorruptedError: PDF is corrupted or invalid
     """
-    pass
+
 
 # CLI Contract (command line interface)
+
 
 class CLICommands:
     """Command line interface contract"""
 
     @staticmethod
-    def extract(file_path: str, stream: bool = False, format_type: str = "plain",
-               progress: bool = False) -> int:
+    def extract(file_path: str, stream: bool = False, format_type: str = "plain", progress: bool = False) -> int:
         """
         CLI extract command
 
@@ -109,7 +118,6 @@ class CLICommands:
         Returns:
             Exit code (0 for success, non-zero for error)
         """
-        pass
 
     @staticmethod
     def info(file_path: str) -> int:
@@ -122,4 +130,3 @@ class CLICommands:
         Returns:
             Exit code (0 for success, non-zero for error)
         """
-        pass

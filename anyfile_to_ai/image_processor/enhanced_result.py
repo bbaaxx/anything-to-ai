@@ -1,7 +1,7 @@
 """Enhanced result structures combining VLM and technical metadata."""
 
 from dataclasses import dataclass
-from typing import Dict, Any, Optional
+from typing import Any
 
 
 @dataclass
@@ -9,10 +9,10 @@ class EnhancedResult:
     """Combined result containing both VLM description and technical metadata."""
 
     vlm_description: str
-    technical_metadata: Dict[str, Any]
-    model_info: Dict[str, str]
+    technical_metadata: dict[str, Any]
+    model_info: dict[str, str]
     processing_time: float
-    confidence_score: Optional[float] = None
+    confidence_score: float | None = None
 
     def __post_init__(self):
         """Validate enhanced result after initialization."""
@@ -59,26 +59,14 @@ class EnhancedResult:
         """Get file size from technical metadata."""
         return self.technical_metadata.get("file_size", 0)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert enhanced result to dictionary."""
-        return {
-            "vlm_description": self.vlm_description,
-            "technical_metadata": self.technical_metadata,
-            "model_info": self.model_info,
-            "processing_time": self.processing_time,
-            "confidence_score": self.confidence_score
-        }
+        return {"vlm_description": self.vlm_description, "technical_metadata": self.technical_metadata, "model_info": self.model_info, "processing_time": self.processing_time, "confidence_score": self.confidence_score}
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'EnhancedResult':
+    def from_dict(cls, data: dict[str, Any]) -> "EnhancedResult":
         """Create enhanced result from dictionary."""
-        return cls(
-            vlm_description=data["vlm_description"],
-            technical_metadata=data["technical_metadata"],
-            model_info=data["model_info"],
-            processing_time=data["processing_time"],
-            confidence_score=data.get("confidence_score")
-        )
+        return cls(vlm_description=data["vlm_description"], technical_metadata=data["technical_metadata"], model_info=data["model_info"], processing_time=data["processing_time"], confidence_score=data.get("confidence_score"))
 
     def merge_with_description_result(self, base_result: Any) -> Any:
         """
@@ -94,23 +82,26 @@ class EnhancedResult:
         enhanced_data = {}
 
         # Copy existing attributes
-        for attr in ['image_path', 'success', 'prompt_used']:
+        for attr in ["image_path", "success", "prompt_used"]:
             if hasattr(base_result, attr):
                 enhanced_data[attr] = getattr(base_result, attr)
 
         # Update with VLM data
-        enhanced_data.update({
-            'description': self.vlm_description,
-            'confidence_score': self.confidence_score,
-            'processing_time': self.processing_time,
-            'model_used': self.model_name,
-            'technical_metadata': self.technical_metadata,
-            'vlm_processing_time': self.processing_time,
-            'model_version': self.model_version
-        })
+        enhanced_data.update(
+            {
+                "description": self.vlm_description,
+                "confidence_score": self.confidence_score,
+                "processing_time": self.processing_time,
+                "model_used": self.model_name,
+                "technical_metadata": self.technical_metadata,
+                "vlm_processing_time": self.processing_time,
+                "model_version": self.model_version,
+            },
+        )
 
         # Create new result with enhanced data
         from .models import DescriptionResult
+
         return DescriptionResult(**enhanced_data)
 
 
@@ -119,10 +110,10 @@ class VLMProcessingResult:
     """Result of VLM processing operations."""
 
     description: str
-    confidence_score: Optional[float]
+    confidence_score: float | None
     processing_time: float
-    model_info: Dict[str, str]
-    error: Optional[str] = None
+    model_info: dict[str, str]
+    error: str | None = None
 
     @property
     def success(self) -> bool:
@@ -134,13 +125,6 @@ class VLMProcessingResult:
         """Check if processing resulted in error."""
         return self.error is not None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert VLM result to dictionary."""
-        return {
-            "description": self.description,
-            "confidence_score": self.confidence_score,
-            "processing_time": self.processing_time,
-            "model_info": self.model_info,
-            "error": self.error,
-            "success": self.success
-        }
+        return {"description": self.description, "confidence_score": self.confidence_score, "processing_time": self.processing_time, "model_info": self.model_info, "error": self.error, "success": self.success}

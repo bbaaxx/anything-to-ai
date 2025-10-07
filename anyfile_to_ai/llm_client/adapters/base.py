@@ -4,10 +4,9 @@ This module defines the abstract base class that all provider adapters must impl
 """
 
 from abc import ABC, abstractmethod
-from typing import List
 
-from anyfile_to_ai.llm_client.config import LLMConfig
-from anyfile_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo
+from anything_to_ai.llm_client.config import LLMConfig
+from anything_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo
 
 
 class BaseAdapter(ABC):
@@ -36,10 +35,9 @@ class BaseAdapter(ABC):
             TimeoutError: If request times out
             GenerationError: If generation fails
         """
-        pass
 
     @abstractmethod
-    def list_models(self) -> List[ModelInfo]:
+    def list_models(self) -> list[ModelInfo]:
         """List available models from provider.
 
         Returns:
@@ -48,7 +46,6 @@ class BaseAdapter(ABC):
         Raises:
             ConnectionError: If service is unreachable
         """
-        pass
 
     @abstractmethod
     def health_check(self) -> bool:
@@ -57,4 +54,3 @@ class BaseAdapter(ABC):
         Returns:
             True if service is responding, False otherwise
         """
-        pass

@@ -12,7 +12,6 @@ class TestLanguageDetection:
     def test_auto_detect_english(self):
         """Test auto-detection of English audio."""
         pytest.skip("Test audio file not available yet")
-        import anyfile_to_ai.audio_processor
 
         config = audio_processor.create_config(language=None)  # Auto-detect
         result = audio_processor.process_audio("sample-data/audio/speech.mp3", config)
@@ -23,7 +22,6 @@ class TestLanguageDetection:
     def test_auto_detect_spanish(self):
         """Test auto-detection of Spanish audio."""
         pytest.skip("Test audio file not available yet")
-        import anyfile_to_ai.audio_processor
 
         config = audio_processor.create_config(language=None)  # Auto-detect
         result = audio_processor.process_audio("sample-data/audio/spanish.m4a", config)
@@ -34,7 +32,6 @@ class TestLanguageDetection:
     def test_language_hint_english(self):
         """Test processing with English language hint."""
         pytest.skip("Test audio file not available yet")
-        import anyfile_to_ai.audio_processor
 
         config = audio_processor.create_config(language="en")
         result = audio_processor.process_audio("sample-data/audio/speech.mp3", config)
@@ -45,7 +42,6 @@ class TestLanguageDetection:
     def test_language_hint_spanish(self):
         """Test processing with Spanish language hint."""
         pytest.skip("Test audio file not available yet")
-        import anyfile_to_ai.audio_processor
 
         config = audio_processor.create_config(language="es")
         result = audio_processor.process_audio("sample-data/audio/spanish.m4a", config)
@@ -56,7 +52,6 @@ class TestLanguageDetection:
     def test_language_hint_improves_accuracy(self):
         """Test that language hint can improve transcription accuracy."""
         pytest.skip("Test audio file not available yet")
-        import anyfile_to_ai.audio_processor
 
         # Process with and without hint
         config_no_hint = audio_processor.create_config(language=None)

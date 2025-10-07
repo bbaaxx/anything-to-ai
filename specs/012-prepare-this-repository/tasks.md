@@ -40,14 +40,14 @@
 
 ## Path Conventions
 
-- **Single project**: Repository root with `anyfile_to_ai/` package
+- **Single project**: Repository root with `anything_to_ai/` package
 - **Configuration**: `pyproject.toml` at repository root
 - **Tests**: `tests/` directory structure maintained
-- **Paths shown below assume repository root structure
+- \*\*Paths shown below assume repository root structure
 
 ## Phase 3.1: Setup
 
-- [x] T001 Create anyfile_to_ai package directory structure at repository root
+- [x] T001 Create anything_to_ai package directory structure at repository root
 - [x] T002 Backup existing pyproject.toml and create new packaging configuration
 - [x] T003 [P] Configure build system with setuptools and wheel in pyproject.toml
 
@@ -66,9 +66,9 @@
 - [x] T009 [P] Package metadata configuration in pyproject.toml
 - [x] T010 [P] Optional dependencies configuration in pyproject.toml
 - [x] T011 [P] CLI entry points configuration in pyproject.toml
-- [x] T012 Move existing modules to anyfile_to_ai/ package structure
+- [x] T012 Move existing modules to anything_to_ai/ package structure
 - [x] T013 Update module imports for new package structure
-- [x] T014 Create anyfile_to_ai/__init__.py with package metadata
+- [x] T014 Create anything_to_ai/**init**.py with package metadata
 - [x] T015 Update README.md for PyPI distribution
 
 ## Phase 3.4: Integration
@@ -136,6 +136,7 @@ _Applied during main() execution_
    - Optional Dependencies Entity → configuration task T010 [P]
    - CLI Entry Points Entity → configuration task T011 [P]
 3. **From User Stories**:
+
    - Package installation → integration test T007 [P]
    - CLI functionality → integration test T008 [P]
    - Quickstart scenarios → validation tasks T017-T020

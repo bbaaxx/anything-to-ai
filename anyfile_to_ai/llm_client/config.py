@@ -6,7 +6,6 @@ including retry, caching, and fallback settings.
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional
 from urllib.parse import urlparse
 
 
@@ -24,7 +23,7 @@ class LLMConfig:
 
     provider: str
     base_url: str
-    api_key: Optional[str] = None
+    api_key: str | None = None
     timeout: float = 30.0
     verify_ssl: bool = True
     max_retries: int = 3
@@ -32,7 +31,7 @@ class LLMConfig:
     retry_max_delay: float = 10.0
     retry_exponential_base: float = 2.0
     cache_ttl: int = 300
-    fallback_configs: Optional[List["LLMConfig"]] = None
+    fallback_configs: list["LLMConfig"] | None = None
 
     def __post_init__(self):
         """Validate configuration after initialization."""
@@ -43,15 +42,19 @@ class LLMConfig:
 
     def _validate_provider(self):
         """Validate provider is supported."""
-        from anyfile_to_ai.llm_client.exceptions import ValidationError
+        from anything_to_ai.llm_client.exceptions import ValidationError
 
-        valid_providers = [Provider.OLLAMA.value, Provider.LMSTUDIO.value, Provider.MLX.value]
+        valid_providers = [
+            Provider.OLLAMA.value,
+            Provider.LMSTUDIO.value,
+            Provider.MLX.value,
+        ]
         if self.provider not in valid_providers:
             raise ValidationError(f"Invalid provider: {self.provider}. Must be one of: {', '.join(valid_providers)}")
 
     def _validate_base_url(self):
         """Validate base_url format."""
-        from anyfile_to_ai.llm_client.exceptions import ValidationError
+        from anything_to_ai.llm_client.exceptions import ValidationError
 
         if not self.base_url:
             raise ValidationError("base_url must not be empty")
@@ -69,7 +72,7 @@ class LLMConfig:
 
     def _validate_numeric_fields(self):
         """Validate numeric configuration fields."""
-        from anyfile_to_ai.llm_client.exceptions import ValidationError
+        from anything_to_ai.llm_client.exceptions import ValidationError
 
         if self.timeout <= 0:
             raise ValidationError(f"timeout must be positive, got {self.timeout}")

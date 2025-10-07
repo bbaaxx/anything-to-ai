@@ -1,8 +1,12 @@
 """Contract tests for process_images_streaming() API function."""
 
 import pytest
-from anyfile_to_ai.image_processor import process_images_streaming, ProcessingConfig, DescriptionResult
-from anyfile_to_ai.image_processor.exceptions import ValidationError
+from anything_to_ai.image_processor import (
+    process_images_streaming,
+    ProcessingConfig,
+    DescriptionResult,
+)
+from anything_to_ai.image_processor.exceptions import ValidationError
 
 
 class TestStreamingProcessingContract:
@@ -12,8 +16,8 @@ class TestStreamingProcessingContract:
         """Test basic process_images_streaming call returns generator."""
         image_paths = ["image1.jpg", "image2.png"]
         result = process_images_streaming(image_paths)
-        assert hasattr(result, '__iter__')
-        assert hasattr(result, '__next__')
+        assert hasattr(result, "__iter__")
+        assert hasattr(result, "__next__")
 
     def test_process_images_streaming_yields_results(self):
         """Test process_images_streaming yields DescriptionResult objects."""

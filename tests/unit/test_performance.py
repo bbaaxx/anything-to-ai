@@ -5,7 +5,11 @@ import tempfile
 import time
 import os
 from PIL import Image
-from anyfile_to_ai.image_processor import process_image, process_images, ProcessingConfig
+from anything_to_ai.image_processor import (
+    process_image,
+    process_images,
+    ProcessingConfig,
+)
 
 
 class TestPerformanceValidation:
@@ -14,9 +18,9 @@ class TestPerformanceValidation:
     @pytest.fixture
     def sample_image(self):
         """Create a sample image for performance testing."""
-        with tempfile.NamedTemporaryFile(suffix='.jpg', delete=False) as f:
-            img = Image.new('RGB', (500, 500), color='blue')
-            img.save(f.name, 'JPEG')
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
+            img = Image.new("RGB", (500, 500), color="blue")
+            img.save(f.name, "JPEG")
             yield f.name
         os.unlink(f.name)
 
@@ -60,7 +64,8 @@ class TestPerformanceValidation:
         initial_memory = process.memory_info().rss
 
         # Process multiple images via streaming
-        from anyfile_to_ai.image_processor import process_images_streaming
+        from anything_to_ai.image_processor import process_images_streaming
+
         image_paths = [sample_image] * 5
 
         results = []
@@ -76,17 +81,13 @@ class TestPerformanceValidation:
 
     def test_configuration_validation_performance(self):
         """Test configuration validation is fast."""
-        from anyfile_to_ai.image_processor import create_config
+        from anything_to_ai.image_processor import create_config
 
         start_time = time.time()
 
         # Create multiple configurations
         for i in range(100):
-            create_config(
-                description_style="brief",
-                max_length=200,
-                batch_size=2
-            )
+            create_config(description_style="brief", max_length=200, batch_size=2)
 
         end_time = time.time()
         validation_time = end_time - start_time
@@ -96,7 +97,7 @@ class TestPerformanceValidation:
 
     def test_error_handling_performance(self):
         """Test error handling doesn't cause significant delays."""
-        from anyfile_to_ai.image_processor.exceptions import ImageNotFoundError
+        from anything_to_ai.image_processor.exceptions import ImageNotFoundError
 
         start_time = time.time()
 

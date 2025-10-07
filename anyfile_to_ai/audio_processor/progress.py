@@ -1,12 +1,12 @@
 """Progress tracking for audio processing."""
 
-from typing import Optional, Callable
+from collections.abc import Callable
 
 
 class ProgressTracker:
     """Tracks progress of audio processing operations."""
 
-    def __init__(self, total: int = 0, callback: Optional[Callable[[int, int], None]] = None):
+    def __init__(self, total: int = 0, callback: Callable[[int, int], None] | None = None):
         """
         Initialize progress tracker.
 

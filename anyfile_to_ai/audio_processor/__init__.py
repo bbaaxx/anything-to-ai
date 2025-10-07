@@ -34,25 +34,25 @@ Exceptions:
 __version__ = "0.1.0"
 
 # Import public API functions
-from anyfile_to_ai.audio_processor.processor import (
+from anything_to_ai.audio_processor.processor import (
     process_audio,
     validate_audio,
     get_supported_formats,
-    get_audio_info
+    get_audio_info,
 )
-from anyfile_to_ai.audio_processor.streaming import process_audio_batch
-from anyfile_to_ai.audio_processor.config import create_config
+from anything_to_ai.audio_processor.streaming import process_audio_batch
+from anything_to_ai.audio_processor.config import create_config
 
 # Import data models
-from anyfile_to_ai.audio_processor.models import (
+from anything_to_ai.audio_processor.models import (
     AudioDocument,
     TranscriptionResult,
     TranscriptionConfig,
-    ProcessingResult
+    ProcessingResult,
 )
 
 # Import exceptions
-from anyfile_to_ai.audio_processor.exceptions import (
+from anything_to_ai.audio_processor.exceptions import (
     AudioProcessingError,
     AudioNotFoundError,
     UnsupportedFormatError,
@@ -63,7 +63,7 @@ from anyfile_to_ai.audio_processor.exceptions import (
     ValidationError,
     ModelLoadError,
     ProcessingTimeoutError,
-    ProcessingInterruptedError
+    ProcessingInterruptedError,
 )
 
 # Public API exports

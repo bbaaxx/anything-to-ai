@@ -5,11 +5,10 @@ Command-line interface for audio transcription.
 import sys
 import json
 import argparse
-from typing import List
-from anyfile_to_ai.audio_processor.config import create_config
-from anyfile_to_ai.audio_processor.streaming import process_audio_batch
-from anyfile_to_ai.audio_processor.models import ProcessingResult
-from anyfile_to_ai.audio_processor.exceptions import AudioProcessingError
+from anything_to_ai.audio_processor.config import create_config
+from anything_to_ai.audio_processor.streaming import process_audio_batch
+from anything_to_ai.audio_processor.models import ProcessingResult
+from anything_to_ai.audio_processor.exceptions import AudioProcessingError
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -19,31 +18,75 @@ def create_parser() -> argparse.ArgumentParser:
     Returns:
         argparse.ArgumentParser: Configured parser
     """
-    parser = argparse.ArgumentParser(prog="audio_processor", description="Process audio files with Whisper to generate text transcriptions")
+    parser = argparse.ArgumentParser(
+        prog="audio_processor",
+        description="Process audio files with Whisper to generate text transcriptions",
+    )
 
     # Positional arguments
     parser.add_argument("audio_files", nargs="+", help="Audio file paths (supports multiple files)")
 
     # Output format
-    parser.add_argument("--format", "-f", choices=["plain", "json", "markdown"], default="plain", help="Output format (default: plain)")
+    parser.add_argument(
+        "--format",
+        "-f",
+        choices=["plain", "json", "markdown"],
+        default="plain",
+        help="Output format (default: plain)",
+    )
 
     # Model selection
-    parser.add_argument("--model", "-m", default="medium", help="Whisper model selection (default: medium)")
+    parser.add_argument(
+        "--model",
+        "-m",
+        default="medium",
+        help="Whisper model selection (default: medium)",
+    )
 
     # Quantization
-    parser.add_argument("--quantization", "-q", choices=["none", "4bit", "8bit"], default="none", help="Model quantization level (default: none, due to MLX compatibility)")
+    parser.add_argument(
+        "--quantization",
+        "-q",
+        choices=["none", "4bit", "8bit"],
+        default="none",
+        help="Model quantization level (default: none, due to MLX compatibility)",
+    )
 
     # Batch size
-    parser.add_argument("--batch-size", "-b", type=int, default=12, help="Whisper decoder batch size (default: 12)")
+    parser.add_argument(
+        "--batch-size",
+        "-b",
+        type=int,
+        default=12,
+        help="Whisper decoder batch size (default: 12)",
+    )
 
     # Language
-    parser.add_argument("--language", "-l", type=str, default=None, help="Language hint (ISO 639-1 code, e.g., 'en', 'es'); auto-detects if not specified")
+    parser.add_argument(
+        "--language",
+        "-l",
+        type=str,
+        default=None,
+        help="Language hint (ISO 639-1 code, e.g., 'en', 'es'); auto-detects if not specified",
+    )
 
     # Output file
-    parser.add_argument("--output", "-o", type=str, default=None, help="Output file path (prints to stdout if not specified)")
+    parser.add_argument(
+        "--output",
+        "-o",
+        type=str,
+        default=None,
+        help="Output file path (prints to stdout if not specified)",
+    )
 
     # Timeout
-    parser.add_argument("--timeout", "-t", type=int, default=600, help="Processing timeout per file in seconds (default: 600)")
+    parser.add_argument(
+        "--timeout",
+        "-t",
+        type=int,
+        default=600,
+        help="Processing timeout per file in seconds (default: 600)",
+    )
 
     # Verbose
     parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose progress output")
@@ -102,7 +145,7 @@ def format_markdown_output(result: ProcessingResult) -> str:
         str: Formatted markdown output
     """
     import os
-    from anyfile_to_ai.audio_processor.markdown_formatter import format_markdown
+    from anything_to_ai.audio_processor.markdown_formatter import format_markdown
 
     # Format each successful transcription as markdown
     if result.successful_count == 0:
@@ -111,14 +154,26 @@ def format_markdown_output(result: ProcessingResult) -> str:
     # For single file, format directly
     if result.successful_count == 1:
         r = next(r for r in result.results if r.success)
-        result_dict = {"filename": os.path.basename(r.audio_path), "duration": r.processing_time, "model": r.model_used, "language": r.detected_language or "unknown", "segments": [{"start": 0.0, "end": r.processing_time, "text": r.text}]}
+        result_dict = {
+            "filename": os.path.basename(r.audio_path),
+            "duration": r.processing_time,
+            "model": r.model_used,
+            "language": r.detected_language or "unknown",
+            "segments": [{"start": 0.0, "end": r.processing_time, "text": r.text}],
+        }
         return format_markdown(result_dict)
 
     # For multiple files, combine them
     lines = ["# Audio Transcriptions", ""]
     for r in result.results:
         if r.success:
-            result_dict = {"filename": os.path.basename(r.audio_path), "duration": r.processing_time, "model": r.model_used, "language": r.detected_language or "unknown", "segments": [{"start": 0.0, "end": r.processing_time, "text": r.text}]}
+            result_dict = {
+                "filename": os.path.basename(r.audio_path),
+                "duration": r.processing_time,
+                "model": r.model_used,
+                "language": r.detected_language or "unknown",
+                "segments": [{"start": 0.0, "end": r.processing_time, "text": r.text}],
+            }
             lines.append(format_markdown(result_dict))
             lines.append("")
 
@@ -206,12 +261,11 @@ def _handle_output(result, parsed_args):
             f.write(output)
         if not parsed_args.quiet:
             print(f"Results saved to {parsed_args.output}", file=sys.stderr)
-    else:
-        if not parsed_args.quiet:
-            print(output)
+    elif not parsed_args.quiet:
+        print(output)
 
 
-def main(args: List[str] = None) -> int:
+def main(args: list[str] = None) -> int:
     """
     Main CLI entry point.
 
@@ -230,7 +284,10 @@ def main(args: List[str] = None) -> int:
     try:
         # Show initial status if verbose
         if parsed_args.verbose and not parsed_args.quiet:
-            print(f"Processing {len(parsed_args.audio_files)} audio file(s) with model '{parsed_args.model}'...", file=sys.stderr)
+            print(
+                f"Processing {len(parsed_args.audio_files)} audio file(s) with model '{parsed_args.model}'...",
+                file=sys.stderr,
+            )
 
         # Create configuration
         config = _create_config_from_args(parsed_args, progress_callback)
@@ -240,7 +297,10 @@ def main(args: List[str] = None) -> int:
 
         # Show completion message if verbose
         if parsed_args.verbose and not parsed_args.quiet:
-            print(f"Completed: {result.successful_count} successful, {result.failed_count} failed in {result.total_processing_time:.1f}s", file=sys.stderr)
+            print(
+                f"Completed: {result.successful_count} successful, {result.failed_count} failed in {result.total_processing_time:.1f}s",
+                file=sys.stderr,
+            )
 
         # Handle output
         _handle_output(result, parsed_args)
@@ -250,10 +310,10 @@ def main(args: List[str] = None) -> int:
 
     except AudioProcessingError as e:
         if not parsed_args.quiet:
-            print(f"Error: {str(e)}", file=sys.stderr)
+            print(f"Error: {e!s}", file=sys.stderr)
         return 1
 
     except Exception as e:
         if not parsed_args.quiet:
-            print(f"Unexpected error: {str(e)}", file=sys.stderr)
+            print(f"Unexpected error: {e!s}", file=sys.stderr)
         return 1

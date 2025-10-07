@@ -9,16 +9,15 @@ import re
 import time
 import uuid
 from pathlib import Path
-from typing import List
 
-from anyfile_to_ai.llm_client.adapters.base import BaseAdapter
-from anyfile_to_ai.llm_client.exceptions import (
+from anything_to_ai.llm_client.adapters.base import BaseAdapter
+from anything_to_ai.llm_client.exceptions import (
     ConfigurationError,
     ConnectionError,
     GenerationError,
     ModelNotFoundError,
 )
-from anyfile_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo
+from anything_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo
 
 
 class MLXAdapter(BaseAdapter):
@@ -125,7 +124,7 @@ class MLXAdapter(BaseAdapter):
             ConfigurationError: If no image path found in messages
         """
         try:
-            import anyfile_to_ai.image_processor
+            from anything_to_ai import image_processor
         except ImportError as e:
             raise ConnectionError("image_processor module not available", provider="mlx", original_error=e)
 
@@ -165,7 +164,7 @@ class MLXAdapter(BaseAdapter):
                 original_error=e,
             )
 
-    def list_models(self) -> List[ModelInfo]:
+    def list_models(self) -> list[ModelInfo]:
         """List available MLX vision models.
 
         Returns:
@@ -186,7 +185,7 @@ class MLXAdapter(BaseAdapter):
                 provider="mlx",
                 object="model",
                 description="MLX Vision Language Model",
-            )
+            ),
         ]
 
     def health_check(self) -> bool:
@@ -196,13 +195,13 @@ class MLXAdapter(BaseAdapter):
             True if image_processor is available and model is configured
         """
         try:
-            import anyfile_to_ai.image_processor
-
             # Check if VISION_MODEL is set
             if not self.vision_model:
                 return False
 
             # Try to validate model availability
+            from anything_to_ai import image_processor
+
             return image_processor.validate_model_availability(self.vision_model)
         except Exception:
             return False

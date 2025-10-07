@@ -1,6 +1,6 @@
 """Adapter for integrating image_processor module with PDF extraction."""
 
-from typing import Optional, Any
+from typing import Any
 from PIL import Image
 import tempfile
 import os
@@ -20,12 +20,13 @@ class ImageProcessorAdapter:
         """Get image processor instance."""
         if self._image_processor is None:
             try:
-                import anyfile_to_ai.image_processor
+                from anything_to_ai import image_processor
+
                 self._image_processor = image_processor
             except ImportError as e:
                 raise VLMConfigurationError(
                     f"image_processor module not available: {e}",
-                    config_key="image_processor"
+                    config_key="image_processor",
                 )
         return self._image_processor
 
@@ -34,20 +35,16 @@ class ImageProcessorAdapter:
         if self._config is None or processing_config:
             try:
                 processor = self._get_processor()
-                if processing_config and hasattr(processing_config, 'description_style'):
+                if processing_config and hasattr(processing_config, "description_style"):
                     # Use provided config
                     self._config = processing_config
                 else:
                     # Create default config
-                    self._config = processor.create_config(
-                        description_style="detailed",
-                        max_length=200,
-                        batch_size=1
-                    )
+                    self._config = processor.create_config(description_style="detailed", max_length=200, batch_size=1)
             except Exception as e:
                 raise VLMConfigurationError(
                     f"Failed to create processing config: {e}",
-                    config_key="ProcessingConfig"
+                    config_key="ProcessingConfig",
                 )
         return self._config
 
@@ -58,8 +55,8 @@ class ImageProcessorAdapter:
             config = self._get_config(processing_config)
 
             # Save PIL image to temporary file
-            with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
-                pil_image.save(temp_file.name, format='PNG')
+            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as temp_file:
+                pil_image.save(temp_file.name, format="PNG")
                 temp_path = temp_file.name
 
             try:
@@ -81,15 +78,15 @@ class ImageProcessorAdapter:
         try:
             processor = self._get_processor()
             # Check if we can validate model availability
-            if hasattr(processor, 'validate_model_availability'):
+            if hasattr(processor, "validate_model_availability"):
                 return processor.validate_model_availability()
             return True
         except Exception:
             return False
 
-    def get_model_name(self) -> Optional[str]:
+    def get_model_name(self) -> str | None:
         """Get the currently configured model name."""
         try:
-            return os.getenv('VISION_MODEL')
+            return os.getenv("VISION_MODEL")
         except Exception:
             return None

@@ -3,7 +3,7 @@
 import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, Optional, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 
 class UpdateType(Enum):
@@ -21,10 +21,10 @@ class ProgressState:
     """Immutable snapshot of progress state."""
 
     current: int
-    total: Optional[int]
-    label: Optional[str] = None
+    total: int | None
+    label: str | None = None
     timestamp: float = field(default_factory=time.monotonic)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self):
         if self.current < 0:
@@ -35,7 +35,7 @@ class ProgressState:
             raise ValueError("label too long (max 100 chars)")
 
     @property
-    def percentage(self) -> Optional[float]:
+    def percentage(self) -> float | None:
         """Completion percentage (0.0-100.0), None if indeterminate."""
         if self.total is None or self.total == 0:
             return None
@@ -52,7 +52,7 @@ class ProgressState:
         return self.total is None
 
     @property
-    def items_remaining(self) -> Optional[int]:
+    def items_remaining(self) -> int | None:
         """Items left to process, None if indeterminate."""
         if self.total is None:
             return None

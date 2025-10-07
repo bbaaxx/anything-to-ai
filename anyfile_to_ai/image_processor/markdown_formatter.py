@@ -1,9 +1,9 @@
 """Markdown formatting for image processing results."""
 
-from typing import List, Dict, Any
+from typing import Any
 
 
-def format_markdown(results: List[Dict[str, Any]]) -> str:
+def format_markdown(results: list[dict[str, Any]]) -> str:
     """
     Format image processing results as markdown.
 

@@ -1,7 +1,7 @@
 """Unit tests for text chunker."""
 
 import pytest
-from anyfile_to_ai.text_summarizer.chunker import chunk_text
+from anything_to_ai.text_summarizer.chunker import chunk_text
 
 
 class TestChunkText:

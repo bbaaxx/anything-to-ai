@@ -5,7 +5,7 @@ Skip if service is unavailable.
 """
 
 import pytest
-from anyfile_to_ai.llm_client import (
+from anything_to_ai.llm_client import (
     LLMClient,
     LLMConfig,
     LLMRequest,
@@ -13,7 +13,7 @@ from anyfile_to_ai.llm_client import (
     Message,
     ModelInfo,
 )
-from anyfile_to_ai.llm_client.exceptions import ConnectionError as LLMConnectionError
+from anything_to_ai.llm_client.exceptions import ConnectionError as LLMConnectionError
 
 # Test configuration
 OLLAMA_BASE_URL = "http://localhost:11434"
@@ -32,7 +32,10 @@ def check_ollama_available() -> bool:
 
 
 # Skip all tests if Ollama is not running
-pytestmark = pytest.mark.skipif(not check_ollama_available(), reason="Ollama service not available at localhost:11434")
+pytestmark = pytest.mark.skipif(
+    not check_ollama_available(),
+    reason="Ollama service not available at localhost:11434",
+)
 
 
 @pytest.mark.integration
@@ -136,7 +139,12 @@ class TestOllamaGeneration:
         models = client.list_models()
         assert len(models) > 0, "No models available for testing"
 
-        request = LLMRequest(messages=[Message(role="user", content="Say 'test' and nothing else.")], model=models[0].id, temperature=0.0, max_tokens=10)
+        request = LLMRequest(
+            messages=[Message(role="user", content="Say 'test' and nothing else.")],
+            model=models[0].id,
+            temperature=0.0,
+            max_tokens=10,
+        )
 
         response = client.generate(request)
 
@@ -152,7 +160,14 @@ class TestOllamaGeneration:
         client = LLMClient(config)
 
         models = client.list_models()
-        request = LLMRequest(messages=[Message(role="system", content="You are a helpful assistant."), Message(role="user", content="Say hello.")], model=models[0].id, temperature=0.5)
+        request = LLMRequest(
+            messages=[
+                Message(role="system", content="You are a helpful assistant."),
+                Message(role="user", content="Say hello."),
+            ],
+            model=models[0].id,
+            temperature=0.5,
+        )
 
         response = client.generate(request)
 
@@ -167,13 +182,21 @@ class TestOllamaGeneration:
         models = client.list_models()
 
         # Low temperature (deterministic)
-        request_low = LLMRequest(messages=[Message(role="user", content="What is 2+2?")], model=models[0].id, temperature=0.0)
+        request_low = LLMRequest(
+            messages=[Message(role="user", content="What is 2+2?")],
+            model=models[0].id,
+            temperature=0.0,
+        )
 
         response_low = client.generate(request_low)
         assert response_low.content
 
         # High temperature (creative)
-        request_high = LLMRequest(messages=[Message(role="user", content="What is 2+2?")], model=models[0].id, temperature=1.5)
+        request_high = LLMRequest(
+            messages=[Message(role="user", content="What is 2+2?")],
+            model=models[0].id,
+            temperature=1.5,
+        )
 
         response_high = client.generate(request_high)
         assert response_high.content

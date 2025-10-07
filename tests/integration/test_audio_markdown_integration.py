@@ -1,6 +1,6 @@
 """Integration tests for audio markdown output."""
 
-from anyfile_to_ai.audio_processor.markdown_formatter import format_markdown
+from anything_to_ai.audio_processor.markdown_formatter import format_markdown
 
 
 class TestAudioMarkdownIntegration:
@@ -14,9 +14,24 @@ class TestAudioMarkdownIntegration:
             "model": "whisper-large-v3",
             "language": "en",
             "segments": [
-                {"start": 0.0, "end": 10.0, "text": "Welcome to the podcast.", "speaker": "Speaker 1"},
-                {"start": 10.0, "end": 25.0, "text": "Thanks for having me.", "speaker": "Speaker 2"},
-                {"start": 25.0, "end": 45.0, "text": "Let's discuss markdown.", "speaker": "Speaker 1"},
+                {
+                    "start": 0.0,
+                    "end": 10.0,
+                    "text": "Welcome to the podcast.",
+                    "speaker": "Speaker 1",
+                },
+                {
+                    "start": 10.0,
+                    "end": 25.0,
+                    "text": "Thanks for having me.",
+                    "speaker": "Speaker 2",
+                },
+                {
+                    "start": 25.0,
+                    "end": 45.0,
+                    "text": "Let's discuss markdown.",
+                    "speaker": "Speaker 1",
+                },
             ],
         }
 
@@ -38,7 +53,13 @@ class TestAudioMarkdownIntegration:
             "duration": 60.0,
             "model": "whisper-medium",
             "language": "en",
-            "segments": [{"start": 0.0, "end": 60.0, "text": "This is a simple transcription without speaker labels."}],
+            "segments": [
+                {
+                    "start": 0.0,
+                    "end": 60.0,
+                    "text": "This is a simple transcription without speaker labels.",
+                },
+            ],
         }
 
         output = format_markdown(result)
@@ -73,7 +94,13 @@ class TestAudioMarkdownIntegration:
             "duration": 30.0,
             "model": "whisper-medium",
             "language": "en",
-            "segments": [{"start": 0.0, "end": 10.0, "text": "Text with *emphasis*, [notes], and #hashtags"}],
+            "segments": [
+                {
+                    "start": 0.0,
+                    "end": 10.0,
+                    "text": "Text with *emphasis*, [notes], and #hashtags",
+                },
+            ],
         }
 
         output = format_markdown(result)
@@ -85,8 +112,22 @@ class TestAudioMarkdownIntegration:
 
     def test_long_audio_multiple_segments(self):
         """Test long audio with many segments."""
-        segments = [{"start": i * 10.0, "end": (i + 1) * 10.0, "text": f"Segment {i} content", "speaker": f"Speaker {i % 2 + 1}"} for i in range(50)]
-        result = {"filename": "long.mp3", "duration": 500.0, "model": "whisper-medium", "language": "en", "segments": segments}
+        segments = [
+            {
+                "start": i * 10.0,
+                "end": (i + 1) * 10.0,
+                "text": f"Segment {i} content",
+                "speaker": f"Speaker {i % 2 + 1}",
+            }
+            for i in range(50)
+        ]
+        result = {
+            "filename": "long.mp3",
+            "duration": 500.0,
+            "model": "whisper-medium",
+            "language": "en",
+            "segments": segments,
+        }
 
         output = format_markdown(result)
 

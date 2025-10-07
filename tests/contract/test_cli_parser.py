@@ -2,7 +2,7 @@
 
 import pytest
 import argparse
-from anyfile_to_ai.image_processor.cli import create_cli_parser
+from anything_to_ai.image_processor.cli import create_cli_parser
 
 
 class TestCliParserContract:

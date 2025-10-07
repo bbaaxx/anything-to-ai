@@ -20,6 +20,7 @@ class TestBasicSummarizationWorkflow:
 
         result = subprocess.run(
             [sys.executable, "-m", "text_summarizer", str(test_file)],
+            check=False,
             capture_output=True,
             text=True,
         )
@@ -35,7 +36,15 @@ class TestBasicSummarizationWorkflow:
         test_file.write_text("Climate change is one of the most pressing challenges.")
 
         result = subprocess.run(
-            [sys.executable, "-m", "text_summarizer", str(test_file), "--format", "plain"],
+            [
+                sys.executable,
+                "-m",
+                "text_summarizer",
+                str(test_file),
+                "--format",
+                "plain",
+            ],
+            check=False,
             capture_output=True,
             text=True,
         )
@@ -49,6 +58,7 @@ class TestBasicSummarizationWorkflow:
 
         result = subprocess.run(
             [sys.executable, "-m", "text_summarizer", "--stdin"],
+            check=False,
             input=input_text,
             capture_output=True,
             text=True,
@@ -62,6 +72,7 @@ class TestBasicSummarizationWorkflow:
 
         result = subprocess.run(
             [sys.executable, "-m", "text_summarizer", "--stdin"],
+            check=False,
             input=input_text,
             capture_output=True,
             text=True,
@@ -83,6 +94,7 @@ class TestLargeTextChunking:
 
         result = subprocess.run(
             [sys.executable, "-m", "text_summarizer", str(test_file)],
+            check=False,
             capture_output=True,
             text=True,
             timeout=300,
@@ -99,7 +111,12 @@ class TestModulePiping:
     """Integration tests for module piping."""
 
     @pytest.mark.skipif(
-        subprocess.run([sys.executable, "-c", "import anyfile_to_ai.pdf_extractor"], capture_output=True).returncode != 0,
+        subprocess.run(
+            [sys.executable, "-c", "import anything_to_ai.pdf_extractor"],
+            check=False,
+            capture_output=True,
+        ).returncode
+        != 0,
         reason="pdf_extractor module not available",
     )
     def test_scenario_7_pdf_to_summarizer_pipeline(self):
@@ -107,7 +124,12 @@ class TestModulePiping:
         pytest.skip("Requires pdf_extractor implementation")
 
     @pytest.mark.skipif(
-        subprocess.run([sys.executable, "-c", "import anyfile_to_ai.audio_processor"], capture_output=True).returncode != 0,
+        subprocess.run(
+            [sys.executable, "-c", "import anything_to_ai.audio_processor"],
+            check=False,
+            capture_output=True,
+        ).returncode
+        != 0,
         reason="audio_processor module not available",
     )
     def test_scenario_8_audio_to_summarizer_pipeline(self):
@@ -115,7 +137,12 @@ class TestModulePiping:
         pytest.skip("Requires audio_processor implementation")
 
     @pytest.mark.skipif(
-        subprocess.run([sys.executable, "-c", "import anyfile_to_ai.image_processor"], capture_output=True).returncode != 0,
+        subprocess.run(
+            [sys.executable, "-c", "import anything_to_ai.image_processor"],
+            check=False,
+            capture_output=True,
+        ).returncode
+        != 0,
         reason="image_processor module not available",
     )
     def test_scenario_9_image_to_summarizer_pipeline(self):
@@ -130,6 +157,7 @@ class TestErrorHandling:
         """Test Scenario 10: Empty input."""
         result = subprocess.run(
             [sys.executable, "-m", "text_summarizer", "--stdin"],
+            check=False,
             input="",
             capture_output=True,
             text=True,
@@ -144,6 +172,7 @@ class TestErrorHandling:
 
         result = subprocess.run(
             [sys.executable, "-m", "text_summarizer", str(test_file)],
+            check=False,
             capture_output=True,
             text=True,
         )
@@ -154,6 +183,7 @@ class TestErrorHandling:
         """Test Scenario 12: File not found."""
         result = subprocess.run(
             [sys.executable, "-m", "text_summarizer", "/nonexistent/file.txt"],
+            check=False,
             capture_output=True,
             text=True,
         )

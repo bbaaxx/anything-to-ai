@@ -1,8 +1,12 @@
 """Contract tests for process_images() API function."""
 
 import pytest
-from anyfile_to_ai.image_processor import process_images, ProcessingConfig, ProcessingResult
-from anyfile_to_ai.image_processor.exceptions import ValidationError
+from anything_to_ai.image_processor import (
+    process_images,
+    ProcessingConfig,
+    ProcessingResult,
+)
+from anything_to_ai.image_processor.exceptions import ValidationError
 
 
 class TestProcessImagesContract:
@@ -45,7 +49,7 @@ class TestProcessImagesContract:
         """Test process_images returns timing metadata."""
         image_paths = ["image1.jpg", "image2.png"]
         result = process_images(image_paths)
-        assert hasattr(result, 'total_processing_time')
+        assert hasattr(result, "total_processing_time")
         assert result.total_processing_time > 0
         for individual_result in result.results:
             assert individual_result.processing_time > 0

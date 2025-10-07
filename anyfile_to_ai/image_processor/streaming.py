@@ -1,7 +1,7 @@
 """Batch processing and streaming functionality."""
 
 import time
-from typing import List, Generator
+from collections.abc import Generator
 from .models import DescriptionResult, ProcessingResult, ProcessingConfig
 from .progress import ProgressTracker
 from .exceptions import ValidationError
@@ -15,8 +15,7 @@ class StreamingProcessor:
         self.processor = processor
         self.vlm_processor = get_global_vlm_processor()
 
-    def process_batch(self, file_paths: List[str],
-                     config: ProcessingConfig) -> ProcessingResult:
+    def process_batch(self, file_paths: list[str], config: ProcessingConfig) -> ProcessingResult:
         """Process multiple images in batch."""
         if not file_paths:
             raise ValidationError("Cannot process empty list of images")
@@ -43,15 +42,7 @@ class StreamingProcessor:
 
             except Exception as e:
                 # Create failed result
-                failed_result = DescriptionResult(
-                    image_path=file_path,
-                    description=f"Error: {str(e)}",
-                    confidence_score=None,
-                    processing_time=0.0,
-                    model_used="",
-                    prompt_used="",
-                    success=False
-                )
+                failed_result = DescriptionResult(image_path=file_path, description=f"Error: {e!s}", confidence_score=None, processing_time=0.0, model_used="", prompt_used="", success=False)
                 results.append(failed_result)
                 failed_count += 1
 
@@ -74,11 +65,10 @@ class StreamingProcessor:
             successful_count=successful_count,
             failed_count=failed_count,
             total_processing_time=total_time,
-            error_message=None if successful_count > 0 else "All images failed to process"
+            error_message=None if successful_count > 0 else "All images failed to process",
         )
 
-    def process_streaming(self, file_paths: List[str],
-                         config: ProcessingConfig) -> Generator[DescriptionResult, None, None]:
+    def process_streaming(self, file_paths: list[str], config: ProcessingConfig) -> Generator[DescriptionResult, None, None]:
         """Process images with streaming progress updates."""
         if not file_paths:
             raise ValidationError("Cannot process empty list of images")
@@ -96,15 +86,7 @@ class StreamingProcessor:
 
                 except Exception:
                     # Yield failed result
-                    failed_result = DescriptionResult(
-                        image_path=file_path,
-                        description="",
-                        confidence_score=None,
-                        processing_time=0.0,
-                        model_used="",
-                        prompt_used="",
-                        success=False
-                    )
+                    failed_result = DescriptionResult(image_path=file_path, description="", confidence_score=None, processing_time=0.0, model_used="", prompt_used="", success=False)
                     yield failed_result
 
                 # Update progress
@@ -118,8 +100,7 @@ class StreamingProcessor:
                 # Don't let cleanup errors affect the streaming
                 pass
 
-    def calculate_batch_size(self, file_paths: List[str],
-                           config: ProcessingConfig) -> int:
+    def calculate_batch_size(self, file_paths: list[str], config: ProcessingConfig) -> int:
         """Calculate optimal batch size based on image sizes."""
         # Simple implementation - could be enhanced with actual file size analysis
         base_batch_size = config.batch_size

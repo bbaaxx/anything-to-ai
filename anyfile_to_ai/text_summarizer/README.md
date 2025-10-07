@@ -635,4 +635,4 @@ See project root LICENSE file.
 
 ## Contributing
 
-This module is part of the anyfile-to-ai project. See the main project README and `specs/009-summarizer-module-this/` for development guidelines.
+This module is part of the anything-to-ai project. See the main project README and `specs/009-summarizer-module-this/` for development guidelines.

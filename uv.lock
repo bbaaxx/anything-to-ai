@@ -128,7 +128,21 @@ wheels = [
 ]
 
 [[package]]
-name = "anyfile-to-ai"
+name = "anyio"
+version = "4.11.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "idna" },
+    { name = "sniffio" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c6/78/7d432127c41b50bccba979505f272c16cbcadcc33645d5fa3a738110ae75/anyio-4.11.0.tar.gz", hash = "sha256:82a8d0b81e318cc5ce71a5f1f8b5c4e63619620b63141ef8c995fa0db95a57c4", size = 219094, upload-time = "2025-09-23T09:19:12.58Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/15/b3/9b1a8074496371342ec1e796a96f99c82c945a339cd81a8e73de28b4cf9e/anyio-4.11.0-py3-none-any.whl", hash = "sha256:0287e96f4d26d4149305414d4e3bc32f0dcd0862365a4bddea19d7a1ec38c4fc", size = 109097, upload-time = "2025-09-23T09:19:10.601Z" },
+]
+
+[[package]]
+name = "anything-to-ai"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
@@ -155,6 +169,7 @@ dev = [
     { name = "pre-commit" },
     { name = "pytest" },
     { name = "pytest-cov" },
+    { name = "pytest-rerunfailures" },
     { name = "ruff" },
     { name = "setuptools" },
     { name = "twine" },
@@ -169,6 +184,12 @@ pdf = [
 ]
 text = [
     { name = "httpx" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "pre-commit" },
+    { name = "ruff" },
 ]
 
 [package.metadata]
@@ -190,6 +211,7 @@ requires-dist = [
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=4.0.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.4.2" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=6.0.0" },
+    { name = "pytest-rerunfailures", marker = "extra == 'dev'", specifier = ">=14.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.13.2" },
     { name = "setuptools", marker = "extra == 'dev'", specifier = ">=61.0" },
     { name = "twine", specifier = ">=6.2.0" },
@@ -199,18 +221,10 @@ requires-dist = [
 ]
 provides-extras = ["pdf", "image", "audio", "text", "all", "dev"]
 
-[[package]]
-name = "anyio"
-version = "4.11.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "idna" },
-    { name = "sniffio" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/c6/78/7d432127c41b50bccba979505f272c16cbcadcc33645d5fa3a738110ae75/anyio-4.11.0.tar.gz", hash = "sha256:82a8d0b81e318cc5ce71a5f1f8b5c4e63619620b63141ef8c995fa0db95a57c4", size = 219094, upload-time = "2025-09-23T09:19:12.58Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/15/b3/9b1a8074496371342ec1e796a96f99c82c945a339cd81a8e73de28b4cf9e/anyio-4.11.0-py3-none-any.whl", hash = "sha256:0287e96f4d26d4149305414d4e3bc32f0dcd0862365a4bddea19d7a1ec38c4fc", size = 109097, upload-time = "2025-09-23T09:19:10.601Z" },
+[package.metadata.requires-dev]
+dev = [
+    { name = "pre-commit", specifier = ">=4.3.0" },
+    { name = "ruff", specifier = ">=0.13.2" },
 ]
 
 [[package]]
@@ -2000,6 +2014,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/5e/f7/c933acc76f5208b3b00089573cf6a2bc26dc80a8aece8f52bb7d6b1855ca/pytest_cov-7.0.0.tar.gz", hash = "sha256:33c97eda2e049a0c5298e91f519302a1334c26ac65c1a483d6206fd458361af1", size = 54328, upload-time = "2025-09-09T10:57:02.113Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ee/49/1377b49de7d0c1ce41292161ea0f721913fa8722c19fb9c1e3aa0367eecb/pytest_cov-7.0.0-py3-none-any.whl", hash = "sha256:3b8e9558b16cc1479da72058bdecf8073661c7f57f7d3c5f22a1c23507f2d861", size = 22424, upload-time = "2025-09-09T10:57:00.695Z" },
+]
+
+[[package]]
+name = "pytest-rerunfailures"
+version = "16.0.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "packaging" },
+    { name = "pytest" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/26/53/a543a76f922a5337d10df22441af8bf68f1b421cadf9aedf8a77943b81f6/pytest_rerunfailures-16.0.1.tar.gz", hash = "sha256:ed4b3a6e7badb0a720ddd93f9de1e124ba99a0cb13bc88561b3c168c16062559", size = 27612, upload-time = "2025-09-02T06:48:25.193Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/38/73/67dc14cda1942914e70fbb117fceaf11e259362c517bdadd76b0dd752524/pytest_rerunfailures-16.0.1-py3-none-any.whl", hash = "sha256:0bccc0e3b0e3388275c25a100f7077081318196569a121217688ed05e58984b9", size = 13610, upload-time = "2025-09-02T06:48:23.615Z" },
 ]
 
 [[package]]
