@@ -1,5 +1,5 @@
 """
-anything_to_ai - Universal file processor with AI-powered capabilities.
+anyfile_to_ai - Universal file processor with AI-powered capabilities.
 
 This package provides unified access to:
 - PDF text extraction

@@ -4,7 +4,7 @@ import pytest
 import tempfile
 import os
 from PIL import Image
-from anything_to_ai.image_processor import process_images, ProcessingConfig
+from anyfile_to_ai.image_processor import process_images, ProcessingConfig
 
 
 class TestBatchProcessing:

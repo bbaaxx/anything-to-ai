@@ -7,7 +7,7 @@ the ProgressConsumer protocol and handle edge cases appropriately.
 
 import inspect
 import pytest
-from anything_to_ai.progress_tracker import (
+from anyfile_to_ai.progress_tracker import (
     ProgressState,
     ProgressUpdate,
     UpdateType,

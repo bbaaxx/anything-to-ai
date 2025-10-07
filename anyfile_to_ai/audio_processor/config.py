@@ -3,8 +3,8 @@ Configuration factory for audio transcription.
 """
 
 from collections.abc import Callable
-from anything_to_ai.audio_processor.models import TranscriptionConfig
-from anything_to_ai.audio_processor.exceptions import ValidationError
+from anyfile_to_ai.audio_processor.models import TranscriptionConfig
+from anyfile_to_ai.audio_processor.exceptions import ValidationError
 
 
 # Valid model choices

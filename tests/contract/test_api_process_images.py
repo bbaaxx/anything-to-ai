@@ -1,12 +1,12 @@
 """Contract tests for process_images() API function."""
 
 import pytest
-from anything_to_ai.image_processor import (
+from anyfile_to_ai.image_processor import (
     process_images,
     ProcessingConfig,
     ProcessingResult,
 )
-from anything_to_ai.image_processor.exceptions import ValidationError
+from anyfile_to_ai.image_processor.exceptions import ValidationError
 
 
 class TestProcessImagesContract:

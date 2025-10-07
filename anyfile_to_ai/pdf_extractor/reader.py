@@ -8,7 +8,7 @@ from .models import PageResult, ExtractionResult, ExtractionConfig
 from .exceptions import PDFNotFoundError, PDFCorruptedError
 
 try:
-    from anything_to_ai.progress_tracker import ProgressEmitter
+    from anyfile_to_ai.progress_tracker import ProgressEmitter
 
     _PROGRESS_AVAILABLE = True
 except ImportError:

@@ -1,6 +1,6 @@
 """Integration tests for PDF markdown output."""
 
-from anything_to_ai.pdf_extractor.markdown_formatter import format_markdown
+from anyfile_to_ai.pdf_extractor.markdown_formatter import format_markdown
 
 
 class TestPDFMarkdownIntegration:

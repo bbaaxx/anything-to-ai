@@ -1,6 +1,6 @@
 """Contract tests for CLI interface."""
 
-from anything_to_ai.pdf_extractor.cli import CLICommands
+from anyfile_to_ai.pdf_extractor.cli import CLICommands
 
 
 class TestCLIExtractContract:

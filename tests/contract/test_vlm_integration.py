@@ -7,7 +7,7 @@ import pytest
 import os
 from unittest.mock import patch, MagicMock
 
-from anything_to_ai.image_processor.exceptions import ImageProcessingError
+from anyfile_to_ai.image_processor.exceptions import ImageProcessingError
 
 
 class TestVLMIntegrationContract:
@@ -17,7 +17,7 @@ class TestVLMIntegrationContract:
         """Test that VLMConfiguration class is available."""
         # This should FAIL initially - VLM config classes not implemented
         try:
-            from anything_to_ai.image_processor.config import VLMConfig
+            from anyfile_to_ai.image_processor.config import VLMConfig
 
             # Should be able to create configuration
             config = VLMConfig(
@@ -39,7 +39,7 @@ class TestVLMIntegrationContract:
         """Test that VLMModel protocol interface is defined."""
         # This should FAIL initially - VLM model protocol not implemented
         try:
-            from anything_to_ai.image_processor.vlm_model_impl import VLMModelProtocol
+            from anyfile_to_ai.image_processor.vlm_model_impl import VLMModelProtocol
 
             # Protocol should define required methods
             required_methods = ["process_image", "get_model_info", "cleanup"]
@@ -54,7 +54,7 @@ class TestVLMIntegrationContract:
         """Test that VLMModelRegistry class is available."""
         # This should FAIL initially - VLM model registry not implemented
         try:
-            from anything_to_ai.image_processor.model_registry import VLMModelRegistry
+            from anyfile_to_ai.image_processor.model_registry import VLMModelRegistry
 
             registry = VLMModelRegistry()
 
@@ -76,7 +76,7 @@ class TestVLMIntegrationContract:
         """Test that VLMProcessor class is available."""
         # This should FAIL initially - VLM processor not implemented
         try:
-            from anything_to_ai.image_processor.vlm_processor import VLMProcessor
+            from anyfile_to_ai.image_processor.vlm_processor import VLMProcessor
 
             # Should be able to create processor
             processor = VLMProcessor()
@@ -94,7 +94,7 @@ class TestVLMIntegrationContract:
         """Test that VLM-specific exceptions are properly defined."""
         # This should FAIL initially - VLM exceptions not implemented
         try:
-            from anything_to_ai.image_processor.vlm_exceptions import (
+            from anyfile_to_ai.image_processor.vlm_exceptions import (
                 VLMConfigurationError,
                 VLMModelLoadError,
                 VLMProcessingError,
@@ -123,7 +123,7 @@ class TestVLMIntegrationContract:
         """Test that EnhancedResult structure is defined."""
         # This should FAIL initially - enhanced result not implemented
         try:
-            from anything_to_ai.image_processor.enhanced_result import EnhancedResult
+            from anyfile_to_ai.image_processor.enhanced_result import EnhancedResult
 
             # Should be able to create enhanced result
             result = EnhancedResult(
@@ -151,7 +151,7 @@ class TestVLMIntegrationContract:
         """Test model validation interface contract."""
         # This should FAIL initially - model validation not implemented
         try:
-            from anything_to_ai.image_processor.model_registry import VLMModelRegistry
+            from anyfile_to_ai.image_processor.model_registry import VLMModelRegistry
 
             registry = VLMModelRegistry()
 
@@ -170,8 +170,8 @@ class TestVLMIntegrationContract:
         """Test VLM processing interface contract."""
         # This should FAIL initially - VLM processing not implemented
         try:
-            from anything_to_ai.image_processor.vlm_processor import VLMProcessor
-            from anything_to_ai.image_processor.config import VLMConfig
+            from anyfile_to_ai.image_processor.vlm_processor import VLMProcessor
+            from anyfile_to_ai.image_processor.config import VLMConfig
 
             processor = VLMProcessor()
             config = VLMConfig(model_name="google/gemma-3-4b")
@@ -193,8 +193,8 @@ class TestVLMIntegrationContract:
         """Test batch processing interface contract."""
         # This should FAIL initially - batch processing not implemented
         try:
-            from anything_to_ai.image_processor.vlm_processor import VLMProcessor
-            from anything_to_ai.image_processor.config import VLMConfig
+            from anyfile_to_ai.image_processor.vlm_processor import VLMProcessor
+            from anyfile_to_ai.image_processor.config import VLMConfig
 
             processor = VLMProcessor()
             config = VLMConfig(model_name="google/gemma-3-4b")
@@ -216,8 +216,8 @@ class TestVLMIntegrationContract:
         """Test timeout behavior configuration contract."""
         # This should FAIL initially - timeout handling not implemented
         try:
-            from anything_to_ai.image_processor.config import VLMConfig
-            from anything_to_ai.image_processor.vlm_exceptions import VLMTimeoutError
+            from anyfile_to_ai.image_processor.config import VLMConfig
+            from anyfile_to_ai.image_processor.vlm_exceptions import VLMTimeoutError
 
             # Should support different timeout behaviors
             config_error = VLMConfig(
@@ -249,7 +249,7 @@ class TestVLMIntegrationContract:
         """Test model lifecycle management contract."""
         # This should FAIL initially - model lifecycle not implemented
         try:
-            from anything_to_ai.image_processor.model_registry import LoadedModel
+            from anyfile_to_ai.image_processor.model_registry import LoadedModel
 
             # Should be able to track model lifecycle
             loaded_model = LoadedModel(
@@ -274,7 +274,7 @@ class TestVLMIntegrationContract:
         # This should FAIL initially - environment integration not complete
         with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}):
             try:
-                from anything_to_ai.image_processor.config import (
+                from anyfile_to_ai.image_processor.config import (
                     load_vlm_config_from_env,
                 )
 
@@ -292,7 +292,7 @@ class TestVLMIntegrationContract:
         """Test resource cleanup interface contract."""
         # This should FAIL initially - cleanup hooks not implemented
         try:
-            from anything_to_ai.image_processor.model_registry import VLMModelRegistry
+            from anyfile_to_ai.image_processor.model_registry import VLMModelRegistry
 
             registry = VLMModelRegistry()
 
@@ -309,7 +309,7 @@ class TestVLMIntegrationContract:
         """Test integration points with existing processor."""
         # This should FAIL initially - integration not implemented
         try:
-            from anything_to_ai.image_processor.processor import VLMProcessor
+            from anyfile_to_ai.image_processor.processor import VLMProcessor
 
             processor = VLMProcessor()
 

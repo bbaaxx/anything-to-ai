@@ -1,12 +1,12 @@
 """Contract tests for process_image() API function."""
 
 import pytest
-from anything_to_ai.image_processor import (
+from anyfile_to_ai.image_processor import (
     process_image,
     ProcessingConfig,
     DescriptionResult,
 )
-from anything_to_ai.image_processor.exceptions import (
+from anyfile_to_ai.image_processor.exceptions import (
     ImageNotFoundError,
     UnsupportedFormatError,
 )

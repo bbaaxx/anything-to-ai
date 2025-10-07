@@ -4,14 +4,14 @@ Batch processing with progress updates.
 
 import time
 from collections import defaultdict
-from anything_to_ai.audio_processor.models import (
+from anyfile_to_ai.audio_processor.models import (
     TranscriptionResult,
     TranscriptionConfig,
     ProcessingResult,
 )
-from anything_to_ai.audio_processor.exceptions import ValidationError
-from anything_to_ai.audio_processor.processor import process_audio
-from anything_to_ai.audio_processor.progress import ProgressTracker
+from anyfile_to_ai.audio_processor.exceptions import ValidationError
+from anyfile_to_ai.audio_processor.processor import process_audio
+from anyfile_to_ai.audio_processor.progress import ProgressTracker
 
 
 def process_audio_batch(file_paths: list[str], config: TranscriptionConfig | None = None) -> ProcessingResult:
@@ -34,7 +34,7 @@ def process_audio_batch(file_paths: list[str], config: TranscriptionConfig | Non
 
     # Use default config if not provided
     if config is None:
-        from anything_to_ai.audio_processor.config import create_config
+        from anyfile_to_ai.audio_processor.config import create_config
 
         config = create_config()
 

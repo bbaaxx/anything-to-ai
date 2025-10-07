@@ -1,7 +1,7 @@
 """Unit tests for RetryHandler."""
 
 import pytest
-from anything_to_ai.llm_client.retry import RetryHandler
+from anyfile_to_ai.llm_client.retry import RetryHandler
 
 
 class TestRetryHandler:

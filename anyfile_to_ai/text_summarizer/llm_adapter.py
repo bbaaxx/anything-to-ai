@@ -22,7 +22,7 @@ class LLMAdapter:
     def call(self, prompt: str) -> str:
         """Call LLM client with prompt."""
         try:
-            from anything_to_ai.llm_client import LLMRequest, Message, MessageRole
+            from anyfile_to_ai.llm_client import LLMRequest, Message, MessageRole
 
             # Create request with user message
             request = LLMRequest(
@@ -167,7 +167,7 @@ def get_default_llm_client(model: str = "llama3.2:latest", provider: str = "olla
         Configured LLM client instance
     """
     try:
-        from anything_to_ai.llm_client import LLMClient, LLMConfig
+        from anyfile_to_ai.llm_client import LLMClient, LLMConfig
 
         # Map provider to base URL
         provider_urls = {

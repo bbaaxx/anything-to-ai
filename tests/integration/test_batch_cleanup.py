@@ -9,7 +9,7 @@ import tempfile
 from unittest.mock import patch
 from PIL import Image
 
-from anything_to_ai.image_processor import create_config, process_images
+from anyfile_to_ai.image_processor import create_config, process_images
 
 
 class TestBatchCleanup:
@@ -47,7 +47,7 @@ class TestBatchCleanup:
             # Memory cleanup should have occurred (hard to test directly)
             # But we can verify the interface exists
             try:
-                from anything_to_ai.image_processor.model_registry import (
+                from anyfile_to_ai.image_processor.model_registry import (
                     VLMModelRegistry,
                 )
 
@@ -87,7 +87,7 @@ class TestBatchCleanup:
 
             # Cleanup should still have occurred
             try:
-                from anything_to_ai.image_processor.model_registry import (
+                from anyfile_to_ai.image_processor.model_registry import (
                     VLMModelRegistry,
                 )
 
@@ -101,7 +101,7 @@ class TestBatchCleanup:
         """Test cleanup integration with streaming processing."""
         # This should FAIL initially - streaming cleanup not implemented
         with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}):
-            from anything_to_ai.image_processor import process_images_streaming
+            from anyfile_to_ai.image_processor import process_images_streaming
 
             config = create_config(batch_size=1)
 

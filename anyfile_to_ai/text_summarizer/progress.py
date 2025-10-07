@@ -6,7 +6,7 @@ progress_tracker system.
 """
 
 try:
-    from anything_to_ai.progress_tracker import (
+    from anyfile_to_ai.progress_tracker import (
         ProgressEmitter,
         CLIProgressConsumer,
         CallbackProgressConsumer,

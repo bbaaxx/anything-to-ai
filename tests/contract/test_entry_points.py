@@ -13,10 +13,10 @@ def test_entry_points_exist():
 
     # Check for required entry points
     required_entry_points = [
-        'pdf-extractor = "anything_to_ai.pdf_extractor.__main__:main"',
-        'image-processor = "anything_to_ai.image_processor.__main__:main"',
-        'audio-processor = "anything_to_ai.audio_processor.__main__:main"',
-        'text-summarizer = "anything_to_ai.text_summarizer.__main__:main"',
+        'pdf-extractor = "anyfile_to_ai.pdf_extractor.__main__:main"',
+        'image-processor = "anyfile_to_ai.image_processor.__main__:main"',
+        'audio-processor = "anyfile_to_ai.audio_processor.__main__:main"',
+        'text-summarizer = "anyfile_to_ai.text_summarizer.__main__:main"',
     ]
 
     for entry_point in required_entry_points:
@@ -37,5 +37,5 @@ def test_entry_points_contract():
         # Should follow pattern: name = "package.module:function"
         assert "=" in line, f"Entry point should have '=': {line}"
         assert ":" in line, f"Entry point should have ':' separator: {line}"
-        assert "anything_to_ai." in line, f"Entry point should reference anything_to_ai package: {line}"
+        assert "anyfile_to_ai." in line, f"Entry point should reference anyfile_to_ai package: {line}"
         assert "__main__:main" in line, f"Entry point should reference __main__:main: {line}"

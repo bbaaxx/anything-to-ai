@@ -2,7 +2,7 @@
 Whisper model loading and caching.
 """
 
-from anything_to_ai.audio_processor.exceptions import ModelLoadError
+from anyfile_to_ai.audio_processor.exceptions import ModelLoadError
 
 
 class WhisperModelLoader:

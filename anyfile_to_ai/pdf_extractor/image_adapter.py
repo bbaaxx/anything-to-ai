@@ -20,7 +20,7 @@ class ImageProcessorAdapter:
         """Get image processor instance."""
         if self._image_processor is None:
             try:
-                from anything_to_ai import image_processor
+                from anyfile_to_ai import image_processor
 
                 self._image_processor = image_processor
             except ImportError as e:

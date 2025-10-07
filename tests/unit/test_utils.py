@@ -3,9 +3,9 @@
 import tempfile
 import os
 from PIL import Image
-from anything_to_ai.image_processor import get_supported_formats
-from anything_to_ai.image_processor.cli import expand_image_paths, format_output
-from anything_to_ai.image_processor.models import ProcessingResult, DescriptionResult
+from anyfile_to_ai.image_processor import get_supported_formats
+from anyfile_to_ai.image_processor.cli import expand_image_paths, format_output
+from anyfile_to_ai.image_processor.models import ProcessingResult, DescriptionResult
 
 
 class TestUtilityFunctions:

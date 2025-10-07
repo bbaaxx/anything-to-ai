@@ -5,7 +5,7 @@ They should fail initially and pass after implementation.
 """
 
 import pytest
-from anything_to_ai.text_summarizer import (
+from anyfile_to_ai.text_summarizer import (
     summarize_text,
     create_summarizer,
     chunk_text,
@@ -111,7 +111,7 @@ class TestCreateSummarizer:
     def test_creates_with_custom_client(self):
         """Test that create_summarizer accepts custom LLM client."""
 
-        # Mock client - in real impl, this would be from anything_to_ai.llm_client module
+        # Mock client - in real impl, this would be from anyfile_to_ai.llm_client module
         class MockClient:
             pass
 

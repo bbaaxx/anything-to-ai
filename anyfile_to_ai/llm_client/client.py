@@ -4,12 +4,12 @@ This module orchestrates adapter selection, retry logic, fallback handling,
 and caching for LLM operations.
 """
 
-from anything_to_ai.llm_client.adapters import get_adapter
-from anything_to_ai.llm_client.cache import ModelCache
-from anything_to_ai.llm_client.config import LLMConfig
-from anything_to_ai.llm_client.exceptions import LLMError
-from anything_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo
-from anything_to_ai.llm_client.retry import RetryHandler
+from anyfile_to_ai.llm_client.adapters import get_adapter
+from anyfile_to_ai.llm_client.cache import ModelCache
+from anyfile_to_ai.llm_client.config import LLMConfig
+from anyfile_to_ai.llm_client.exceptions import LLMError
+from anyfile_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo
+from anyfile_to_ai.llm_client.retry import RetryHandler
 
 
 class LLMClient:

@@ -10,7 +10,7 @@ from unittest.mock import patch, MagicMock
 from io import StringIO
 
 # Import CLI components
-from anything_to_ai.image_processor.cli import create_cli_parser, main
+from anyfile_to_ai.image_processor.cli import create_cli_parser, main
 
 
 class TestCLIInterfaceContract:

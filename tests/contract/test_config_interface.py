@@ -12,7 +12,7 @@ class TestLLMConfigCreation:
 
     def test_create_minimal_config(self):
         """Config can be created with minimal required fields."""
-        from anything_to_ai.llm_client import LLMConfig
+        from anyfile_to_ai.llm_client import LLMConfig
 
         config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
 
@@ -23,7 +23,7 @@ class TestLLMConfigCreation:
 
     def test_create_config_with_all_fields(self):
         """Config can be created with all fields specified."""
-        from anything_to_ai.llm_client import LLMConfig
+        from anyfile_to_ai.llm_client import LLMConfig
 
         config = LLMConfig(
             provider="lmstudio",
@@ -47,7 +47,7 @@ class TestLLMConfigCreation:
 
     def test_config_is_immutable(self):
         """LLMConfig is frozen/immutable after creation."""
-        from anything_to_ai.llm_client import LLMConfig
+        from anyfile_to_ai.llm_client import LLMConfig
 
         config = LLMConfig(provider="ollama", base_url="http://localhost")
 
@@ -57,40 +57,40 @@ class TestLLMConfigCreation:
 
     def test_config_validates_provider(self):
         """Config validates provider is one of supported values."""
-        from anything_to_ai.llm_client import LLMConfig
-        from anything_to_ai.llm_client.exceptions import ValidationError
+        from anyfile_to_ai.llm_client import LLMConfig
+        from anyfile_to_ai.llm_client.exceptions import ValidationError
 
         with pytest.raises(ValidationError):
             LLMConfig(provider="unsupported", base_url="http://localhost")
 
     def test_config_validates_base_url(self):
         """Config validates base_url is valid URL format."""
-        from anything_to_ai.llm_client import LLMConfig
-        from anything_to_ai.llm_client.exceptions import ValidationError
+        from anyfile_to_ai.llm_client import LLMConfig
+        from anyfile_to_ai.llm_client.exceptions import ValidationError
 
         with pytest.raises(ValidationError):
             LLMConfig(provider="ollama", base_url="not-a-url")
 
     def test_config_validates_timeout(self):
         """Config validates timeout is positive."""
-        from anything_to_ai.llm_client import LLMConfig
-        from anything_to_ai.llm_client.exceptions import ValidationError
+        from anyfile_to_ai.llm_client import LLMConfig
+        from anyfile_to_ai.llm_client.exceptions import ValidationError
 
         with pytest.raises(ValidationError):
             LLMConfig(provider="ollama", base_url="http://localhost", timeout=-1.0)
 
     def test_config_validates_max_retries(self):
         """Config validates max_retries is non-negative."""
-        from anything_to_ai.llm_client import LLMConfig
-        from anything_to_ai.llm_client.exceptions import ValidationError
+        from anyfile_to_ai.llm_client import LLMConfig
+        from anyfile_to_ai.llm_client.exceptions import ValidationError
 
         with pytest.raises(ValidationError):
             LLMConfig(provider="ollama", base_url="http://localhost", max_retries=-1)
 
     def test_config_validates_cache_ttl(self):
         """Config validates cache_ttl is non-negative."""
-        from anything_to_ai.llm_client import LLMConfig
-        from anything_to_ai.llm_client.exceptions import ValidationError
+        from anyfile_to_ai.llm_client import LLMConfig
+        from anyfile_to_ai.llm_client.exceptions import ValidationError
 
         with pytest.raises(ValidationError):
             LLMConfig(provider="ollama", base_url="http://localhost", cache_ttl=-10)
@@ -101,7 +101,7 @@ class TestLLMConfigFallback:
 
     def test_config_accepts_fallback_list(self):
         """Config accepts list of fallback configs."""
-        from anything_to_ai.llm_client import LLMConfig
+        from anyfile_to_ai.llm_client import LLMConfig
 
         fallback1 = LLMConfig(provider="lmstudio", base_url="http://localhost:1234")
         fallback2 = LLMConfig(provider="mlx", base_url="local")
@@ -118,7 +118,7 @@ class TestLLMConfigFallback:
 
     def test_config_fallback_is_optional(self):
         """Fallback configs are optional (None by default)."""
-        from anything_to_ai.llm_client import LLMConfig
+        from anyfile_to_ai.llm_client import LLMConfig
 
         config = LLMConfig(provider="ollama", base_url="http://localhost")
 
@@ -130,7 +130,7 @@ class TestMessageModel:
 
     def test_create_message_with_role_and_content(self):
         """Message can be created with role and content."""
-        from anything_to_ai.llm_client import Message
+        from anyfile_to_ai.llm_client import Message
 
         msg = Message(role="user", content="Hello, world!")
 
@@ -139,23 +139,23 @@ class TestMessageModel:
 
     def test_message_validates_role(self):
         """Message validates role is valid."""
-        from anything_to_ai.llm_client import Message
-        from anything_to_ai.llm_client.exceptions import ValidationError
+        from anyfile_to_ai.llm_client import Message
+        from anyfile_to_ai.llm_client.exceptions import ValidationError
 
         with pytest.raises(ValidationError):
             Message(role="invalid_role", content="Hello")
 
     def test_message_validates_content_not_empty(self):
         """Message validates content is not empty."""
-        from anything_to_ai.llm_client import Message
-        from anything_to_ai.llm_client.exceptions import ValidationError
+        from anyfile_to_ai.llm_client import Message
+        from anyfile_to_ai.llm_client.exceptions import ValidationError
 
         with pytest.raises(ValidationError):
             Message(role="user", content="")
 
     def test_message_is_immutable(self):
         """Message is frozen/immutable after creation."""
-        from anything_to_ai.llm_client import Message
+        from anyfile_to_ai.llm_client import Message
 
         msg = Message(role="user", content="Hello")
 
@@ -168,7 +168,7 @@ class TestLLMRequestModel:
 
     def test_create_request_with_messages(self):
         """LLMRequest can be created with message list."""
-        from anything_to_ai.llm_client import LLMRequest, Message
+        from anyfile_to_ai.llm_client import LLMRequest, Message
 
         request = LLMRequest(
             messages=[
@@ -182,16 +182,16 @@ class TestLLMRequestModel:
 
     def test_request_validates_messages_not_empty(self):
         """LLMRequest validates messages list is not empty."""
-        from anything_to_ai.llm_client import LLMRequest
-        from anything_to_ai.llm_client.exceptions import ValidationError
+        from anyfile_to_ai.llm_client import LLMRequest
+        from anyfile_to_ai.llm_client.exceptions import ValidationError
 
         with pytest.raises(ValidationError):
             LLMRequest(messages=[])
 
     def test_request_validates_temperature_range(self):
         """LLMRequest validates temperature is in valid range."""
-        from anything_to_ai.llm_client import LLMRequest, Message
-        from anything_to_ai.llm_client.exceptions import ValidationError
+        from anyfile_to_ai.llm_client import LLMRequest, Message
+        from anyfile_to_ai.llm_client.exceptions import ValidationError
 
         with pytest.raises(ValidationError):
             LLMRequest(
@@ -201,16 +201,16 @@ class TestLLMRequestModel:
 
     def test_request_validates_max_tokens_positive(self):
         """LLMRequest validates max_tokens is positive if provided."""
-        from anything_to_ai.llm_client import LLMRequest, Message
-        from anything_to_ai.llm_client.exceptions import ValidationError
+        from anyfile_to_ai.llm_client import LLMRequest, Message
+        from anyfile_to_ai.llm_client.exceptions import ValidationError
 
         with pytest.raises(ValidationError):
             LLMRequest(messages=[Message(role="user", content="Hi")], max_tokens=0)
 
     def test_request_requires_user_message(self):
         """LLMRequest validates at least one user message exists."""
-        from anything_to_ai.llm_client import LLMRequest, Message
-        from anything_to_ai.llm_client.exceptions import ValidationError
+        from anyfile_to_ai.llm_client import LLMRequest, Message
+        from anyfile_to_ai.llm_client.exceptions import ValidationError
 
         with pytest.raises(ValidationError):
             LLMRequest(messages=[Message(role="system", content="System prompt only")])
@@ -221,7 +221,7 @@ class TestLLMResponseModel:
 
     def test_response_has_required_fields(self):
         """LLMResponse has all required fields."""
-        from anything_to_ai.llm_client import LLMResponse
+        from anyfile_to_ai.llm_client import LLMResponse
 
         response = LLMResponse(
             content="Generated text",
@@ -240,7 +240,7 @@ class TestLLMResponseModel:
 
     def test_response_is_immutable(self):
         """LLMResponse is frozen/immutable."""
-        from anything_to_ai.llm_client import LLMResponse
+        from anyfile_to_ai.llm_client import LLMResponse
 
         response = LLMResponse(
             content="Text",
@@ -256,7 +256,7 @@ class TestLLMResponseModel:
 
     def test_response_tracks_retry_info(self):
         """LLMResponse tracks retry and fallback information."""
-        from anything_to_ai.llm_client import LLMResponse
+        from anyfile_to_ai.llm_client import LLMResponse
 
         response = LLMResponse(
             content="Text",
@@ -280,7 +280,7 @@ class TestModelInfoModel:
 
     def test_modelinfo_has_required_fields(self):
         """ModelInfo has required fields."""
-        from anything_to_ai.llm_client import ModelInfo
+        from anyfile_to_ai.llm_client import ModelInfo
 
         info = ModelInfo(id="llama2", provider="ollama")
 
@@ -290,7 +290,7 @@ class TestModelInfoModel:
 
     def test_modelinfo_supports_extended_metadata(self):
         """ModelInfo supports extended metadata fields."""
-        from anything_to_ai.llm_client import ModelInfo
+        from anyfile_to_ai.llm_client import ModelInfo
 
         info = ModelInfo(
             id="llama2",

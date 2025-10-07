@@ -54,7 +54,7 @@ class TestBatchAudioProcessing:
 
     def test_batch_process_empty_list(self):
         """Test batch processing with empty file list."""
-        from anything_to_ai.audio_processor import ValidationError
+        from anyfile_to_ai.audio_processor import ValidationError
 
         config = audio_processor.create_config()
 

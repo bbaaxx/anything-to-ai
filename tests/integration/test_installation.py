@@ -26,10 +26,10 @@ def test_package_can_be_built():
 def test_package_structure_exists():
     """Test that package directory structure exists."""
     repo_root = Path(__file__).parent.parent.parent
-    package_dir = repo_root / "anything_to_ai"
+    package_dir = repo_root / "anyfile_to_ai"
 
     # This should fail initially since we haven't moved modules yet
-    assert package_dir.exists(), "anything_to_ai package directory should exist"
+    assert package_dir.exists(), "anyfile_to_ai package directory should exist"
 
     # Check for __init__.py
     init_file = package_dir / "__init__.py"
@@ -39,12 +39,12 @@ def test_package_structure_exists():
 def test_package_importable():
     """Test that package can be imported."""
     try:
-        import anything_to_ai
+        import anyfile_to_ai
 
-        assert hasattr(anything_to_ai, "__version__"), "Package should have __version__ attribute"
+        assert hasattr(anyfile_to_ai, "__version__"), "Package should have __version__ attribute"
     except ImportError as e:
         # This is expected initially since modules aren't moved yet
-        assert "anything_to_ai" in str(e), "Import error should mention anything_to_ai package"
+        assert "anyfile_to_ai" in str(e), "Import error should mention anyfile_to_ai package"
 
 
 def test_pyproject_toml_valid():

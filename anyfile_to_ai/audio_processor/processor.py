@@ -6,19 +6,19 @@ import os
 import time
 from pathlib import Path
 from typing import Any
-from anything_to_ai.audio_processor.models import (
+from anyfile_to_ai.audio_processor.models import (
     AudioDocument,
     TranscriptionResult,
     TranscriptionConfig,
 )
-from anything_to_ai.audio_processor.exceptions import (
+from anyfile_to_ai.audio_processor.exceptions import (
     AudioNotFoundError,
     UnsupportedFormatError,
     CorruptedAudioError,
     DurationExceededError,
     NoSpeechDetectedError,
 )
-from anything_to_ai.audio_processor.model_loader import get_model_loader
+from anyfile_to_ai.audio_processor.model_loader import get_model_loader
 
 
 # Supported audio formats
@@ -173,7 +173,7 @@ def process_audio(file_path: str, config: TranscriptionConfig | None = None) -> 
     """
     # Use default config if not provided
     if config is None:
-        from anything_to_ai.audio_processor.config import create_config
+        from anyfile_to_ai.audio_processor.config import create_config
 
         config = create_config()
 

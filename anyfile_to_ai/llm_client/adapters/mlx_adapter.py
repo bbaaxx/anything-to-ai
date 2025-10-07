@@ -10,14 +10,14 @@ import time
 import uuid
 from pathlib import Path
 
-from anything_to_ai.llm_client.adapters.base import BaseAdapter
-from anything_to_ai.llm_client.exceptions import (
+from anyfile_to_ai.llm_client.adapters.base import BaseAdapter
+from anyfile_to_ai.llm_client.exceptions import (
     ConfigurationError,
     ConnectionError,
     GenerationError,
     ModelNotFoundError,
 )
-from anything_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo
+from anyfile_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo
 
 
 class MLXAdapter(BaseAdapter):
@@ -124,7 +124,7 @@ class MLXAdapter(BaseAdapter):
             ConfigurationError: If no image path found in messages
         """
         try:
-            from anything_to_ai import image_processor
+            from anyfile_to_ai import image_processor
         except ImportError as e:
             raise ConnectionError("image_processor module not available", provider="mlx", original_error=e)
 
@@ -200,7 +200,7 @@ class MLXAdapter(BaseAdapter):
                 return False
 
             # Try to validate model availability
-            from anything_to_ai import image_processor
+            from anyfile_to_ai import image_processor
 
             return image_processor.validate_model_availability(self.vision_model)
         except Exception:

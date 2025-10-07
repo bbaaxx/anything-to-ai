@@ -8,13 +8,13 @@ import uuid
 
 import httpx
 
-from anything_to_ai.llm_client.adapters.base import BaseAdapter
-from anything_to_ai.llm_client.exceptions import (
+from anyfile_to_ai.llm_client.adapters.base import BaseAdapter
+from anyfile_to_ai.llm_client.exceptions import (
     ConnectionError,
     GenerationError,
     TimeoutError,
 )
-from anything_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo, Usage
+from anyfile_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo, Usage
 
 
 class OllamaAdapter(BaseAdapter):

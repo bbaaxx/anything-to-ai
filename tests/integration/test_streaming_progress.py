@@ -14,8 +14,8 @@ class TestStreamingProgress:
     def test_streaming_with_progress_callback(self):
         """Test streaming PDF extraction with progress reporting."""
         try:
-            from anything_to_ai.pdf_extractor.image_integration import PDFImageProcessor
-            from anything_to_ai.pdf_extractor.enhanced_models import (
+            from anyfile_to_ai.pdf_extractor.image_integration import PDFImageProcessor
+            from anyfile_to_ai.pdf_extractor.enhanced_models import (
                 EnhancedExtractionConfig,
             )
 
@@ -44,7 +44,7 @@ class TestProgressReporting:
     def test_image_processing_progress_updates(self):
         """Test that progress is reported during image processing."""
         try:
-            from anything_to_ai.pdf_extractor.cli import CLIProgressReporter
+            from anyfile_to_ai.pdf_extractor.cli import CLIProgressReporter
 
             reporter = CLIProgressReporter()
 

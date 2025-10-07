@@ -1,8 +1,8 @@
 """Contract tests for validate_image() API function."""
 
 import pytest
-from anything_to_ai.image_processor import validate_image, ImageDocument
-from anything_to_ai.image_processor.exceptions import (
+from anyfile_to_ai.image_processor import validate_image, ImageDocument
+from anyfile_to_ai.image_processor.exceptions import (
     ImageNotFoundError,
     UnsupportedFormatError,
     CorruptedImageError,

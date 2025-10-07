@@ -48,10 +48,10 @@ def test_cli_commands_help():
 def test_cli_modules_importable():
     """Test that CLI modules can be imported from package."""
     modules = [
-        "anything_to_ai.pdf_extractor.__main__",
-        "anything_to_ai.image_processor.__main__",
-        "anything_to_ai.audio_processor.__main__",
-        "anything_to_ai.text_summarizer.__main__",
+        "anyfile_to_ai.pdf_extractor.__main__",
+        "anyfile_to_ai.image_processor.__main__",
+        "anyfile_to_ai.audio_processor.__main__",
+        "anyfile_to_ai.text_summarizer.__main__",
     ]
 
     for module in modules:
@@ -60,7 +60,7 @@ def test_cli_modules_importable():
             assert True, f"Module {module} should be importable"
         except ImportError as e:
             # This is expected initially since modules aren't moved yet
-            assert "No module named" in str(e) or "anything_to_ai" in str(e), f"Import error should be about missing package: {e}"
+            assert "No module named" in str(e) or "anyfile_to_ai" in str(e), f"Import error should be about missing package: {e}"
 
 
 def test_cli_entry_point_format():
@@ -93,4 +93,4 @@ def test_cli_entry_point_format():
         # Should follow pattern: command = "package.module:function"
         assert "=" in line, f"Entry point should have '=': {line}"
         assert ":" in line, f"Entry point should have ':': {line}"
-        assert "anything_to_ai." in line, f"Entry point should reference anything_to_ai: {line}"
+        assert "anyfile_to_ai." in line, f"Entry point should reference anyfile_to_ai: {line}"

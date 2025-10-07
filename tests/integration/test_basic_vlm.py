@@ -9,8 +9,8 @@ import tempfile
 from unittest.mock import patch
 from PIL import Image
 
-from anything_to_ai.image_processor import process_image, process_images, create_config
-from anything_to_ai.image_processor.exceptions import ValidationError
+from anyfile_to_ai.image_processor import process_image, process_images, create_config
+from anyfile_to_ai.image_processor.exceptions import ValidationError
 
 
 class TestBasicVLMIntegration:
@@ -196,7 +196,7 @@ class TestBasicVLMIntegration:
         """Test that VLM processing works with streaming interface."""
         # This should FAIL initially - streaming VLM integration not implemented
         with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}):
-            from anything_to_ai.image_processor import process_images_streaming
+            from anyfile_to_ai.image_processor import process_images_streaming
 
             config = create_config(batch_size=1)
 

@@ -11,13 +11,13 @@ class TestAudioModelsContract:
 
     def test_audio_document_class_exists(self):
         """Test that AudioDocument class exists."""
-        from anything_to_ai.audio_processor import AudioDocument
+        from anyfile_to_ai.audio_processor import AudioDocument
 
         assert AudioDocument is not None
 
     def test_audio_document_fields(self):
         """Test that AudioDocument has required fields."""
-        from anything_to_ai.audio_processor import AudioDocument
+        from anyfile_to_ai.audio_processor import AudioDocument
 
         field_names = [f.name for f in fields(AudioDocument)]
         expected_fields = [
@@ -33,13 +33,13 @@ class TestAudioModelsContract:
 
     def test_transcription_result_class_exists(self):
         """Test that TranscriptionResult class exists."""
-        from anything_to_ai.audio_processor import TranscriptionResult
+        from anyfile_to_ai.audio_processor import TranscriptionResult
 
         assert TranscriptionResult is not None
 
     def test_transcription_result_fields(self):
         """Test that TranscriptionResult has required fields."""
-        from anything_to_ai.audio_processor import TranscriptionResult
+        from anyfile_to_ai.audio_processor import TranscriptionResult
 
         field_names = [f.name for f in fields(TranscriptionResult)]
         expected_fields = [
@@ -58,13 +58,13 @@ class TestAudioModelsContract:
 
     def test_transcription_config_class_exists(self):
         """Test that TranscriptionConfig class exists."""
-        from anything_to_ai.audio_processor import TranscriptionConfig
+        from anyfile_to_ai.audio_processor import TranscriptionConfig
 
         assert TranscriptionConfig is not None
 
     def test_transcription_config_fields(self):
         """Test that TranscriptionConfig has required fields."""
-        from anything_to_ai.audio_processor import TranscriptionConfig
+        from anyfile_to_ai.audio_processor import TranscriptionConfig
 
         field_names = [f.name for f in fields(TranscriptionConfig)]
         expected_fields = [
@@ -83,13 +83,13 @@ class TestAudioModelsContract:
 
     def test_processing_result_class_exists(self):
         """Test that ProcessingResult class exists."""
-        from anything_to_ai.audio_processor import ProcessingResult
+        from anyfile_to_ai.audio_processor import ProcessingResult
 
         assert ProcessingResult is not None
 
     def test_processing_result_fields(self):
         """Test that ProcessingResult has required fields."""
-        from anything_to_ai.audio_processor import ProcessingResult
+        from anyfile_to_ai.audio_processor import ProcessingResult
 
         field_names = [f.name for f in fields(ProcessingResult)]
         expected_fields = [
@@ -107,7 +107,7 @@ class TestAudioModelsContract:
 
     def test_audio_document_instantiation(self):
         """Test that AudioDocument can be instantiated."""
-        from anything_to_ai.audio_processor import AudioDocument
+        from anyfile_to_ai.audio_processor import AudioDocument
 
         doc = AudioDocument(
             file_path="/path/to/audio.mp3",
@@ -123,7 +123,7 @@ class TestAudioModelsContract:
 
     def test_transcription_result_instantiation(self):
         """Test that TranscriptionResult can be instantiated."""
-        from anything_to_ai.audio_processor import TranscriptionResult
+        from anyfile_to_ai.audio_processor import TranscriptionResult
 
         result = TranscriptionResult(
             audio_path="/path/to/audio.mp3",
@@ -142,7 +142,7 @@ class TestAudioModelsContract:
 
     def test_transcription_config_instantiation(self):
         """Test that TranscriptionConfig can be instantiated."""
-        from anything_to_ai.audio_processor import TranscriptionConfig
+        from anyfile_to_ai.audio_processor import TranscriptionConfig
 
         config = TranscriptionConfig(
             model="medium",
@@ -161,7 +161,7 @@ class TestAudioModelsContract:
 
     def test_processing_result_instantiation(self):
         """Test that ProcessingResult can be instantiated."""
-        from anything_to_ai.audio_processor import ProcessingResult
+        from anyfile_to_ai.audio_processor import ProcessingResult
 
         result = ProcessingResult(
             success=True,

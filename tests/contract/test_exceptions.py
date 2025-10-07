@@ -1,6 +1,6 @@
 """Contract tests for exception hierarchy."""
 
-from anything_to_ai.image_processor.exceptions import (
+from anyfile_to_ai.image_processor.exceptions import (
     ImageProcessingError,
     ImageNotFoundError,
     UnsupportedFormatError,

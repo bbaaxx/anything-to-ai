@@ -42,7 +42,7 @@ class LLMConfig:
 
     def _validate_provider(self):
         """Validate provider is supported."""
-        from anything_to_ai.llm_client.exceptions import ValidationError
+        from anyfile_to_ai.llm_client.exceptions import ValidationError
 
         valid_providers = [
             Provider.OLLAMA.value,
@@ -54,7 +54,7 @@ class LLMConfig:
 
     def _validate_base_url(self):
         """Validate base_url format."""
-        from anything_to_ai.llm_client.exceptions import ValidationError
+        from anyfile_to_ai.llm_client.exceptions import ValidationError
 
         if not self.base_url:
             raise ValidationError("base_url must not be empty")
@@ -72,7 +72,7 @@ class LLMConfig:
 
     def _validate_numeric_fields(self):
         """Validate numeric configuration fields."""
-        from anything_to_ai.llm_client.exceptions import ValidationError
+        from anyfile_to_ai.llm_client.exceptions import ValidationError
 
         if self.timeout <= 0:
             raise ValidationError(f"timeout must be positive, got {self.timeout}")

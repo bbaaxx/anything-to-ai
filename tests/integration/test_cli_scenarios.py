@@ -5,7 +5,7 @@ import tempfile
 import os
 import json
 from PIL import Image
-from anything_to_ai.image_processor.cli import (
+from anyfile_to_ai.image_processor.cli import (
     main,
     create_cli_parser,
     expand_image_paths,

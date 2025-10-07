@@ -8,7 +8,7 @@ import pytest
 from collections.abc import Iterator
 from unittest.mock import Mock
 
-from anything_to_ai.pdf_extractor.enhanced_models import (
+from anyfile_to_ai.pdf_extractor.enhanced_models import (
     EnhancedExtractionConfig,
     ImageContext,
     EnhancedPageResult,
@@ -223,7 +223,7 @@ class TestPDFImageProcessorInterfaceContract:
         """Test that PDFImageProcessor interface has required methods."""
         # This will fail until PDFImageProcessor is implemented
         try:
-            from anything_to_ai.pdf_extractor.image_integration import PDFImageProcessor
+            from anyfile_to_ai.pdf_extractor.image_integration import PDFImageProcessor
 
             processor = PDFImageProcessor()
             assert hasattr(processor, "extract_with_images")
@@ -246,7 +246,7 @@ class TestPDFImageProcessorInterfaceContract:
     def test_pdf_image_processor_interface_validation(self):
         """Test PDFImageProcessor config validation."""
         try:
-            from anything_to_ai.pdf_extractor.image_integration import PDFImageProcessor
+            from anyfile_to_ai.pdf_extractor.image_integration import PDFImageProcessor
 
             processor = PDFImageProcessor()
             config = EnhancedExtractionConfig()
@@ -269,7 +269,7 @@ class TestImageExtractionInterfaceContract:
     def test_image_extraction_interface_methods(self):
         """Test that image extraction interface has required methods."""
         try:
-            from anything_to_ai.pdf_extractor.image_integration import ImageExtractor
+            from anyfile_to_ai.pdf_extractor.image_integration import ImageExtractor
 
             extractor = ImageExtractor()
             assert hasattr(extractor, "extract_page_images")
@@ -292,7 +292,7 @@ class TestVLMCircuitBreakerInterfaceContract:
     def test_vlm_circuit_breaker_interface_methods(self):
         """Test that VLMCircuitBreaker interface has required methods."""
         try:
-            from anything_to_ai.pdf_extractor.image_integration import VLMCircuitBreaker
+            from anyfile_to_ai.pdf_extractor.image_integration import VLMCircuitBreaker
 
             breaker = VLMCircuitBreaker()
             assert hasattr(breaker, "can_process")
@@ -314,7 +314,7 @@ class TestVLMCircuitBreakerInterfaceContract:
     def test_vlm_circuit_breaker_state_management(self):
         """Test VLMCircuitBreaker state transitions."""
         try:
-            from anything_to_ai.pdf_extractor.image_integration import VLMCircuitBreaker
+            from anyfile_to_ai.pdf_extractor.image_integration import VLMCircuitBreaker
 
             breaker = VLMCircuitBreaker()
 

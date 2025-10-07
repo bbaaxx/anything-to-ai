@@ -82,7 +82,7 @@ class TestOutputFormats:
 
     def test_output_format_validation(self):
         """Test that invalid output format raises error."""
-        from anything_to_ai.audio_processor import ValidationError
+        from anyfile_to_ai.audio_processor import ValidationError
 
         with pytest.raises(ValidationError):
             audio_processor.create_config(output_format="invalid")

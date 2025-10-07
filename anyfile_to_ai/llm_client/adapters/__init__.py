@@ -6,11 +6,11 @@ for a given provider configuration.
 
 from typing import Dict, Type
 
-from anything_to_ai.llm_client.adapters.base import BaseAdapter
-from anything_to_ai.llm_client.adapters.lmstudio_adapter import LMStudioAdapter
-from anything_to_ai.llm_client.adapters.mlx_adapter import MLXAdapter
-from anything_to_ai.llm_client.adapters.ollama_adapter import OllamaAdapter
-from anything_to_ai.llm_client.config import LLMConfig
+from anyfile_to_ai.llm_client.adapters.base import BaseAdapter
+from anyfile_to_ai.llm_client.adapters.lmstudio_adapter import LMStudioAdapter
+from anyfile_to_ai.llm_client.adapters.mlx_adapter import MLXAdapter
+from anyfile_to_ai.llm_client.adapters.ollama_adapter import OllamaAdapter
+from anyfile_to_ai.llm_client.config import LLMConfig
 
 # Registry of provider names to adapter classes
 ADAPTER_REGISTRY: dict[str, type[BaseAdapter]] = {
@@ -32,7 +32,7 @@ def get_adapter(config: LLMConfig) -> BaseAdapter:
     Raises:
         ConfigurationError: If provider is not supported
     """
-    from anything_to_ai.llm_client.exceptions import ConfigurationError
+    from anyfile_to_ai.llm_client.exceptions import ConfigurationError
 
     adapter_class = ADAPTER_REGISTRY.get(config.provider)
 

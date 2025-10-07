@@ -24,7 +24,7 @@ class TestAudioMarkdownContract:
 
     def test_output_starts_with_transcription_heading(self):
         """Assert output starts with '# Transcription:'."""
-        from anything_to_ai.audio_processor.markdown_formatter import format_markdown
+        from anyfile_to_ai.audio_processor.markdown_formatter import format_markdown
 
         result = {
             "filename": "test.mp3",
@@ -39,7 +39,7 @@ class TestAudioMarkdownContract:
 
     def test_metadata_section_present(self):
         """Assert metadata section with Duration, Model, Language."""
-        from anything_to_ai.audio_processor.markdown_formatter import format_markdown
+        from anyfile_to_ai.audio_processor.markdown_formatter import format_markdown
 
         result = {
             "filename": "test.mp3",
@@ -56,7 +56,7 @@ class TestAudioMarkdownContract:
 
     def test_timestamp_speaker_format(self):
         """Assert '## [timestamp] Speaker' format when available."""
-        from anything_to_ai.audio_processor.markdown_formatter import format_markdown
+        from anyfile_to_ai.audio_processor.markdown_formatter import format_markdown
 
         result = {
             "filename": "test.mp3",
@@ -81,7 +81,7 @@ class TestAudioMarkdownContract:
 
     def test_fallback_no_speakers(self):
         """Test fallback: no speakers/timestamps → plain paragraphs."""
-        from anything_to_ai.audio_processor.markdown_formatter import format_markdown
+        from anyfile_to_ai.audio_processor.markdown_formatter import format_markdown
 
         result = {
             "filename": "test.mp3",
@@ -103,7 +103,7 @@ class TestAudioMarkdownContract:
 
     def test_special_characters_not_escaped(self):
         """Test special characters in transcript are not escaped."""
-        from anything_to_ai.audio_processor.markdown_formatter import format_markdown
+        from anyfile_to_ai.audio_processor.markdown_formatter import format_markdown
 
         result = {
             "filename": "test.mp3",

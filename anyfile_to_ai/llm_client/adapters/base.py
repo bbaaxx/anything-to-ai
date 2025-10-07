@@ -5,8 +5,8 @@ This module defines the abstract base class that all provider adapters must impl
 
 from abc import ABC, abstractmethod
 
-from anything_to_ai.llm_client.config import LLMConfig
-from anything_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo
+from anyfile_to_ai.llm_client.config import LLMConfig
+from anyfile_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo
 
 
 class BaseAdapter(ABC):

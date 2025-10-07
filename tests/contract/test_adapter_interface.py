@@ -47,7 +47,7 @@ class TestAdapterInterface:
 
     def test_adapter_has_required_methods(self):
         """Base adapter defines required interface methods."""
-        from anything_to_ai.llm_client.adapters.base import BaseAdapter
+        from anyfile_to_ai.llm_client.adapters.base import BaseAdapter
 
         # Check required methods exist
         assert hasattr(BaseAdapter, "generate")
@@ -56,8 +56,8 @@ class TestAdapterInterface:
 
     def test_adapter_generate_is_abstract(self):
         """Base adapter generate method is abstract."""
-        from anything_to_ai.llm_client.adapters.base import BaseAdapter
-        from anything_to_ai.llm_client import LLMConfig
+        from anyfile_to_ai.llm_client.adapters.base import BaseAdapter
+        from anyfile_to_ai.llm_client import LLMConfig
 
         config = LLMConfig(provider="ollama", base_url="http://localhost")
 
@@ -67,8 +67,8 @@ class TestAdapterInterface:
 
     def test_adapter_receives_config(self):
         """Adapter is initialized with LLMConfig."""
-        from anything_to_ai.llm_client.adapters.ollama_adapter import OllamaAdapter
-        from anything_to_ai.llm_client import LLMConfig
+        from anyfile_to_ai.llm_client.adapters.ollama_adapter import OllamaAdapter
+        from anyfile_to_ai.llm_client import LLMConfig
 
         config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
 
@@ -86,8 +86,8 @@ class TestOllamaAdapter:
 
     def test_ollama_adapter_can_generate(self):
         """Ollama adapter can generate completions."""
-        from anything_to_ai.llm_client.adapters.ollama_adapter import OllamaAdapter
-        from anything_to_ai.llm_client import LLMConfig, LLMRequest, Message
+        from anyfile_to_ai.llm_client.adapters.ollama_adapter import OllamaAdapter
+        from anyfile_to_ai.llm_client import LLMConfig, LLMRequest, Message
 
         config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
         adapter = OllamaAdapter(config)
@@ -102,8 +102,8 @@ class TestOllamaAdapter:
 
     def test_ollama_adapter_can_list_models(self):
         """Ollama adapter can list available models."""
-        from anything_to_ai.llm_client.adapters.ollama_adapter import OllamaAdapter
-        from anything_to_ai.llm_client import LLMConfig, ModelInfo
+        from anyfile_to_ai.llm_client.adapters.ollama_adapter import OllamaAdapter
+        from anyfile_to_ai.llm_client import LLMConfig, ModelInfo
 
         config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
         adapter = OllamaAdapter(config)
@@ -116,8 +116,8 @@ class TestOllamaAdapter:
 
     def test_ollama_adapter_health_check(self):
         """Ollama adapter can check service health."""
-        from anything_to_ai.llm_client.adapters.ollama_adapter import OllamaAdapter
-        from anything_to_ai.llm_client import LLMConfig
+        from anyfile_to_ai.llm_client.adapters.ollama_adapter import OllamaAdapter
+        from anyfile_to_ai.llm_client import LLMConfig
 
         config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
         adapter = OllamaAdapter(config)
@@ -136,8 +136,8 @@ class TestLMStudioAdapter:
 
     def test_lmstudio_adapter_can_generate(self):
         """LM Studio adapter can generate completions."""
-        from anything_to_ai.llm_client.adapters.lmstudio_adapter import LMStudioAdapter
-        from anything_to_ai.llm_client import LLMConfig, LLMRequest, Message
+        from anyfile_to_ai.llm_client.adapters.lmstudio_adapter import LMStudioAdapter
+        from anyfile_to_ai.llm_client import LLMConfig, LLMRequest, Message
 
         config = LLMConfig(provider="lmstudio", base_url="http://localhost:1234")
         adapter = LMStudioAdapter(config)
@@ -155,8 +155,8 @@ class TestLMStudioAdapter:
 
     def test_lmstudio_adapter_can_list_models(self):
         """LM Studio adapter can list available models."""
-        from anything_to_ai.llm_client.adapters.lmstudio_adapter import LMStudioAdapter
-        from anything_to_ai.llm_client import LLMConfig, ModelInfo
+        from anyfile_to_ai.llm_client.adapters.lmstudio_adapter import LMStudioAdapter
+        from anyfile_to_ai.llm_client import LLMConfig, ModelInfo
 
         config = LLMConfig(provider="lmstudio", base_url="http://localhost:1234")
         adapter = LMStudioAdapter(config)
@@ -169,8 +169,8 @@ class TestLMStudioAdapter:
 
     def test_lmstudio_supports_authentication(self):
         """LM Studio adapter supports API key authentication."""
-        from anything_to_ai.llm_client.adapters.lmstudio_adapter import LMStudioAdapter
-        from anything_to_ai.llm_client import LLMConfig
+        from anyfile_to_ai.llm_client.adapters.lmstudio_adapter import LMStudioAdapter
+        from anyfile_to_ai.llm_client import LLMConfig
 
         config = LLMConfig(provider="lmstudio", base_url="http://localhost:1234", api_key="test-key")
         adapter = LMStudioAdapter(config)
@@ -184,8 +184,8 @@ class TestMLXAdapter:
 
     def test_mlx_adapter_can_generate(self):
         """MLX adapter can generate completions."""
-        from anything_to_ai.llm_client.adapters.mlx_adapter import MLXAdapter
-        from anything_to_ai.llm_client import LLMConfig, LLMRequest, Message
+        from anyfile_to_ai.llm_client.adapters.mlx_adapter import MLXAdapter
+        from anyfile_to_ai.llm_client import LLMConfig, LLMRequest, Message
 
         config = LLMConfig(
             provider="mlx",
@@ -203,8 +203,8 @@ class TestMLXAdapter:
 
     def test_mlx_adapter_wraps_existing_vlm(self):
         """MLX adapter wraps existing mlx-vlm functionality."""
-        from anything_to_ai.llm_client.adapters.mlx_adapter import MLXAdapter
-        from anything_to_ai.llm_client import LLMConfig
+        from anyfile_to_ai.llm_client.adapters.mlx_adapter import MLXAdapter
+        from anyfile_to_ai.llm_client import LLMConfig
 
         config = LLMConfig(provider="mlx", base_url="local")
         adapter = MLXAdapter(config)
@@ -214,8 +214,8 @@ class TestMLXAdapter:
 
     def test_mlx_adapter_maintains_compatibility(self):
         """MLX adapter maintains compatibility with image_processor."""
-        from anything_to_ai.llm_client.adapters.mlx_adapter import MLXAdapter
-        from anything_to_ai.llm_client import LLMConfig
+        from anyfile_to_ai.llm_client.adapters.mlx_adapter import MLXAdapter
+        from anyfile_to_ai.llm_client import LLMConfig
         import os
 
         # Should respect VISION_MODEL environment variable
@@ -233,8 +233,8 @@ class TestAdapterFactory:
 
     def test_get_adapter_for_provider(self):
         """Factory can create adapter for provider."""
-        from anything_to_ai.llm_client.adapters import get_adapter
-        from anything_to_ai.llm_client import LLMConfig
+        from anyfile_to_ai.llm_client.adapters import get_adapter
+        from anyfile_to_ai.llm_client import LLMConfig
 
         config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
         adapter = get_adapter(config)
@@ -244,8 +244,8 @@ class TestAdapterFactory:
 
     def test_get_adapter_raises_for_unknown_provider(self):
         """Factory raises error for unknown provider."""
-        from anything_to_ai.llm_client.exceptions import ValidationError
-        from anything_to_ai.llm_client import LLMConfig
+        from anyfile_to_ai.llm_client.exceptions import ValidationError
+        from anyfile_to_ai.llm_client import LLMConfig
 
         # ValidationError will be raised during config creation for invalid provider
         with pytest.raises(ValidationError):
@@ -253,7 +253,7 @@ class TestAdapterFactory:
 
     def test_adapter_registry_has_all_providers(self):
         """Adapter registry includes all supported providers."""
-        from anything_to_ai.llm_client.adapters import ADAPTER_REGISTRY
+        from anyfile_to_ai.llm_client.adapters import ADAPTER_REGISTRY
 
         assert "ollama" in ADAPTER_REGISTRY
         assert "lmstudio" in ADAPTER_REGISTRY

@@ -4,7 +4,7 @@ Tests FR-019, FR-020: Public API functions and configuration factory.
 """
 
 import inspect
-from anything_to_ai import audio_processor
+from anyfile_to_ai import audio_processor
 
 
 class TestAudioModuleAPIContract:

@@ -4,9 +4,9 @@ This module provides a unified interface for interacting with multiple LLM servi
 providers including Ollama, LM Studio, and MLX-optimized models.
 """
 
-from anything_to_ai.llm_client.client import LLMClient
-from anything_to_ai.llm_client.config import LLMConfig, Provider
-from anything_to_ai.llm_client.exceptions import (
+from anyfile_to_ai.llm_client.client import LLMClient
+from anyfile_to_ai.llm_client.config import LLMConfig, Provider
+from anyfile_to_ai.llm_client.exceptions import (
     AuthenticationError,
     ConfigurationError,
     ConnectionError,
@@ -17,7 +17,7 @@ from anything_to_ai.llm_client.exceptions import (
     TimeoutError,
     ValidationError,
 )
-from anything_to_ai.llm_client.models import (
+from anyfile_to_ai.llm_client.models import (
     FinishReason,
     LLMRequest,
     LLMResponse,

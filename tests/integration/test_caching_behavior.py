@@ -6,7 +6,7 @@ Requires Ollama or LM Studio running.
 
 import time
 import pytest
-from anything_to_ai.llm_client import LLMClient, LLMConfig
+from anyfile_to_ai.llm_client import LLMClient, LLMConfig
 
 
 def check_service_available() -> bool:

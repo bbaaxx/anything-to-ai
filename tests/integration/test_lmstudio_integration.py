@@ -6,7 +6,7 @@ Skip if service is unavailable.
 
 import os
 import pytest
-from anything_to_ai.llm_client import (
+from anyfile_to_ai.llm_client import (
     LLMClient,
     LLMConfig,
     LLMRequest,
@@ -14,7 +14,7 @@ from anything_to_ai.llm_client import (
     Message,
     ModelInfo,
 )
-from anything_to_ai.llm_client.exceptions import (
+from anyfile_to_ai.llm_client.exceptions import (
     ConnectionError as LLMConnectionError,
     AuthenticationError,
 )

@@ -42,7 +42,7 @@ class CLICommands:
             return None
 
         try:
-            from anything_to_ai.progress_tracker import (
+            from anyfile_to_ai.progress_tracker import (
                 ProgressEmitter,
                 CLIProgressConsumer,
             )
@@ -57,7 +57,7 @@ class CLICommands:
     def _create_image_config(image_style: str):
         """Create image processing configuration."""
         try:
-            from anything_to_ai.image_processor.config import ProcessingConfig
+            from anyfile_to_ai.image_processor.config import ProcessingConfig
 
             return ProcessingConfig(style=image_style)
         except ImportError:

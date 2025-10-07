@@ -5,10 +5,10 @@ Command-line interface for audio transcription.
 import sys
 import json
 import argparse
-from anything_to_ai.audio_processor.config import create_config
-from anything_to_ai.audio_processor.streaming import process_audio_batch
-from anything_to_ai.audio_processor.models import ProcessingResult
-from anything_to_ai.audio_processor.exceptions import AudioProcessingError
+from anyfile_to_ai.audio_processor.config import create_config
+from anyfile_to_ai.audio_processor.streaming import process_audio_batch
+from anyfile_to_ai.audio_processor.models import ProcessingResult
+from anyfile_to_ai.audio_processor.exceptions import AudioProcessingError
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -145,7 +145,7 @@ def format_markdown_output(result: ProcessingResult) -> str:
         str: Formatted markdown output
     """
     import os
-    from anything_to_ai.audio_processor.markdown_formatter import format_markdown
+    from anyfile_to_ai.audio_processor.markdown_formatter import format_markdown
 
     # Format each successful transcription as markdown
     if result.successful_count == 0:

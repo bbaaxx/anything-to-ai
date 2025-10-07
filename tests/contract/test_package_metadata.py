@@ -13,7 +13,7 @@ def test_package_metadata_exists():
 
     # Check for required sections
     assert "[project]" in content, "pyproject.toml should have [project] section"
-    assert 'name = "anything_to_ai"' in content, "Package name should be anything_to_ai"
+    assert 'name = "anyfile_to_ai"' in content, "Package name should be anyfile_to_ai"
     assert "version =" in content, "Version should be specified"
     assert 'requires-python = ">=3.11"' in content, "Should require Python 3.11+"
     assert "authors =" in content, "Authors should be specified"
@@ -27,7 +27,7 @@ def test_package_metadata_contract():
     content = pyproject_path.read_text()
 
     # Validate specific contract requirements
-    assert 'name = "anything_to_ai"' in content
+    assert 'name = "anyfile_to_ai"' in content
     assert "description =" in content
     assert 'readme = "README.md"' in content
     assert "license =" in content

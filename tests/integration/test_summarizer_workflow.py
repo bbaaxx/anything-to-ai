@@ -112,7 +112,7 @@ class TestModulePiping:
 
     @pytest.mark.skipif(
         subprocess.run(
-            [sys.executable, "-c", "import anything_to_ai.pdf_extractor"],
+            [sys.executable, "-c", "import anyfile_to_ai.pdf_extractor"],
             check=False,
             capture_output=True,
         ).returncode
@@ -125,7 +125,7 @@ class TestModulePiping:
 
     @pytest.mark.skipif(
         subprocess.run(
-            [sys.executable, "-c", "import anything_to_ai.audio_processor"],
+            [sys.executable, "-c", "import anyfile_to_ai.audio_processor"],
             check=False,
             capture_output=True,
         ).returncode
@@ -138,7 +138,7 @@ class TestModulePiping:
 
     @pytest.mark.skipif(
         subprocess.run(
-            [sys.executable, "-c", "import anything_to_ai.image_processor"],
+            [sys.executable, "-c", "import anyfile_to_ai.image_processor"],
             check=False,
             capture_output=True,
         ).returncode

@@ -1,7 +1,7 @@
 """Markdown formatting for PDF extraction results."""
 
 from typing import Any
-from anything_to_ai.pdf_extractor.models import ExtractionResult
+from anyfile_to_ai.pdf_extractor.models import ExtractionResult
 
 
 def format_markdown(result: dict[str, Any]) -> str:

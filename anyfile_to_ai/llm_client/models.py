@@ -38,11 +38,11 @@ class Message:
             MessageRole.USER.value,
             MessageRole.ASSISTANT.value,
         ]:
-            from anything_to_ai.llm_client.exceptions import ValidationError
+            from anyfile_to_ai.llm_client.exceptions import ValidationError
 
             raise ValidationError(f"Invalid message role: {self.role}. Must be one of: system, user, assistant")
         if not self.content or not self.content.strip():
-            from anything_to_ai.llm_client.exceptions import ValidationError
+            from anyfile_to_ai.llm_client.exceptions import ValidationError
 
             raise ValidationError("Message content must not be empty")
 
@@ -58,7 +58,7 @@ class Usage:
     def __post_init__(self):
         """Validate usage statistics."""
         if self.prompt_tokens < 0 or self.completion_tokens < 0 or self.total_tokens < 0:
-            from anything_to_ai.llm_client.exceptions import ValidationError
+            from anyfile_to_ai.llm_client.exceptions import ValidationError
 
             raise ValidationError("Token counts must be non-negative")
 
@@ -78,11 +78,11 @@ class ModelInfo:
     def __post_init__(self):
         """Validate model info."""
         if not self.id:
-            from anything_to_ai.llm_client.exceptions import ValidationError
+            from anyfile_to_ai.llm_client.exceptions import ValidationError
 
             raise ValidationError("Model id must not be empty")
         if self.context_length is not None and self.context_length <= 0:
-            from anything_to_ai.llm_client.exceptions import ValidationError
+            from anyfile_to_ai.llm_client.exceptions import ValidationError
 
             raise ValidationError("Context length must be positive")
 
@@ -101,7 +101,7 @@ class LLMRequest:
 
     def __post_init__(self):
         """Validate request after initialization."""
-        from anything_to_ai.llm_client.exceptions import ValidationError
+        from anyfile_to_ai.llm_client.exceptions import ValidationError
 
         if not self.messages:
             raise ValidationError("Messages list must not be empty")
@@ -138,16 +138,16 @@ class LLMResponse:
             FinishReason.LENGTH.value,
             FinishReason.ERROR.value,
         ]:
-            from anything_to_ai.llm_client.exceptions import ValidationError
+            from anyfile_to_ai.llm_client.exceptions import ValidationError
 
             raise ValidationError(f"Invalid finish_reason: {self.finish_reason}")
 
         if self.latency_ms < 0:
-            from anything_to_ai.llm_client.exceptions import ValidationError
+            from anyfile_to_ai.llm_client.exceptions import ValidationError
 
             raise ValidationError("Latency must be non-negative")
 
         if self.retry_count < 0:
-            from anything_to_ai.llm_client.exceptions import ValidationError
+            from anyfile_to_ai.llm_client.exceptions import ValidationError
 
             raise ValidationError("Retry count must be non-negative")

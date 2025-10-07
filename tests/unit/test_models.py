@@ -1,6 +1,6 @@
 """Unit tests for model validation."""
 
-from anything_to_ai.image_processor.models import (
+from anyfile_to_ai.image_processor.models import (
     ImageDocument,
     DescriptionResult,
     ProcessingResult,

@@ -24,7 +24,7 @@ class TestImageMarkdownContract:
 
     def test_output_starts_with_heading(self):
         """Assert output starts with '# Image Descriptions'."""
-        from anything_to_ai.image_processor.markdown_formatter import format_markdown
+        from anyfile_to_ai.image_processor.markdown_formatter import format_markdown
 
         results = [
             {
@@ -39,7 +39,7 @@ class TestImageMarkdownContract:
 
     def test_contains_markdown_image_syntax(self):
         """Assert contains '![alt](path)' markdown image syntax."""
-        from anything_to_ai.image_processor.markdown_formatter import format_markdown
+        from anyfile_to_ai.image_processor.markdown_formatter import format_markdown
 
         results = [
             {
@@ -56,7 +56,7 @@ class TestImageMarkdownContract:
 
     def test_each_image_has_section(self):
         """Verify each image has '## filename' section."""
-        from anything_to_ai.image_processor.markdown_formatter import format_markdown
+        from anyfile_to_ai.image_processor.markdown_formatter import format_markdown
 
         results = [
             {
@@ -79,7 +79,7 @@ class TestImageMarkdownContract:
 
     def test_vlm_failure_fallback(self):
         """Test VLM failure fallback: generic 'Description unavailable'."""
-        from anything_to_ai.image_processor.markdown_formatter import format_markdown
+        from anyfile_to_ai.image_processor.markdown_formatter import format_markdown
 
         results = [
             {
@@ -96,7 +96,7 @@ class TestImageMarkdownContract:
 
     def test_special_characters_not_escaped(self):
         """Test special characters in descriptions are not escaped."""
-        from anything_to_ai.image_processor.markdown_formatter import format_markdown
+        from anyfile_to_ai.image_processor.markdown_formatter import format_markdown
 
         results = [
             {

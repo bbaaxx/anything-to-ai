@@ -1,12 +1,12 @@
 """Contract tests for PDF extractor API interface."""
 
 import pytest
-from anything_to_ai.pdf_extractor import (
+from anyfile_to_ai.pdf_extractor import (
     extract_text,
     extract_text_streaming,
     get_pdf_info,
 )
-from anything_to_ai.pdf_extractor import ExtractionConfig, ExtractionResult, PageResult
+from anyfile_to_ai.pdf_extractor import ExtractionConfig, ExtractionResult, PageResult
 
 
 class TestExtractTextContract:
@@ -30,7 +30,7 @@ class TestExtractTextContract:
 
     def test_extract_text_raises_pdf_not_found_error(self):
         """Test extract_text() raises PDFNotFoundError for missing file."""
-        from anything_to_ai.pdf_extractor.exceptions import PDFNotFoundError
+        from anyfile_to_ai.pdf_extractor.exceptions import PDFNotFoundError
 
         with pytest.raises(PDFNotFoundError):
             extract_text("nonexistent.pdf")
