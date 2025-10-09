@@ -77,7 +77,7 @@ def process_audio_batch(file_paths: list[str], config: TranscriptionConfig | Non
             error_counts[error_type] += 1
 
         # Update progress
-        progress.update()
+        progress.increment()
 
     # Calculate statistics
     total_processing_time = time.time() - start_time

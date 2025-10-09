@@ -91,9 +91,16 @@ class VLMProcessor:
 
                 return img
         except Exception as e:
-            raise ProcessingError(image_document.file_path, f"Preprocessing failed: {e}")
+            raise ProcessingError(
+                image_document.file_path,
+                f"Preprocessing failed: {e}",
+            )
 
-    def process_single_image(self, image_document: ImageDocument, config: ProcessingConfig) -> DescriptionResult:
+    def process_single_image(
+        self,
+        image_document: ImageDocument,
+        config: ProcessingConfig,
+    ) -> DescriptionResult:
         """Process single image with VLM."""
         start_time = time.time()
 
@@ -113,7 +120,16 @@ class VLMProcessor:
             prompt = config.prompt_template.format(style=config.description_style)
 
             # Process with real VLM
-            vlm_result = self._vlm_processor.process_image_with_vlm(image_document.file_path, prompt, vlm_config)
+            vlm_result = self._vlm_processor.process_image_with_vlm(
+                image_document.file_path,
+                prompt,
+                vlm_config,
+            )
+
+            # Apply max_description_length limit
+            description = vlm_result["description"]
+            if len(description) > config.max_description_length:
+                description = description[: config.max_description_length].rstrip()
 
             # Create technical metadata
             technical_metadata = self._create_technical_metadata(image_document)
@@ -122,11 +138,14 @@ class VLMProcessor:
 
             # Check timeout
             if processing_time > config.timeout_seconds:
-                raise ProcessingTimeoutError(image_document.file_path, config.timeout_seconds)
+                raise ProcessingTimeoutError(
+                    image_document.file_path,
+                    config.timeout_seconds,
+                )
 
             return DescriptionResult(
                 image_path=image_document.file_path,
-                description=vlm_result["description"],
+                description=description,
                 confidence_score=vlm_result.get("confidence_score"),
                 processing_time=processing_time,
                 model_used=vlm_result["model_info"]["name"],
@@ -149,9 +168,18 @@ class VLMProcessor:
 
     def _create_technical_metadata(self, image_doc: ImageDocument) -> dict[str, Any]:
         """Create technical metadata from image document."""
-        return {"format": image_doc.format, "dimensions": [image_doc.width, image_doc.height], "file_size": image_doc.file_size, "is_large_image": image_doc.is_large_image}
+        return {
+            "format": image_doc.format,
+            "dimensions": [image_doc.width, image_doc.height],
+            "file_size": image_doc.file_size,
+            "is_large_image": image_doc.is_large_image,
+        }
 
-    def process_with_vlm(self, image_path: str, config: ProcessingConfig) -> DescriptionResult:
+    def process_with_vlm(
+        self,
+        image_path: str,
+        config: ProcessingConfig,
+    ) -> DescriptionResult:
         """Public method to process image with VLM (for backward compatibility)."""
         image_doc = self.validate_image(image_path)
         return self.process_single_image(image_doc, config)

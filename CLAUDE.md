@@ -3,6 +3,8 @@
 Auto-generated from all feature plans. Last updated: 2025-09-28
 
 ## Active Technologies
+- Python 3.13 (per project requirements) + lightning-whisper-mlx (audio transcription with MLX optimization), existing audio_processor modules (models, processor, cli, formatters) (014-timestamp-support-for)
+- N/A (in-memory processing, no persistent storage) (014-timestamp-support-for)
 
 - Python 3.11+ (per clarifications) + setuptools, wheel, build (packaging tools); existing module dependencies (pdfplumber, mlx-vlm, lightning-whisper-mlx, etc.) (012-prepare-this-repository)
 - File system only (package distribution files) (012-prepare-this-repository)
@@ -92,11 +94,11 @@ uv run python -m text_summarizer article.txt --format markdown
 Python 3.8+ (for compatibility with standard library features): Follow standard conventions
 
 ## Recent Changes
+- 014-timestamp-support-for: Added Python 3.13 (per project requirements) + lightning-whisper-mlx (audio transcription with MLX optimization), existing audio_processor modules (models, processor, cli, formatters)
 
 - 012-prepare-this-repository: Added Python 3.11+ (per clarifications) + setuptools, wheel, build (packaging tools); existing module dependencies (pdfplumber, mlx-vlm, lightning-whisper-mlx, etc.)
 
 - 011-mkdn-markdown-output: Added Python 3.13 + pdfplumber (PDF), mlx-vlm (VLM), Pillow (images), lightning-whisper-mlx (audio), alive-progress (CLI), httpx (LLM client)
-- 010-unify-progress-bars: Added Python 3.13 + alive-progress (CLI rendering), asyncio (async support), dataclasses (models)
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

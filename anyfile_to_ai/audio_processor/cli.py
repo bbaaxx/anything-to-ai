@@ -11,7 +11,7 @@ from anyfile_to_ai.audio_processor.models import ProcessingResult
 from anyfile_to_ai.audio_processor.exceptions import AudioProcessingError
 
 
-def create_parser() -> argparse.ArgumentParser:
+def create_cli_parser() -> argparse.ArgumentParser:
     """
     Create CLI argument parser.
 
@@ -94,7 +94,14 @@ def create_parser() -> argparse.ArgumentParser:
     # Quiet
     parser.add_argument("--quiet", action="store_true", help="Suppress all output except results")
 
+    # Timestamps
+    parser.add_argument("--timestamps", action="store_true", help="Include timestamps in transcription output (segment-level)")
+
     return parser
+
+
+# Alias for backward compatibility
+create_parser = create_cli_parser
 
 
 def format_plain_output(result: ProcessingResult, verbose: bool = False) -> str:
@@ -120,7 +127,13 @@ def format_plain_output(result: ProcessingResult, verbose: bool = False) -> str:
     for r in result.results:
         if r.success:
             lines.append(f"✓ {r.audio_path}")
-            lines.append(f"   {r.text}")
+            # Use segments if available, otherwise plain text
+            if r.segments:
+                from anyfile_to_ai.audio_processor.markdown_formatter import format_segments_markdown
+
+                lines.append(format_segments_markdown(r.segments))
+            else:
+                lines.append(f"   {r.text}")
             if verbose:
                 details = f"   Duration: {r.processing_time:.1f}s, Model: {r.model_used} ({r.quantization})"
                 if r.detected_language:
@@ -154,6 +167,11 @@ def format_markdown_output(result: ProcessingResult) -> str:
     # For single file, format directly
     if result.successful_count == 1:
         r = next(r for r in result.results if r.success)
+        # Use actual segments if available
+        if r.segments:
+            from anyfile_to_ai.audio_processor.markdown_formatter import format_segments_markdown
+
+            return format_segments_markdown(r.segments)
         result_dict = {
             "filename": os.path.basename(r.audio_path),
             "duration": r.processing_time,
@@ -167,15 +185,24 @@ def format_markdown_output(result: ProcessingResult) -> str:
     lines = ["# Audio Transcriptions", ""]
     for r in result.results:
         if r.success:
-            result_dict = {
-                "filename": os.path.basename(r.audio_path),
-                "duration": r.processing_time,
-                "model": r.model_used,
-                "language": r.detected_language or "unknown",
-                "segments": [{"start": 0.0, "end": r.processing_time, "text": r.text}],
-            }
-            lines.append(format_markdown(result_dict))
-            lines.append("")
+            # Use actual segments if available
+            if r.segments:
+                from anyfile_to_ai.audio_processor.markdown_formatter import format_segments_markdown
+
+                lines.append(f"## {os.path.basename(r.audio_path)}")
+                lines.append("")
+                lines.append(format_segments_markdown(r.segments))
+                lines.append("")
+            else:
+                result_dict = {
+                    "filename": os.path.basename(r.audio_path),
+                    "duration": r.processing_time,
+                    "model": r.model_used,
+                    "language": r.detected_language or "unknown",
+                    "segments": [{"start": 0.0, "end": r.processing_time, "text": r.text}],
+                }
+                lines.append(format_markdown(result_dict))
+                lines.append("")
 
     return "\n".join(lines)
 
@@ -190,6 +217,25 @@ def format_json_output(result: ProcessingResult) -> str:
     Returns:
         str: Formatted JSON output
     """
+
+    # Helper function to convert result to dict
+    def result_to_dict(r):
+        result_dict = {
+            "audio_path": r.audio_path,
+            "text": r.text,
+            "confidence_score": r.confidence_score,
+            "processing_time": r.processing_time,
+            "model_used": r.model_used,
+            "quantization": r.quantization,
+            "detected_language": r.detected_language,
+            "success": r.success,
+            "error_message": r.error_message,
+        }
+        # Add segments if available
+        if r.segments:
+            result_dict["segments"] = [{"start": seg.start, "end": seg.end, "text": seg.text} for seg in r.segments]
+        return result_dict
+
     output_dict = {
         "success": result.success,
         "total_files": result.total_files,
@@ -197,20 +243,7 @@ def format_json_output(result: ProcessingResult) -> str:
         "failed_count": result.failed_count,
         "total_processing_time": result.total_processing_time,
         "average_processing_time": result.average_processing_time,
-        "results": [
-            {
-                "audio_path": r.audio_path,
-                "text": r.text,
-                "confidence_score": r.confidence_score,
-                "processing_time": r.processing_time,
-                "model_used": r.model_used,
-                "quantization": r.quantization,
-                "detected_language": r.detected_language,
-                "success": r.success,
-                "error_message": r.error_message,
-            }
-            for r in result.results
-        ],
+        "results": [result_to_dict(r) for r in result.results],
         "error_summary": result.error_summary,
     }
 
@@ -242,6 +275,7 @@ def _create_config_from_args(parsed_args, progress_callback):
         timeout_seconds=parsed_args.timeout,
         progress_callback=progress_callback,
         verbose=parsed_args.verbose,
+        timestamps=parsed_args.timestamps,
     )
 
 

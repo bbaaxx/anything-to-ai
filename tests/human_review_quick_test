@@ -85,17 +85,45 @@ echo "----------------------------------------"
 # Test with sample audio files
 if ls "$SAMPLE_DIR/audio/"*.mp3 >/dev/null 2>&1; then
     run_test "Audio transcription (podcast.mp3)" \
-        "python -m audio_processor.cli \"$SAMPLE_DIR/audio/podcast.mp3\" --format plain --quiet"
+        "python -m anyfile_to_ai.audio_processor \"$SAMPLE_DIR/audio/podcast.mp3\" --format plain --quiet"
 
     run_test "Audio transcription with markdown output" \
-        "python -m audio_processor.cli \"$SAMPLE_DIR/audio/podcast.mp3\" --format markdown --quiet --output ./tmp/audio_test.md"
+        "python -m anyfile_to_ai.audio_processor \"$SAMPLE_DIR/audio/podcast.mp3\" --format markdown --quiet --output ./tmp/audio_test.md"
 
     run_test "Audio transcription with JSON output" \
-        "python -m audio_processor.cli \"$SAMPLE_DIR/audio/podcast.mp3\" --format json --quiet --output ./tmp/audio_test.json"
+        "python -m anyfile_to_ai.audio_processor \"$SAMPLE_DIR/audio/podcast.mp3\" --format json --quiet --output ./tmp/audio_test.json"
+
+    # Test timestamp feature
+    run_test "Audio transcription with timestamps (markdown)" \
+        "python -m anyfile_to_ai.audio_processor \"$SAMPLE_DIR/audio/podcast.mp3\" --timestamps --format markdown --quiet --output ./tmp/audio_timestamps.md"
+
+    run_test "Audio transcription with timestamps (JSON)" \
+        "python -m anyfile_to_ai.audio_processor \"$SAMPLE_DIR/audio/podcast.mp3\" --timestamps --format json --quiet --output ./tmp/audio_timestamps.json"
+
+    run_test "Audio transcription with timestamps (plain)" \
+        "python -m anyfile_to_ai.audio_processor \"$SAMPLE_DIR/audio/podcast.mp3\" --timestamps --format plain --quiet --output ./tmp/audio_timestamps.txt"
+
+    # Verify timestamps are present in JSON output
+    if [ -f "./tmp/audio_timestamps.json" ]; then
+        if grep -q '"segments"' ./tmp/audio_timestamps.json; then
+            success "Timestamp validation: segments field found in JSON output"
+        else
+            warning "Timestamp validation: segments field NOT found in JSON output"
+        fi
+    fi
+
+    # Verify timestamps are present in markdown output (should have [HH:MM:SS.CC] format)
+    if [ -f "./tmp/audio_timestamps.md" ]; then
+        if grep -q '\[00:' ./tmp/audio_timestamps.md; then
+            success "Timestamp validation: timestamp markers found in markdown output"
+        else
+            warning "Timestamp validation: timestamp markers NOT found in markdown output"
+        fi
+    fi
 
     # Test with silence file (should still work)
     run_test "Audio transcription (silence.mp3)" \
-        "python -m audio_processor.cli \"$SAMPLE_DIR/audio/silence.mp3\" --format plain --quiet"
+        "python -m anyfile_to_ai.audio_processor \"$SAMPLE_DIR/audio/silence.mp3\" --format plain --quiet"
 else
     warning "No audio files found in $SAMPLE_DIR/audio/"
 fi
@@ -123,13 +151,13 @@ if [ -n "$VISION_MODEL" ]; then
 
         if [ -n "$TEST_IMAGE" ]; then
             run_test "Image description (single image)" \
-                "python -m image_processor.cli \"$TEST_IMAGE\" --style brief --quiet"
+                "python -m anyfile_to_ai.image_processor \"$TEST_IMAGE\" --style brief --quiet"
 
             run_test "Image description with detailed style" \
-                "python -m image_processor.cli \"$TEST_IMAGE\" --style detailed --quiet --output ./tmp/image_test.txt"
+                "python -m anyfile_to_ai.image_processor \"$TEST_IMAGE\" --style detailed --quiet --output ./tmp/image_test.txt"
 
             run_test "Image description with JSON output" \
-                "python -m image_processor.cli \"$TEST_IMAGE\" --format json --quiet --output ./tmp/image_test.json"
+                "python -m anyfile_to_ai.image_processor \"$TEST_IMAGE\" --format json --quiet --output ./tmp/image_test.json"
         else
             warning "No suitable image files found"
         fi
@@ -154,22 +182,22 @@ if ls "$SAMPLE_DIR/pdf/"*.pdf >/dev/null 2>&1; then
     TEST_PDF=$(ls "$SAMPLE_DIR/pdf/"*.pdf | head -1)
 
     run_test "PDF info command" \
-        "python -m pdf_extractor.cli info \"$TEST_PDF\""
+        "python -m anyfile_to_ai.pdf_extractor info \"$TEST_PDF\""
 
     run_test "PDF text extraction (plain)" \
-        "python -m pdf_extractor.cli extract \"$TEST_PDF\" --format plain"
+        "python -m anyfile_to_ai.pdf_extractor extract \"$TEST_PDF\" --format plain"
 
     run_test "PDF text extraction with streaming" \
-        "python -m pdf_extractor.cli extract \"$TEST_PDF\" --format plain --stream"
+        "python -m anyfile_to_ai.pdf_extractor extract \"$TEST_PDF\" --format plain --stream"
 
     # Test markdown output if available (skip for PDF extractor as it doesn't support markdown in implementation)
     # run_test "PDF text extraction (markdown)" \
-    #     "python -m pdf_extractor.cli extract \"$TEST_PDF\" --format markdown > ./tmp/pdf_test.md"
+    #     "python -m anyfile_to_ai.pdf_extractor extract \"$TEST_PDF\" --format markdown > ./tmp/pdf_test.md"
 
     # Test with image processing if VLM is available
     if [ -n "$VISION_MODEL" ]; then
         run_test "PDF extraction with image descriptions" \
-            "python -m pdf_extractor.cli extract \"$TEST_PDF\" --include-images --image-style brief"
+            "python -m anyfile_to_ai.pdf_extractor extract \"$TEST_PDF\" --include-images --image-style brief"
     fi
 else
     warning "No PDF files found in $SAMPLE_DIR/pdf/"
@@ -184,21 +212,21 @@ echo "----------------------------------------"
 # Use previously extracted content for summarization
 if [ -f "./tmp/audio_test.md" ]; then
     run_test "Text summarization (from audio extraction)" \
-        "python -m text_summarizer --stdin --format plain < ./tmp/audio_test.md"
+        "python -m anyfile_to_ai.text_summarizer --stdin --format plain < ./tmp/audio_test.md"
 
     run_test "Text summarization with JSON output" \
-        "python -m text_summarizer --stdin --format json < ./tmp/audio_test.md --output ./tmp/summary_test.json"
+        "python -m anyfile_to_ai.text_summarizer --stdin --format json < ./tmp/audio_test.md --output ./tmp/summary_test.json"
 else
     # Create PDF markdown content for summarization test
     run_test "PDF content extraction for summarization" \
-        "python -m pdf_extractor.cli extract \"$TEST_PDF\" --format plain > ./tmp/pdf_content.txt"
+        "python -m anyfile_to_ai.pdf_extractor extract \"$TEST_PDF\" --format plain > ./tmp/pdf_content.txt"
 
     # Text summarization tests (using available deepseek-r1:1.5b model)
     run_test "Text summarization (from PDF extraction)" \
-        "python -m text_summarizer ./tmp/pdf_content.txt --format plain --model deepseek-r1:1.5b" 0 true || true
+        "python -m anyfile_to_ai.text_summarizer ./tmp/pdf_content.txt --format plain --model deepseek-r1:1.5b" 0 true || true
 
     run_test "Text summarization with JSON output" \
-        "python -m text_summarizer ./tmp/pdf_content.txt --format json --output ./tmp/summary_test.json --model deepseek-r1:1.5b" 0 true || true
+        "python -m anyfile_to_ai.text_summarizer ./tmp/pdf_content.txt --format json --output ./tmp/summary_test.json --model deepseek-r1:1.5b" 0 true || true
 fi
 
 echo
@@ -210,12 +238,12 @@ echo "----------------------------------------"
 # Test pipeline: PDF -> Text -> Summarize
 if [ -f "$SAMPLE_DIR/pdf/research_paper_no_images.pdf" ]; then
     run_test "Full pipeline: PDF -> Extract -> Summarize" \
-        "sh -c \"uv run python -m pdf_extractor.cli extract \\\"$SAMPLE_DIR/pdf/research_paper_no_images.pdf\\\" --format plain | uv run python -m text_summarizer --stdin --format plain --model deepseek-r1:1.5b\"" 0 true || true
+        "sh -c \"uv run python -m anyfile_to_ai.pdf_extractor extract \\\"$SAMPLE_DIR/pdf/research_paper_no_images.pdf\\\" --format plain | uv run python -m anyfile_to_ai.text_summarizer --stdin --format plain --model deepseek-r1:1.5b\"" 0 true || true
 fi
 
 # Test error handling (audio processor handles nonexistent files gracefully)
 run_test "Error handling (nonexistent file)" \
-    "uv run python -m audio_processor.cli nonexistent.mp3 --quiet"
+    "uv run python -m anyfile_to_ai.audio_processor nonexistent.mp3 --quiet"
 
 echo
 
@@ -228,7 +256,7 @@ echo "To view detailed results:"
 echo "  cat $LOG_FILE"
 echo
 echo "To clean up test files:"
-echo "  rm -f ./tmp/audio_test.* ./tmp/image_test.* ./tmp/pdf_test.* ./tmp/summary_test.* ./tmp/test_content.txt ./tmp/pdf_content.txt ./tmp/human_test_*.log"
+echo "  rm -f ./tmp/audio_test.* ./tmp/audio_timestamps.* ./tmp/image_test.* ./tmp/pdf_test.* ./tmp/summary_test.* ./tmp/test_content.txt ./tmp/pdf_content.txt ./tmp/human_test_*.log"
 
 # Exit with success if we got this far
 log "All tests completed!"

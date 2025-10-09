@@ -1,6 +1,7 @@
 """Markdown formatting for audio transcription results."""
 
 from typing import Any
+from anyfile_to_ai.audio_processor.models import TranscriptionSegment
 
 
 def format_markdown(result: dict[str, Any]) -> str:
@@ -79,3 +80,54 @@ def _format_duration(seconds: float) -> str:
 def _format_timestamp(seconds: float) -> str:
     """Format timestamp as HH:MM:SS."""
     return _format_duration(seconds)
+
+
+def format_timestamp(seconds: float) -> str:
+    """
+    Format timestamp in HH:MM:SS.CC format (centisecond precision).
+
+    Args:
+        seconds: Time in seconds (0.0 to 7200.0)
+
+    Returns:
+        str: Formatted timestamp (e.g., "00:01:23.45")
+
+    Raises:
+        ValueError: If seconds is negative or exceeds 7200.0
+    """
+    if seconds < 0.0:
+        raise ValueError(f"Timestamp cannot be negative: {seconds}")
+    if seconds > 7200.0:
+        raise ValueError(f"Timestamp exceeds maximum duration (2 hours): {seconds}")
+
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    secs = int(seconds % 60)
+    centiseconds = round((seconds % 1.0) * 100)
+
+    return f"{hours:02d}:{minutes:02d}:{secs:02d}.{centiseconds:02d}"
+
+
+def format_segments_markdown(segments: list[TranscriptionSegment], include_text: bool = True) -> str:
+    """
+    Format timestamped segments for markdown output.
+
+    Args:
+        segments: List of TranscriptionSegment objects
+        include_text: Whether to include full text (default: True)
+
+    Returns:
+        str: Formatted string with one line per segment
+    """
+    if not segments:
+        return ""
+
+    lines = []
+    for segment in segments:
+        timestamp = format_timestamp(segment.start)
+        if include_text:
+            lines.append(f"[{timestamp}] {segment.text}")
+        else:
+            lines.append(f"[{timestamp}]")
+
+    return "\n".join(lines)

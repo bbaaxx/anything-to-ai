@@ -7,6 +7,20 @@ from collections.abc import Callable
 
 
 @dataclass
+class TranscriptionSegment:
+    """
+    Represents a time-bounded portion of transcribed audio.
+
+    Contains start time, end time, and associated text for a segment
+    of the audio transcription with centisecond precision.
+    """
+
+    start: float  # seconds
+    end: float  # seconds
+    text: str
+
+
+@dataclass
 class AudioDocument:
     """
     Represents a validated audio file with extracted metadata.
@@ -41,6 +55,7 @@ class TranscriptionResult:
     detected_language: str | None  # ISO 639-1 code (e.g., "en")
     success: bool
     error_message: str | None
+    segments: list[TranscriptionSegment] | None = None  # Optional timestamped segments
 
 
 @dataclass
@@ -61,6 +76,7 @@ class TranscriptionConfig:
     progress_callback: Callable[[int, int], None] | None = None
     verbose: bool = False
     max_duration_seconds: int = 7200  # 2 hours
+    timestamps: bool = False  # Enable timestamp extraction
 
 
 @dataclass
