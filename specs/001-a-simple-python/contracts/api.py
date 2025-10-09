@@ -19,7 +19,8 @@ class ExtractionConfig:
 
     def __post_init__(self):
         if self.output_format not in ["plain", "json"]:
-            raise ValueError("output_format must be 'plain' or 'json'")
+            msg = "output_format must be 'plain' or 'json'"
+            raise ValueError(msg)
 
 
 @dataclass

@@ -111,7 +111,8 @@ class VLMProcessor:
 
             # Merge VLM configuration with processing config
             vlm_config = self._current_config
-            merge_processing_config_with_vlm(config, vlm_config)
+            if vlm_config is not None:
+                merge_processing_config_with_vlm(config, vlm_config)
 
             # Preprocess image
             self.preprocess_image(image_document)

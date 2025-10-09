@@ -279,7 +279,8 @@ class TestErrorHandlingIntegration:
                 with patch.object(processor, "image_processor") as mock_processor:
 
                     def side_effect(*args, **kwargs):
-                        raise Exception("VLM processing failed")
+                        msg = "VLM processing failed"
+                        raise Exception(msg)
 
                     mock_processor.process_image.side_effect = side_effect
 
@@ -400,7 +401,7 @@ class TestPerformanceAndMemory:
 
                 # Should be able to process pages one by one
                 page_count = 0
-                for page in stream:
+                for _page in stream:
                     page_count += 1
                     if page_count >= 3:  # Test first few pages
                         break

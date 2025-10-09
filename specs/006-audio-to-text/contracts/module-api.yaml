@@ -33,7 +33,7 @@ functions:
 
   process_audio_batch:
     description: Process multiple audio files in batch
-    signature: (file_paths: List[str], config: TranscriptionConfig = None) -> ProcessingResult
+    signature: "(file_paths: List[str], config: TranscriptionConfig = None) -> ProcessingResult"
     parameters:
       file_paths:
         type: List[str]
@@ -53,7 +53,7 @@ functions:
 
   validate_audio:
     description: Validate audio file and extract metadata
-    signature: (file_path: str) -> AudioDocument
+    signature: "(file_path: str) -> AudioDocument"
     parameters:
       file_path:
         type: str
@@ -71,7 +71,7 @@ functions:
 
   create_config:
     description: Create transcription configuration with validation
-    signature: (model: str = "medium", quantization: str = "4bit", batch_size: int = 12, language: str = None, output_format: str = "plain", timeout_seconds: int = 600, progress_callback: Callable = None, verbose: bool = False, max_duration_seconds: int = 7200) -> TranscriptionConfig
+    signature: "(model: str = \"medium\", quantization: str = \"4bit\", batch_size: int = 12, language: str = None, output_format: str = \"plain\", timeout_seconds: int = 600, progress_callback: Callable = None, verbose: bool = False, max_duration_seconds: int = 7200) -> TranscriptionConfig"
     parameters:
       model:
         type: str
@@ -125,7 +125,7 @@ functions:
 
   get_supported_formats:
     description: Get list of supported audio formats
-    signature: () -> List[str]
+    signature: "() -> List[str]"
     returns:
       type: List[str]
       description: Sorted list of supported formats (e.g., ["m4a", "mp3", "wav"])
@@ -133,7 +133,7 @@ functions:
 
   get_audio_info:
     description: Get audio file metadata without processing
-    signature: (file_path: str) -> Dict[str, Any]
+    signature: "(file_path: str) -> Dict[str, Any]"
     parameters:
       file_path:
         type: str

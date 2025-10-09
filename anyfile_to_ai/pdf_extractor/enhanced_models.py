@@ -27,23 +27,28 @@ class EnhancedExtractionConfig(ExtractionConfig):
 
         # Validate image_batch_size
         if not isinstance(self.image_batch_size, int) or self.image_batch_size < 1 or self.image_batch_size > 10:
-            raise ValueError("image_batch_size must be between 1 and 10")
+            msg = "image_batch_size must be between 1 and 10"
+            raise ValueError(msg)
 
         # Validate max_images_per_page
         if self.max_images_per_page is not None and (not isinstance(self.max_images_per_page, int) or self.max_images_per_page < 1):
-            raise ValueError("max_images_per_page must be a positive integer")
+            msg = "max_images_per_page must be a positive integer"
+            raise ValueError(msg)
 
         # Validate include_images
         if not isinstance(self.include_images, bool):
-            raise ValueError("include_images must be a boolean")
+            msg = "include_images must be a boolean"
+            raise ValueError(msg)
 
         # Validate fallback text
         if not isinstance(self.image_fallback_text, str):
-            raise ValueError("image_fallback_text must be a string")
+            msg = "image_fallback_text must be a string"
+            raise ValueError(msg)
 
         # Validate parallel processing flag
         if not isinstance(self.parallel_image_processing, bool):
-            raise ValueError("parallel_image_processing must be a boolean")
+            msg = "parallel_image_processing must be a boolean"
+            raise ValueError(msg)
 
 
 @dataclass
@@ -69,19 +74,26 @@ class ImageContext:
     def __post_init__(self):
         """Validate ImageContext fields."""
         if self.page_number <= 0:
-            raise ValueError("page_number must be positive")
+            msg = "page_number must be positive"
+            raise ValueError(msg)
         if self.sequence_number <= 0:
-            raise ValueError("sequence_number must be positive")
+            msg = "sequence_number must be positive"
+            raise ValueError(msg)
         if not isinstance(self.bounding_box, tuple) or len(self.bounding_box) != 4:
-            raise ValueError("bounding_box must be a tuple of 4 coordinates")
+            msg = "bounding_box must be a tuple of 4 coordinates"
+            raise ValueError(msg)
         if self.width <= 0:
-            raise ValueError("width must be positive")
+            msg = "width must be positive"
+            raise ValueError(msg)
         if self.height <= 0:
-            raise ValueError("height must be positive")
+            msg = "height must be positive"
+            raise ValueError(msg)
         if not isinstance(self.format, str):
-            raise ValueError("format must be a string")
+            msg = "format must be a string"
+            raise ValueError(msg)
         if self.processing_status not in ["pending", "success", "failed"]:
-            raise ValueError("processing_status must be pending, success, or failed")
+            msg = "processing_status must be pending, success, or failed"
+            raise ValueError(msg)
 
 
 @dataclass
@@ -100,15 +112,20 @@ class EnhancedPageResult(PageResult):
         super().__post_init__()
 
         if self.images_found < 0:
-            raise ValueError("images_found must be non-negative")
+            msg = "images_found must be non-negative"
+            raise ValueError(msg)
         if self.images_processed < 0:
-            raise ValueError("images_processed must be non-negative")
+            msg = "images_processed must be non-negative"
+            raise ValueError(msg)
         if self.images_failed < 0:
-            raise ValueError("images_failed must be non-negative")
+            msg = "images_failed must be non-negative"
+            raise ValueError(msg)
         if self.images_processed + self.images_failed > self.images_found:
-            raise ValueError("processed + failed cannot exceed found images")
+            msg = "processed + failed cannot exceed found images"
+            raise ValueError(msg)
         if len(self.image_contexts) != self.images_found:
-            raise ValueError("image_contexts length must match images_found")
+            msg = "image_contexts length must match images_found"
+            raise ValueError(msg)
 
 
 @dataclass
@@ -131,17 +148,23 @@ class EnhancedExtractionResult(ExtractionResult):
         super().__post_init__()
 
         if self.total_images_found < 0:
-            raise ValueError("total_images_found must be non-negative")
+            msg = "total_images_found must be non-negative"
+            raise ValueError(msg)
         if self.total_images_processed < 0:
-            raise ValueError("total_images_processed must be non-negative")
+            msg = "total_images_processed must be non-negative"
+            raise ValueError(msg)
         if self.total_images_failed < 0:
-            raise ValueError("total_images_failed must be non-negative")
+            msg = "total_images_failed must be non-negative"
+            raise ValueError(msg)
         if self.total_images_processed + self.total_images_failed > self.total_images_found:
-            raise ValueError("total processed + failed cannot exceed total found images")
+            msg = "total processed + failed cannot exceed total found images"
+            raise ValueError(msg)
         if self.image_processing_time < 0.0:
-            raise ValueError("image_processing_time must be non-negative")
+            msg = "image_processing_time must be non-negative"
+            raise ValueError(msg)
         if not isinstance(self.enhanced_pages, list):
-            raise ValueError("enhanced_pages must be a list")
+            msg = "enhanced_pages must be a list"
+            raise ValueError(msg)
 
 
 def validate_enhanced_extraction_config(config: EnhancedExtractionConfig) -> bool:

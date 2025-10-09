@@ -75,7 +75,8 @@ class VLMProcessor:
 
                 # Handle timeout based on configuration
                 if config.timeout_behavior == "error":
-                    raise VLMTimeoutError(f"VLM processing timed out after {config.timeout_seconds} seconds", timeout_seconds=config.timeout_seconds, actual_time=processing_time, image_path=image_path, model_name=config.model_name)
+                    msg = f"VLM processing timed out after {config.timeout_seconds} seconds"
+                    raise VLMTimeoutError(msg, timeout_seconds=config.timeout_seconds, actual_time=processing_time, image_path=image_path, model_name=config.model_name)
                 if config.timeout_behavior == "fallback":
                     return self._create_fallback_result(image_path, loaded_model, processing_time)
                 # continue
@@ -84,7 +85,8 @@ class VLMProcessor:
         except Exception as e:
             if isinstance(e, (VLMProcessingError, VLMTimeoutError)):
                 raise
-            raise VLMProcessingError(f"VLM processing failed: {e!s}", image_path=image_path, model_name=config.model_name, error_details=str(e))
+            msg = f"VLM processing failed: {e!s}"
+            raise VLMProcessingError(msg, image_path=image_path, model_name=config.model_name, error_details=str(e))
 
     def process_batch_with_vlm(self, image_paths: list[str], prompts: list[str], config) -> list[dict[str, Any]]:
         """
@@ -102,7 +104,8 @@ class VLMProcessor:
             VLMProcessingError: If batch processing fails
         """
         if len(image_paths) != len(prompts):
-            raise VLMProcessingError("Number of image paths must match number of prompts", error_details=f"Images: {len(image_paths)}, Prompts: {len(prompts)}")
+            msg = "Number of image paths must match number of prompts"
+            raise VLMProcessingError(msg, error_details=f"Images: {len(image_paths)}, Prompts: {len(prompts)}")
 
         results = []
         successful = 0
@@ -133,7 +136,8 @@ class VLMProcessor:
             return results
 
         except Exception as e:
-            raise VLMProcessingError(f"Batch VLM processing failed: {e!s}", model_name=config.model_name, error_details=f"Processed {successful}/{len(image_paths)} images successfully")
+            msg = f"Batch VLM processing failed: {e!s}"
+            raise VLMProcessingError(msg, model_name=config.model_name, error_details=f"Processed {successful}/{len(image_paths)} images successfully")
 
     def _ensure_model_loaded(self, config: ModelConfiguration) -> LoadedModel:
         """Ensure VLM model is loaded and ready."""
@@ -146,7 +150,8 @@ class VLMProcessor:
         import signal
 
         def timeout_handler(signum, frame):
-            raise VLMTimeoutError(f"Processing timed out after {timeout_seconds} seconds")
+            msg = f"Processing timed out after {timeout_seconds} seconds"
+            raise VLMTimeoutError(msg)
 
         # Set up timeout
         old_handler = signal.signal(signal.SIGALRM, timeout_handler)
@@ -159,9 +164,9 @@ class VLMProcessor:
 
         except VLMTimeoutError:
             raise
-        except Exception as e:
+        except Exception:
             signal.alarm(0)  # Cancel timeout
-            raise e
+            raise
         finally:
             signal.signal(signal.SIGALRM, old_handler)
 

@@ -50,44 +50,54 @@ class LLMConfig:
             Provider.MLX.value,
         ]
         if self.provider not in valid_providers:
-            raise ValidationError(f"Invalid provider: {self.provider}. Must be one of: {', '.join(valid_providers)}")
+            msg = f"Invalid provider: {self.provider}. Must be one of: {', '.join(valid_providers)}"
+            raise ValidationError(msg)
 
     def _validate_base_url(self):
         """Validate base_url format."""
         from anyfile_to_ai.llm_client.exceptions import ValidationError
 
         if not self.base_url:
-            raise ValidationError("base_url must not be empty")
+            msg = "base_url must not be empty"
+            raise ValidationError(msg)
 
         # For non-local providers, validate URL structure
         if self.provider != Provider.MLX.value:
             try:
                 parsed = urlparse(self.base_url)
                 if not parsed.scheme or not (parsed.netloc or parsed.path):
-                    raise ValidationError(f"Invalid base_url format: {self.base_url}. Must be a valid URL (e.g., http://localhost:11434)")
+                    msg = f"Invalid base_url format: {self.base_url}. Must be a valid URL (e.g., http://localhost:11434)"
+                    raise ValidationError(msg)
             except ValidationError:
                 raise
             except Exception as e:
-                raise ValidationError(f"Invalid base_url: {self.base_url}") from e
+                msg = f"Invalid base_url: {self.base_url}"
+                raise ValidationError(msg) from e
 
     def _validate_numeric_fields(self):
         """Validate numeric configuration fields."""
         from anyfile_to_ai.llm_client.exceptions import ValidationError
 
         if self.timeout <= 0:
-            raise ValidationError(f"timeout must be positive, got {self.timeout}")
+            msg = f"timeout must be positive, got {self.timeout}"
+            raise ValidationError(msg)
 
         if self.max_retries < 0:
-            raise ValidationError(f"max_retries must be non-negative, got {self.max_retries}")
+            msg = f"max_retries must be non-negative, got {self.max_retries}"
+            raise ValidationError(msg)
 
         if self.retry_delay < 0:
-            raise ValidationError(f"retry_delay must be non-negative, got {self.retry_delay}")
+            msg = f"retry_delay must be non-negative, got {self.retry_delay}"
+            raise ValidationError(msg)
 
         if self.retry_max_delay < 0:
-            raise ValidationError(f"retry_max_delay must be non-negative, got {self.retry_max_delay}")
+            msg = f"retry_max_delay must be non-negative, got {self.retry_max_delay}"
+            raise ValidationError(msg)
 
         if self.retry_exponential_base <= 0:
-            raise ValidationError(f"retry_exponential_base must be positive, got {self.retry_exponential_base}")
+            msg = f"retry_exponential_base must be positive, got {self.retry_exponential_base}"
+            raise ValidationError(msg)
 
         if self.cache_ttl < 0:
-            raise ValidationError(f"cache_ttl must be non-negative, got {self.cache_ttl}")
+            msg = f"cache_ttl must be non-negative, got {self.cache_ttl}"
+            raise ValidationError(msg)

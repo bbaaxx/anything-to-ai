@@ -33,40 +33,31 @@ Examples:
 def _check_vlm_environment():
     """Check for VLM environment configuration."""
     import os
-    import sys
 
-    if not os.getenv("VISION_MODEL"):
-        print("Error: VISION_MODEL environment variable not set.", file=sys.stderr)
-        print("Please configure a VLM model:", file=sys.stderr)
-        print("  export VISION_MODEL=google/gemma-3-4b", file=sys.stderr)
-        return False
-    return True
+    return os.getenv("VISION_MODEL")
 
 
 def _create_image_config(parsed_args):
     """Create image processing configuration."""
-    import sys
     from . import create_config
     from .vlm_exceptions import VLMConfigurationError
 
     def progress_handler(current, total):
         if parsed_args.verbose and not parsed_args.quiet:
-            print(f"Processing {current}/{total} images...", file=sys.stderr)
+            pass
 
     try:
         config = create_config(description_style=parsed_args.style, max_length=parsed_args.max_length, batch_size=parsed_args.batch_size, progress_callback=progress_handler if parsed_args.verbose else None)
         config.timeout_seconds = parsed_args.timeout
         return config
     except VLMConfigurationError as e:
-        print(f"VLM Configuration Error: {e}", file=sys.stderr)
         if hasattr(e, "suggested_fix") and e.suggested_fix:
-            print(f"Suggestion: {e.suggested_fix}", file=sys.stderr)
+            pass
         return None
 
 
 def _handle_image_output(results, parsed_args):
     """Handle image processing output."""
-    import sys
 
     output_text = format_output(results, parsed_args.format)
 
@@ -74,14 +65,13 @@ def _handle_image_output(results, parsed_args):
         with open(parsed_args.output, "w") as f:
             f.write(output_text)
         if not parsed_args.quiet:
-            print(f"Results saved to {parsed_args.output}", file=sys.stderr)
+            pass
     elif not parsed_args.quiet:
-        print(output_text)
+        pass
 
 
 def main(args: list[str] | None = None) -> int:
     """Main CLI entry point."""
-    import sys
 
     try:
         from . import process_images
@@ -97,7 +87,6 @@ def main(args: list[str] | None = None) -> int:
         image_paths = expand_image_paths(parsed_args.images)
 
         if not image_paths:
-            print("No valid image files found", file=sys.stderr)
             return 1
 
         # Create configuration
@@ -107,7 +96,7 @@ def main(args: list[str] | None = None) -> int:
 
         # Show VLM model info in verbose mode
         if parsed_args.verbose and not parsed_args.quiet:
-            print(f"Using VLM model: {config.model_name}", file=sys.stderr)
+            pass
 
         # Process images
         results = process_images(image_paths, config)
@@ -117,9 +106,9 @@ def main(args: list[str] | None = None) -> int:
 
         return 0 if results.success else 1
 
-    except Exception as e:
+    except Exception:
         if not getattr(parsed_args, "quiet", False):
-            print(f"Error: {e}", file=sys.stderr)
+            pass
         return 1
 
 
@@ -290,4 +279,4 @@ def expand_image_paths(paths: list[str]) -> list[str]:
                     expanded.append(match)
 
     # Remove duplicates and sort
-    return sorted(list(set(expanded)))
+    return sorted(set(expanded))

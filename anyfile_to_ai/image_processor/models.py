@@ -74,5 +74,6 @@ class ProcessingConfig:
 
             model_name = os.getenv("VISION_MODEL")
             if not model_name:
-                raise VLMConfigurationError("VISION_MODEL environment variable not set", config_field="VISION_MODEL", suggested_fix="Set VISION_MODEL environment variable (e.g., export VISION_MODEL=google/gemma-3-4b)")
+                msg = "VISION_MODEL environment variable not set"
+                raise VLMConfigurationError(msg, config_field="VISION_MODEL", suggested_fix="Set VISION_MODEL environment variable (e.g., export VISION_MODEL=google/gemma-3-4b)")
             self.model_name = model_name.strip()

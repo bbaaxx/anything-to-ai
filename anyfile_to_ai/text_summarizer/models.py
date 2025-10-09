@@ -16,7 +16,8 @@ class SummaryRequest(BaseModel):
     def validate_text(cls, v: str) -> str:
         """Validate that text is not empty or whitespace-only."""
         if not v or not v.strip():
-            raise ValueError("Text must not be empty or whitespace-only")
+            msg = "Text must not be empty or whitespace-only"
+            raise ValueError(msg)
         return v
 
 
@@ -35,7 +36,8 @@ class SummaryMetadata(BaseModel):
         """Validate chunk_count is provided when chunked=True."""
         values = info.data
         if values.get("chunked") and v is None:
-            raise ValueError("chunk_count required when chunked=True")
+            msg = "chunk_count required when chunked=True"
+            raise ValueError(msg)
         return v
 
 
@@ -51,9 +53,11 @@ class SummaryResult(BaseModel):
     def validate_tags(cls, v: list[str]) -> list[str]:
         """Validate that there are at least 3 non-empty tags."""
         if len(v) < 3:
-            raise ValueError("Must have at least 3 tags")
+            msg = "Must have at least 3 tags"
+            raise ValueError(msg)
         if any(not tag.strip() for tag in v):
-            raise ValueError("Tags must be non-empty strings")
+            msg = "Tags must be non-empty strings"
+            raise ValueError(msg)
         return v
 
 
@@ -72,5 +76,6 @@ class TextChunk(BaseModel):
         values = info.data
         start = values.get("start_word", 0)
         if v <= start:
-            raise ValueError("end_word must be greater than start_word")
+            msg = "end_word must be greater than start_word"
+            raise ValueError(msg)
         return v

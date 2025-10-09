@@ -71,10 +71,10 @@ class ModelLoader:
             VLMModelLoadError: If model loading fails
         """
         # Validate model first if required
-        if config.validation_enabled:
-            if not self.validate_model_availability(config.model_name):
-                available_models = self.get_available_models()
-                raise VLMModelNotFoundError(f"Model '{config.model_name}' is not available", model_name=config.model_name, available_models=available_models, suggested_fix=f"Try one of: {', '.join(available_models[:3])}")
+        if config.validation_enabled and not self.validate_model_availability(config.model_name):
+            available_models = self.get_available_models()
+            msg = f"Model '{config.model_name}' is not available"
+            raise VLMModelNotFoundError(msg, model_name=config.model_name, available_models=available_models, suggested_fix=f"Try one of: {', '.join(available_models[:3])}")
 
         # Load the model
         return self.load_model_if_needed(config)

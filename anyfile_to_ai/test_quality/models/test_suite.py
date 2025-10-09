@@ -23,21 +23,29 @@ class TestSuite:
     def __post_init__(self) -> None:
         """Validate test suite data."""
         if not self.id:
-            raise ValueError("Test suite ID cannot be empty")
+            msg = "Test suite ID cannot be empty"
+            raise ValueError(msg)
         if not self.name:
-            raise ValueError("Test suite name cannot be empty")
+            msg = "Test suite name cannot be empty"
+            raise ValueError(msg)
         if not 0 <= self.coverage_percentage <= 100:
-            raise ValueError("Coverage percentage must be between 0 and 100")
+            msg = "Coverage percentage must be between 0 and 100"
+            raise ValueError(msg)
         if self.test_count < 0:
-            raise ValueError("Test count cannot be negative")
+            msg = "Test count cannot be negative"
+            raise ValueError(msg)
         if self.failure_count < 0:
-            raise ValueError("Failure count cannot be negative")
+            msg = "Failure count cannot be negative"
+            raise ValueError(msg)
         if self.flaky_count < 0:
-            raise ValueError("Flaky count cannot be negative")
+            msg = "Flaky count cannot be negative"
+            raise ValueError(msg)
         if self.failure_count > self.test_count:
-            raise ValueError("Failure count cannot exceed test count")
+            msg = "Failure count cannot exceed test count"
+            raise ValueError(msg)
         if self.flaky_count > self.test_count:
-            raise ValueError("Flaky count cannot exceed test count")
+            msg = "Flaky count cannot exceed test count"
+            raise ValueError(msg)
 
     @property
     def success_rate(self) -> float:

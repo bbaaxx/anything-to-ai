@@ -239,7 +239,8 @@ class TestHierarchicalProgressIntegration:
             def on_progress(self, update: ProgressUpdate):
                 self.call_count += 1
                 if self.call_count == 2:
-                    raise ValueError("Simulated error")
+                    msg = "Simulated error"
+                    raise ValueError(msg)
                 parent_updates.append((update.state.current, update.state.total))
 
             def on_complete(self, state):
@@ -250,8 +251,8 @@ class TestHierarchicalProgressIntegration:
 
         child = parent.create_child(total=10, weight=1.0, label="Child")
 
-        for i in range(10):
+        for _i in range(10):
             child.update(1)
             time.sleep(0.01)
 
-        assert parent_updates or True
+        assert True

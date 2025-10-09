@@ -17,7 +17,6 @@ def check_file_lengths():
 
     for source_dir in SOURCE_DIRS:
         if not Path(source_dir).exists():
-            print(f"Directory {source_dir} not found, skipping")
             continue
 
         for python_file in Path(source_dir).rglob("*.py"):
@@ -29,11 +28,9 @@ def check_file_lengths():
                     violations.append((python_file, line_count))
 
     if violations:
-        print("❌ File length violations found:")
-        for file_path, line_count in violations:
-            print(f"  {file_path}: {line_count} lines (max: {MAX_LINES})")
+        for _file_path, line_count in violations:
+            pass
         return False
-    print("✅ All files comply with 250-line limit")
     return True
 
 

@@ -6,6 +6,7 @@ import tempfile
 import os
 
 from .exceptions import VLMConfigurationError, VLMServiceError
+import contextlib
 
 
 class ImageProcessorAdapter:
@@ -24,8 +25,9 @@ class ImageProcessorAdapter:
 
                 self._image_processor = image_processor
             except ImportError as e:
+                msg = f"image_processor module not available: {e}"
                 raise VLMConfigurationError(
-                    f"image_processor module not available: {e}",
+                    msg,
                     config_key="image_processor",
                 )
         return self._image_processor
@@ -42,8 +44,9 @@ class ImageProcessorAdapter:
                     # Create default config
                     self._config = processor.create_config(description_style="detailed", max_length=200, batch_size=1)
             except Exception as e:
+                msg = f"Failed to create processing config: {e}"
                 raise VLMConfigurationError(
-                    f"Failed to create processing config: {e}",
+                    msg,
                     config_key="ProcessingConfig",
                 )
         return self._config
@@ -61,17 +64,15 @@ class ImageProcessorAdapter:
 
             try:
                 # Process with image_processor
-                result = processor.process_image(temp_path, config)
-                return result
+                return processor.process_image(temp_path, config)
             finally:
                 # Clean up temporary file
-                try:
+                with contextlib.suppress(OSError):
                     os.unlink(temp_path)
-                except OSError:
-                    pass
 
         except Exception as e:
-            raise VLMServiceError(f"Image processing failed: {e}")
+            msg = f"Image processing failed: {e}"
+            raise VLMServiceError(msg)
 
     def validate_configuration(self) -> bool:
         """Validate that image processing is properly configured."""

@@ -8,7 +8,7 @@ requirements from the specification (FR-006).
 class ImageProcessingError(Exception):
     """Base exception for all image processing errors."""
 
-    def __init__(self, message: str, image_path: str = None):
+    def __init__(self, message: str, image_path: str | None = None):
         self.message = message
         self.image_path = image_path
         super().__init__(message)
@@ -25,18 +25,15 @@ class ImageNotFoundError(ImageProcessingError):
 class UnsupportedFormatError(ImageProcessingError):
     """Raised when image format is not supported."""
 
-    def __init__(self, image_path: str, format_detected: str = None):
-        if format_detected:
-            message = f"Unsupported image format '{format_detected}': {image_path}"
-        else:
-            message = f"Unsupported image format: {image_path}"
+    def __init__(self, image_path: str, format_detected: str | None = None):
+        message = f"Unsupported image format '{format_detected}': {image_path}" if format_detected else f"Unsupported image format: {image_path}"
         super().__init__(message, image_path)
 
 
 class CorruptedImageError(ImageProcessingError):
     """Raised when image file is corrupted or unreadable."""
 
-    def __init__(self, image_path: str, details: str = None):
+    def __init__(self, image_path: str, details: str | None = None):
         message = f"Corrupted or unreadable image: {image_path}"
         if details:
             message += f" ({details})"
@@ -54,7 +51,7 @@ class ImageTooLargeError(ImageProcessingError):
 class ProcessingError(ImageProcessingError):
     """Raised when VLM processing fails."""
 
-    def __init__(self, image_path: str, details: str = None):
+    def __init__(self, image_path: str, details: str | None = None):
         message = f"VLM processing failed: {image_path}"
         if details:
             message += f" ({details})"
@@ -72,18 +69,15 @@ class ProcessingTimeoutError(ImageProcessingError):
 class InsufficientMemoryError(ImageProcessingError):
     """Raised when system memory is exhausted during processing."""
 
-    def __init__(self, image_path: str = None):
-        if image_path:
-            message = f"Insufficient memory for processing: {image_path}"
-        else:
-            message = "Insufficient memory for batch processing"
+    def __init__(self, image_path: str | None = None):
+        message = f"Insufficient memory for processing: {image_path}" if image_path else "Insufficient memory for batch processing"
         super().__init__(message, image_path)
 
 
 class ModelLoadError(ImageProcessingError):
     """Raised when MLX-VLM model fails to load."""
 
-    def __init__(self, model_name: str, details: str = None):
+    def __init__(self, model_name: str, details: str | None = None):
         message = f"Failed to load model '{model_name}'"
         if details:
             message += f": {details}"
@@ -93,7 +87,7 @@ class ModelLoadError(ImageProcessingError):
 class ValidationError(ImageProcessingError):
     """Raised when input validation fails."""
 
-    def __init__(self, message: str, parameter_name: str = None):
+    def __init__(self, message: str, parameter_name: str | None = None):
         if parameter_name:
             message = f"Validation error for '{parameter_name}': {message}"
         super().__init__(message)

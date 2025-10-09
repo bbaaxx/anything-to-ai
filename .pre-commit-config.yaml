@@ -39,11 +39,11 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
-        stages: [commit]
+        stages: [pre-commit]
       - id: coverage-check
         name: coverage-check
         entry: uv run pytest --cov=anyfile_to_ai --cov-fail-under=80 --cov-report=term-missing
         language: system
         pass_filenames: false
         always_run: true
-        stages: [push]
+        stages: [pre-push]

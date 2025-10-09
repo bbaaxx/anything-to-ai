@@ -28,11 +28,14 @@ class ProgressState:
 
     def __post_init__(self):
         if self.current < 0:
-            raise ValueError("current must be non-negative")
+            msg = "current must be non-negative"
+            raise ValueError(msg)
         if self.total is not None and self.current > self.total:
-            raise ValueError("current cannot exceed total")
+            msg = "current cannot exceed total"
+            raise ValueError(msg)
         if self.label and len(self.label) > 100:
-            raise ValueError("label too long (max 100 chars)")
+            msg = "label too long (max 100 chars)"
+            raise ValueError(msg)
 
     @property
     def percentage(self) -> float | None:

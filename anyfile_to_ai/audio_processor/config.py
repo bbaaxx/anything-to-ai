@@ -64,51 +64,57 @@ def create_config(
     """
     # Validate model
     if model not in VALID_MODELS:
+        msg = f"Invalid model '{model}'. Valid models: {', '.join(VALID_MODELS)}"
         raise ValidationError(
-            f"Invalid model '{model}'. Valid models: {', '.join(VALID_MODELS)}",
+            msg,
             parameter_name="model",
         )
 
     # Validate quantization
     if quantization not in VALID_QUANTIZATIONS:
+        msg = f"Invalid quantization '{quantization}'. Valid values: {', '.join(VALID_QUANTIZATIONS)}"
         raise ValidationError(
-            f"Invalid quantization '{quantization}'. Valid values: {', '.join(VALID_QUANTIZATIONS)}",
+            msg,
             parameter_name="quantization",
         )
 
     # Validate batch_size
     if not (1 <= batch_size <= 128):
+        msg = f"batch_size must be between 1 and 128, got {batch_size}"
         raise ValidationError(
-            f"batch_size must be between 1 and 128, got {batch_size}",
+            msg,
             parameter_name="batch_size",
         )
 
     # Validate language (if provided)
-    if language is not None:
-        if not isinstance(language, str) or len(language) != 2:
-            raise ValidationError(
-                f"language must be a 2-letter ISO 639-1 code, got '{language}'",
-                parameter_name="language",
-            )
+    if language is not None and (not isinstance(language, str) or len(language) != 2):
+        msg = f"language must be a 2-letter ISO 639-1 code, got '{language}'"
+        raise ValidationError(
+            msg,
+            parameter_name="language",
+        )
 
     # Validate output_format
     if output_format not in VALID_OUTPUT_FORMATS:
+        msg = f"Invalid output_format '{output_format}'. Valid formats: {', '.join(VALID_OUTPUT_FORMATS)}"
         raise ValidationError(
-            f"Invalid output_format '{output_format}'. Valid formats: {', '.join(VALID_OUTPUT_FORMATS)}",
+            msg,
             parameter_name="output_format",
         )
 
     # Validate timeout_seconds
     if timeout_seconds <= 0:
+        msg = f"timeout_seconds must be > 0, got {timeout_seconds}"
         raise ValidationError(
-            f"timeout_seconds must be > 0, got {timeout_seconds}",
+            msg,
             parameter_name="timeout_seconds",
         )
 
     # Validate max_duration_seconds
     if not (0 < max_duration_seconds <= 7200):
+        msg = f"max_duration_seconds must be between 0 and 7200 (2 hours), got {max_duration_seconds}"
         raise ValidationError(
-            f"max_duration_seconds must be between 0 and 7200 (2 hours), got {max_duration_seconds}",
+            msg,
             parameter_name="max_duration_seconds",
         )
 

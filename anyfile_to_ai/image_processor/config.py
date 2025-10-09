@@ -31,10 +31,12 @@ def validate_vision_model_env() -> str:
     model_name = os.getenv("VISION_MODEL")
 
     if not model_name:
-        raise ValidationError("VISION_MODEL environment variable not set. Please configure a VLM model (e.g., export VISION_MODEL=google/gemma-3-4b)", "VISION_MODEL")
+        msg = "VISION_MODEL environment variable not set. Please configure a VLM model (e.g., export VISION_MODEL=google/gemma-3-4b)"
+        raise ValidationError(msg, "VISION_MODEL")
 
     if not model_name.strip():
-        raise ValidationError("VISION_MODEL environment variable is empty", "VISION_MODEL")
+        msg = "VISION_MODEL environment variable is empty"
+        raise ValidationError(msg, "VISION_MODEL")
 
     return model_name.strip()
 
@@ -61,7 +63,7 @@ def load_vlm_config_from_env() -> VLMConfig:
     return VLMConfig(model_name=model_name, timeout_seconds=timeout_seconds, timeout_behavior=timeout_behavior, auto_download=auto_download, validate_before_load=validate_before_load, cache_dir=cache_dir)
 
 
-def _parse_env_int(var_name: str, default: int, min_val: int = None, max_val: int = None) -> int:
+def _parse_env_int(var_name: str, default: int, min_val: int | None = None, max_val: int | None = None) -> int:
     """Parse integer from environment variable with validation."""
     value = os.getenv(var_name)
     if value is None:
@@ -70,12 +72,15 @@ def _parse_env_int(var_name: str, default: int, min_val: int = None, max_val: in
     try:
         parsed = int(value)
         if min_val is not None and parsed < min_val:
-            raise ValidationError(f"{var_name} must be >= {min_val}", var_name)
+            msg = f"{var_name} must be >= {min_val}"
+            raise ValidationError(msg, var_name)
         if max_val is not None and parsed > max_val:
-            raise ValidationError(f"{var_name} must be <= {max_val}", var_name)
+            msg = f"{var_name} must be <= {max_val}"
+            raise ValidationError(msg, var_name)
         return parsed
     except ValueError:
-        raise ValidationError(f"{var_name} must be a valid integer", var_name)
+        msg = f"{var_name} must be a valid integer"
+        raise ValidationError(msg, var_name)
 
 
 def _parse_env_bool(var_name: str, default: bool) -> bool:
@@ -88,7 +93,8 @@ def _parse_env_bool(var_name: str, default: bool) -> bool:
         return True
     if value.lower() in ("false", "0", "no", "off"):
         return False
-    raise ValidationError(f"{var_name} must be true/false", var_name)
+    msg = f"{var_name} must be true/false"
+    raise ValidationError(msg, var_name)
 
 
 def _parse_env_choice(var_name: str, default: str, choices: list) -> str:
@@ -98,6 +104,7 @@ def _parse_env_choice(var_name: str, default: str, choices: list) -> str:
         return default
 
     if value not in choices:
-        raise ValidationError(f"{var_name} must be one of {choices}", var_name)
+        msg = f"{var_name} must be one of {choices}"
+        raise ValidationError(msg, var_name)
 
     return value

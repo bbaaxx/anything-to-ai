@@ -23,17 +23,23 @@ class TestResult:
     def __post_init__(self) -> None:
         """Validate test result data."""
         if not self.test_name:
-            raise ValueError("Test name cannot be empty")
+            msg = "Test name cannot be empty"
+            raise ValueError(msg)
         if not self.file_path:
-            raise ValueError("File path cannot be empty")
+            msg = "File path cannot be empty"
+            raise ValueError(msg)
         if self.line_number < 1:
-            raise ValueError("Line number must be positive")
+            msg = "Line number must be positive"
+            raise ValueError(msg)
         if self.execution_time < 0:
-            raise ValueError("Execution time cannot be negative")
+            msg = "Execution time cannot be negative"
+            raise ValueError(msg)
         if self.status not in ["passed", "failed", "skipped", "error"]:
-            raise ValueError("Status must be passed, failed, skipped, or error")
+            msg = "Status must be passed, failed, skipped, or error"
+            raise ValueError(msg)
         if self.status == "passed" and self.failure_message:
-            raise ValueError("Passed tests cannot have failure messages")
+            msg = "Passed tests cannot have failure messages"
+            raise ValueError(msg)
         if self.status in ["failed", "error"] and not self.failure_message:
             self.failure_message = "Test failed without specific message"
 

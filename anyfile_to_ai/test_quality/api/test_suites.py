@@ -5,8 +5,11 @@ API endpoints for test suite management.
 from datetime import datetime
 from pathlib import Path
 
-from anyfile_to_ai.test_quality.models.test_suite import TestSuite
 from anyfile_to_ai.test_quality.services.test_suite_service import TestSuiteService
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from anyfile_to_ai.test_quality.models.test_suite import TestSuite
 
 
 class TestSuitesAPI:

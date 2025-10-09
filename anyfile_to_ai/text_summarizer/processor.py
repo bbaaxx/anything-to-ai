@@ -46,11 +46,14 @@ class TextSummarizer:
             chunk_size, chunk_overlap = self._get_model_chunk_params(model)
 
         if chunk_size <= 0:
-            raise ValueError("chunk_size must be positive")
+            msg = "chunk_size must be positive"
+            raise ValueError(msg)
         if chunk_overlap < 0:
-            raise ValueError("chunk_overlap must be non-negative")
+            msg = "chunk_overlap must be non-negative"
+            raise ValueError(msg)
         if chunk_size <= chunk_overlap:
-            raise ValueError("chunk_size must be greater than chunk_overlap")
+            msg = "chunk_size must be greater than chunk_overlap"
+            raise ValueError(msg)
 
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
@@ -88,8 +91,7 @@ class TextSummarizer:
         instruction = "Summarize the following text chunk." if is_chunk else ("Summarize the following text and generate categorization tags.")
 
         # Format the prompt template with the instruction and text
-        prompt = _PROMPT_TEMPLATE.format(instruction=instruction, text=text)
-        return prompt
+        return _PROMPT_TEMPLATE.format(instruction=instruction, text=text)
 
     def summarize(self, text: str, include_metadata: bool = True, progress_emitter: Any | None = None) -> SummaryResult:
         """
@@ -111,7 +113,8 @@ class TextSummarizer:
 
         # Validate input
         if not text or not text.strip():
-            raise InvalidInputError("Text must not be empty")
+            msg = "Text must not be empty"
+            raise InvalidInputError(msg)
 
         words = text.split()
         word_count = len(words)
@@ -156,7 +159,8 @@ class TextSummarizer:
 
         # Validate result
         if len(result["tags"]) < 3:
-            raise ValidationError(f"Expected at least 3 tags, got {len(result['tags'])}")
+            msg = f"Expected at least 3 tags, got {len(result['tags'])}"
+            raise ValidationError(msg)
 
         return result
 

@@ -299,7 +299,7 @@ class QualityCheckService:
             if rule_selectors:
                 cmd.extend(["--select", ",".join(rule_selectors)])
 
-            result = subprocess.run(
+            subprocess.run(
                 cmd,
                 check=False,
                 cwd=self.project_root,

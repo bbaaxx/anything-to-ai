@@ -3,7 +3,10 @@ API Contract: Command Line Interface
 Defines the CLI behavior that must be maintained for backward compatibility.
 """
 
-import argparse
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import argparse
 
 
 def create_cli_parser() -> "argparse.ArgumentParser":

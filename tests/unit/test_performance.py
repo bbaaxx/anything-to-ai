@@ -86,7 +86,7 @@ class TestPerformanceValidation:
         start_time = time.time()
 
         # Create multiple configurations
-        for i in range(100):
+        for _i in range(100):
             create_config(description_style="brief", max_length=200, batch_size=2)
 
         end_time = time.time()

@@ -70,7 +70,7 @@ class VLMModelRegistry:
                 return False
 
             # Accept google/gemma models and mlx-community models
-            if model_name.startswith("google/gemma") or model_name.startswith("mlx-community/"):
+            if model_name.startswith(("google/gemma", "mlx-community/")):
                 self.validation_cache[model_name] = True
                 return True
 
@@ -101,7 +101,8 @@ class VLMModelRegistry:
             # Check if model is available
             if config.validation_enabled and not self.validate_model(config.model_name):
                 available = self.get_available_models()
-                raise VLMModelNotFoundError(f"Model '{config.model_name}' not found or unavailable", model_name=config.model_name, available_models=available)
+                msg = f"Model '{config.model_name}' not found or unavailable"
+                raise VLMModelNotFoundError(msg, model_name=config.model_name, available_models=available)
 
             # Clean up existing model if any
             if self.loaded_model is not None:
@@ -130,7 +131,8 @@ class VLMModelRegistry:
                 return loaded_model
 
             except Exception as e:
-                raise VLMModelLoadError(f"Failed to load model '{config.model_name}'", model_name=config.model_name, error_reason=str(e))
+                msg = f"Failed to load model '{config.model_name}'"
+                raise VLMModelLoadError(msg, model_name=config.model_name, error_reason=str(e))
 
     def get_available_models(self) -> list[str]:
         """

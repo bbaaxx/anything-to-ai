@@ -38,8 +38,9 @@ def get_adapter(config: LLMConfig) -> BaseAdapter:
 
     if adapter_class is None:
         available = ", ".join(ADAPTER_REGISTRY.keys()) if ADAPTER_REGISTRY else "none"
+        msg = f"Unsupported provider: {config.provider}. Available providers: {available}"
         raise ConfigurationError(
-            f"Unsupported provider: {config.provider}. Available providers: {available}",
+            msg,
             provider=config.provider,
         )
 

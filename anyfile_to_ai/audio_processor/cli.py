@@ -2,7 +2,6 @@
 Command-line interface for audio transcription.
 """
 
-import sys
 import json
 import argparse
 from anyfile_to_ai.audio_processor.config import create_config
@@ -257,9 +256,8 @@ def _create_progress_callback(verbose: bool, quiet: bool):
 
     def progress_cb(current, total):
         # Clear line and show progress
-        print(f"\rProcessing: [{current}/{total}] audio files...", end="", file=sys.stderr)
         if current == total:
-            print(file=sys.stderr)  # New line when complete
+            pass  # New line when complete
 
     return progress_cb
 
@@ -294,12 +292,12 @@ def _handle_output(result, parsed_args):
         with open(parsed_args.output, "w") as f:
             f.write(output)
         if not parsed_args.quiet:
-            print(f"Results saved to {parsed_args.output}", file=sys.stderr)
+            pass
     elif not parsed_args.quiet:
-        print(output)
+        pass
 
 
-def main(args: list[str] = None) -> int:
+def main(args: list[str] | None = None) -> int:
     """
     Main CLI entry point.
 
@@ -318,10 +316,7 @@ def main(args: list[str] = None) -> int:
     try:
         # Show initial status if verbose
         if parsed_args.verbose and not parsed_args.quiet:
-            print(
-                f"Processing {len(parsed_args.audio_files)} audio file(s) with model '{parsed_args.model}'...",
-                file=sys.stderr,
-            )
+            pass
 
         # Create configuration
         config = _create_config_from_args(parsed_args, progress_callback)
@@ -331,10 +326,7 @@ def main(args: list[str] = None) -> int:
 
         # Show completion message if verbose
         if parsed_args.verbose and not parsed_args.quiet:
-            print(
-                f"Completed: {result.successful_count} successful, {result.failed_count} failed in {result.total_processing_time:.1f}s",
-                file=sys.stderr,
-            )
+            pass
 
         # Handle output
         _handle_output(result, parsed_args)
@@ -342,12 +334,12 @@ def main(args: list[str] = None) -> int:
         # Return exit code based on success
         return 0 if result.successful_count > 0 else 1
 
-    except AudioProcessingError as e:
+    except AudioProcessingError:
         if not parsed_args.quiet:
-            print(f"Error: {e!s}", file=sys.stderr)
+            pass
         return 1
 
-    except Exception as e:
+    except Exception:
         if not parsed_args.quiet:
-            print(f"Unexpected error: {e!s}", file=sys.stderr)
+            pass
         return 1

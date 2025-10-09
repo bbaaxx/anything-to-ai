@@ -343,7 +343,7 @@ class CoverageService:
             return json.dumps(asdict(coverage_data), indent=2, default=str)
 
         if format == "markdown":
-            report = f"""# Coverage Report for {coverage_data.module_name}
+            return f"""# Coverage Report for {coverage_data.module_name}
 
 ## Summary
 - **Overall Coverage**: {coverage_data.overall_coverage:.1f}%
@@ -366,10 +366,9 @@ class CoverageService:
 
 *Last measured: {coverage_data.last_measured}*
 """
-            return report
 
         # text format
-        report = f"""Coverage Report for {coverage_data.module_name}
+        return f"""Coverage Report for {coverage_data.module_name}
 {"=" * 50}
 
 Overall Coverage: {coverage_data.overall_coverage:.1f}% (Grade: {coverage_data.coverage_grade})
@@ -389,7 +388,6 @@ Partially Covered Files:
 
 Last measured: {coverage_data.last_measured}
 """
-        return report
 
     def save_coverage_data(self, coverage_data: CoverageData, file_path: Path) -> None:
         """Save coverage data to file.

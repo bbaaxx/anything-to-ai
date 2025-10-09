@@ -55,8 +55,9 @@ class WhisperModelLoader:
             return self._model
 
         except Exception as e:
+            msg = f"Failed to load Whisper model '{model_name}': {e!s}"
             raise ModelLoadError(
-                f"Failed to load Whisper model '{model_name}': {e!s}",
+                msg,
                 model_name=model_name,
             )
 

@@ -18,13 +18,16 @@ class ModelConfiguration:
     def __post_init__(self):
         """Validate configuration after initialization."""
         if not self.model_name or not self.model_name.strip():
-            raise ValueError("model_name cannot be empty")
+            msg = "model_name cannot be empty"
+            raise ValueError(msg)
 
         if self.timeout_seconds <= 0:
-            raise ValueError("timeout_seconds must be positive")
+            msg = "timeout_seconds must be positive"
+            raise ValueError(msg)
 
         if self.timeout_behavior not in ["error", "fallback", "continue"]:
-            raise ValueError("timeout_behavior must be 'error', 'fallback', or 'continue'")
+            msg = "timeout_behavior must be 'error', 'fallback', or 'continue'"
+            raise ValueError(msg)
 
     @property
     def is_configured(self) -> bool:

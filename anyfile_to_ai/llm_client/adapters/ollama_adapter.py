@@ -85,26 +85,30 @@ class OllamaAdapter(BaseAdapter):
             )
 
         except httpx.TimeoutException as e:
+            msg = f"Request to Ollama timed out after {timeout}s"
             raise TimeoutError(
-                f"Request to Ollama timed out after {timeout}s",
+                msg,
                 provider="ollama",
                 original_error=e,
             )
         except httpx.ConnectError as e:
+            msg = f"Failed to connect to Ollama at {self.config.base_url}"
             raise ConnectionError(
-                f"Failed to connect to Ollama at {self.config.base_url}",
+                msg,
                 provider="ollama",
                 original_error=e,
             )
         except httpx.HTTPStatusError as e:
+            msg = f"Ollama returned error: {e.response.status_code} - {e.response.text}"
             raise GenerationError(
-                f"Ollama returned error: {e.response.status_code} - {e.response.text}",
+                msg,
                 provider="ollama",
                 original_error=e,
             )
         except Exception as e:
+            msg = f"Unexpected error during generation: {e}"
             raise GenerationError(
-                f"Unexpected error during generation: {e}",
+                msg,
                 provider="ollama",
                 original_error=e,
             )
@@ -141,13 +145,15 @@ class OllamaAdapter(BaseAdapter):
             return models
 
         except httpx.ConnectError as e:
+            msg = f"Failed to connect to Ollama at {self.config.base_url}"
             raise ConnectionError(
-                f"Failed to connect to Ollama at {self.config.base_url}",
+                msg,
                 provider="ollama",
                 original_error=e,
             )
         except Exception as e:
-            raise ConnectionError(f"Failed to list models: {e}", provider="ollama", original_error=e)
+            msg = f"Failed to list models: {e}"
+            raise ConnectionError(msg, provider="ollama", original_error=e)
 
     def health_check(self) -> bool:
         """Check if Ollama service is healthy.

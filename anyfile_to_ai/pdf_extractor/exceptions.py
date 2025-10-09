@@ -4,7 +4,7 @@
 class PDFExtractionError(Exception):
     """Base exception for PDF extraction errors."""
 
-    def __init__(self, message: str, file_path: str = None):
+    def __init__(self, message: str, file_path: str | None = None):
         self.message = message
         self.file_path = file_path
         super().__init__(self.format_message())
@@ -25,7 +25,7 @@ class PDFNotFoundError(PDFExtractionError):
 class PDFCorruptedError(PDFExtractionError):
     """Raised when PDF file is corrupted or invalid."""
 
-    def __init__(self, file_path: str, details: str = None):
+    def __init__(self, file_path: str, details: str | None = None):
         message = "PDF file is corrupted or invalid"
         if details:
             message += f": {details}"
@@ -58,7 +58,7 @@ class ProcessingInterruptedError(PDFExtractionError):
 class ImageExtractionError(Exception):
     """Base exception for image extraction errors."""
 
-    def __init__(self, message: str, file_path: str = None, details: dict = None):
+    def __init__(self, message: str, file_path: str | None = None, details: dict | None = None):
         super().__init__(message)
         self.file_path = file_path
         self.details = details or {}
@@ -72,7 +72,7 @@ class ImageExtractionError(Exception):
 class ImageNotFoundInPDFError(ImageExtractionError):
     """Raised when expected image cannot be found in PDF."""
 
-    def __init__(self, page_number: int, image_index: int, file_path: str = None):
+    def __init__(self, page_number: int, image_index: int, file_path: str | None = None):
         message = f"Image {image_index} not found on page {page_number}"
         super().__init__(message, file_path)
         self.page_number = page_number
@@ -82,7 +82,7 @@ class ImageNotFoundInPDFError(ImageExtractionError):
 class ImageCroppingError(ImageExtractionError):
     """Raised when image cannot be cropped from PDF page."""
 
-    def __init__(self, page_number: int, bounding_box: tuple, file_path: str = None, reason: str = None):
+    def __init__(self, page_number: int, bounding_box: tuple, file_path: str | None = None, reason: str | None = None):
         message = f"Cannot crop image from page {page_number} at {bounding_box}"
         if reason:
             message += f": {reason}"
@@ -95,7 +95,7 @@ class ImageCroppingError(ImageExtractionError):
 class VLMConfigurationError(Exception):
     """Raised when VLM configuration is invalid or missing."""
 
-    def __init__(self, message: str, config_key: str = None, expected_value: str = None):
+    def __init__(self, message: str, config_key: str | None = None, expected_value: str | None = None):
         super().__init__(message)
         self.config_key = config_key
         self.expected_value = expected_value
@@ -112,7 +112,7 @@ class VLMConfigurationError(Exception):
 class VLMServiceError(Exception):
     """Base exception for VLM service errors."""
 
-    def __init__(self, message: str, model_name: str = None, retry_count: int = 0):
+    def __init__(self, message: str, model_name: str | None = None, retry_count: int = 0):
         super().__init__(message)
         self.model_name = model_name
         self.retry_count = retry_count
@@ -129,7 +129,7 @@ class VLMServiceError(Exception):
 class VLMTimeoutError(VLMServiceError):
     """Raised when VLM processing times out."""
 
-    def __init__(self, timeout_seconds: float, model_name: str = None):
+    def __init__(self, timeout_seconds: float, model_name: str | None = None):
         message = f"VLM processing timed out after {timeout_seconds} seconds"
         super().__init__(message, model_name)
         self.timeout_seconds = timeout_seconds
@@ -138,7 +138,7 @@ class VLMTimeoutError(VLMServiceError):
 class VLMMemoryError(VLMServiceError):
     """Raised when VLM runs out of memory."""
 
-    def __init__(self, required_memory: str = None, available_memory: str = None, model_name: str = None):
+    def __init__(self, required_memory: str | None = None, available_memory: str | None = None, model_name: str | None = None):
         message = "VLM processing failed due to insufficient memory"
         if required_memory and available_memory:
             message += f" (required: {required_memory}, available: {available_memory})"
@@ -150,7 +150,7 @@ class VLMMemoryError(VLMServiceError):
 class VLMCircuitBreakerError(VLMServiceError):
     """Raised when VLM circuit breaker is open."""
 
-    def __init__(self, failure_count: int, threshold: int, model_name: str = None):
+    def __init__(self, failure_count: int, threshold: int, model_name: str | None = None):
         message = f"VLM circuit breaker open: {failure_count} failures (threshold: {threshold})"
         super().__init__(message, model_name)
         self.failure_count = failure_count
@@ -160,7 +160,7 @@ class VLMCircuitBreakerError(VLMServiceError):
 class EnhancedExtractionError(Exception):
     """Base exception for enhanced extraction process errors."""
 
-    def __init__(self, message: str, file_path: str = None, partial_result: dict = None):
+    def __init__(self, message: str, file_path: str | None = None, partial_result: dict | None = None):
         super().__init__(message)
         self.file_path = file_path
         self.partial_result = partial_result
@@ -175,7 +175,7 @@ class EnhancedExtractionError(Exception):
 class PartialExtractionError(EnhancedExtractionError):
     """Raised when extraction partially succeeds but has significant failures."""
 
-    def __init__(self, message: str, file_path: str = None, partial_result: dict = None, failed_pages: list = None, failed_images: list = None):
+    def __init__(self, message: str, file_path: str | None = None, partial_result: dict | None = None, failed_pages: list | None = None, failed_images: list | None = None):
         super().__init__(message, file_path, partial_result)
         self.failed_pages = failed_pages or []
         self.failed_images = failed_images or []

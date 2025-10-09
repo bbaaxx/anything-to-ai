@@ -49,16 +49,14 @@ class TestSuiteService:
             if full_path.exists():
                 valid_paths.append(path)
             else:
-                print(f"Warning: Test path {path} does not exist, skipping")
+                pass
 
-        suite = TestSuite(
+        return TestSuite(
             id=suite_id,
             name=name,
             test_paths=valid_paths,
             description=description,
         )
-
-        return suite
 
     async def run_test_suite(
         self,
@@ -239,8 +237,8 @@ class TestSuiteService:
         for test_path in suite.test_paths:
             # Run test multiple times to detect flakiness
             results = []
-            for attempt in range(max_retries):
-                success, attempt_results = await self._run_test_path(test_path)
+            for _attempt in range(max_retries):
+                _success, attempt_results = await self._run_test_path(test_path)
                 results.extend(attempt_results)
 
             # Analyze results for flakiness
