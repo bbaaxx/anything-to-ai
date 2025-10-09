@@ -213,6 +213,32 @@ def process_audio(file_path: str, config: TranscriptionConfig | None = None) -> 
         detected_language = result.get("language", config.language)
         confidence_score = None  # lightning-whisper-mlx may not provide this
 
+        # Extract timestamp segments if enabled
+        segments = None
+        if config.timestamps:
+            raw_segments = result.get("segments", [])
+            if raw_segments:
+                from anyfile_to_ai.audio_processor.models import TranscriptionSegment
+
+                segments = []
+                # Convert seek positions to seconds (HOP_LENGTH=160, SAMPLE_RATE=16000)
+                # Time = seek_position * 0.01
+                for seg in raw_segments:
+                    if isinstance(seg, (list, tuple)) and len(seg) >= 3:
+                        # Format: [start_seek, end_seek, text]
+                        start_sec = seg[0] * 0.01
+                        end_sec = seg[1] * 0.01
+                        seg_text = seg[2] if len(seg) > 2 else ""
+                        segments.append(TranscriptionSegment(start=start_sec, end=end_sec, text=seg_text))
+            else:
+                # Warn if timestamps were requested but unavailable
+                import sys
+
+                print(
+                    f"Warning: Timestamp data unavailable for {file_path}, continuing without timestamps",
+                    file=sys.stderr,
+                )
+
         # Calculate processing time
         processing_time = time.time() - start_time
 
@@ -226,6 +252,7 @@ def process_audio(file_path: str, config: TranscriptionConfig | None = None) -> 
             detected_language=detected_language,
             success=True,
             error_message=None,
+            segments=segments,
         )
 
     except NoSpeechDetectedError:

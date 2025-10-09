@@ -26,7 +26,7 @@ VALID_MODELS = [
 VALID_QUANTIZATIONS = ["none", "4bit", "8bit"]
 
 # Valid output formats
-VALID_OUTPUT_FORMATS = ["plain", "json"]
+VALID_OUTPUT_FORMATS = ["plain", "json", "markdown"]
 
 
 def create_config(
@@ -39,6 +39,7 @@ def create_config(
     progress_callback: Callable[[int, int], None] | None = None,
     verbose: bool = False,
     max_duration_seconds: int = 7200,
+    timestamps: bool = False,
 ) -> TranscriptionConfig:
     """
     Create transcription configuration with parameter validation.
@@ -53,6 +54,7 @@ def create_config(
         progress_callback: Progress callback function (default: None)
         verbose: Enable verbose output (default: False)
         max_duration_seconds: Maximum audio duration (default: 7200)
+        timestamps: Enable timestamp extraction (default: False)
 
     Returns:
         TranscriptionConfig: Validated configuration object
@@ -121,4 +123,5 @@ def create_config(
         progress_callback=progress_callback,
         verbose=verbose,
         max_duration_seconds=max_duration_seconds,
+        timestamps=timestamps,
     )
