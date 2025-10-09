@@ -55,7 +55,8 @@ class TestRetryHandler:
             nonlocal call_count
             call_count += 1
             if call_count < 3:
-                raise ValueError("Temporary error")
+                msg = "Temporary error"
+                raise ValueError(msg)
             return "success"
 
         result = handler.execute_with_retry(flaky_func, retry_on_exceptions=(ValueError,))
@@ -70,7 +71,8 @@ class TestRetryHandler:
         handler = RetryHandler(max_attempts=3, base_delay=0.01)
 
         def always_fails():
-            raise ValueError("Always fails")
+            msg = "Always fails"
+            raise ValueError(msg)
 
         result = handler.execute_with_retry(always_fails, retry_on_exceptions=(ValueError,))
 
@@ -85,7 +87,8 @@ class TestRetryHandler:
         retry_calls = []
 
         def failing_func():
-            raise ValueError("Error")
+            msg = "Error"
+            raise ValueError(msg)
 
         def on_retry_callback(exception, attempt):
             retry_calls.append((exception, attempt))
@@ -102,7 +105,8 @@ class TestRetryHandler:
         handler = RetryHandler(max_attempts=3)
 
         def raises_unexpected():
-            raise TypeError("Not retryable")
+            msg = "Not retryable"
+            raise TypeError(msg)
 
         # Should raise immediately without retries since TypeError is not in retry_on_exceptions
         with pytest.raises(TypeError):

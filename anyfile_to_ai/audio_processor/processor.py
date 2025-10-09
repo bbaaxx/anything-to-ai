@@ -53,19 +53,22 @@ def validate_audio(file_path: str) -> AudioDocument:
     """
     # Check file existence
     if not os.path.exists(file_path):
-        raise AudioNotFoundError(f"Audio file not found: {file_path}", audio_path=file_path)
+        msg = f"Audio file not found: {file_path}"
+        raise AudioNotFoundError(msg, audio_path=file_path)
 
     # Check file is readable
     if not os.path.isfile(file_path):
-        raise AudioNotFoundError(f"Path is not a file: {file_path}", audio_path=file_path)
+        msg = f"Path is not a file: {file_path}"
+        raise AudioNotFoundError(msg, audio_path=file_path)
 
     # Get file extension
     file_ext = Path(file_path).suffix.lower().lstrip(".")
 
     # Validate format
     if file_ext not in SUPPORTED_FORMATS:
+        msg = f"Unsupported audio format: {file_ext}. Supported formats: {', '.join(SUPPORTED_FORMATS)}"
         raise UnsupportedFormatError(
-            f"Unsupported audio format: {file_ext}. Supported formats: {', '.join(SUPPORTED_FORMATS)}",
+            msg,
             audio_path=file_path,
         )
 
@@ -73,7 +76,8 @@ def validate_audio(file_path: str) -> AudioDocument:
     try:
         file_size = os.path.getsize(file_path)
     except Exception as e:
-        raise CorruptedAudioError(f"Cannot read file size: {e!s}", audio_path=file_path)
+        msg = f"Cannot read file size: {e!s}"
+        raise CorruptedAudioError(msg, audio_path=file_path)
 
     # Extract audio metadata using ffprobe or similar
     # For now, use a simple approach with estimated values
@@ -87,8 +91,9 @@ def validate_audio(file_path: str) -> AudioDocument:
 
         # Validate duration limit (2 hours = 7200 seconds)
         if duration > 7200:
+            msg = f"Audio duration ({duration}s) exceeds 2-hour limit (7200s)"
             raise DurationExceededError(
-                f"Audio duration ({duration}s) exceeds 2-hour limit (7200s)",
+                msg,
                 audio_path=file_path,
             )
 
@@ -104,7 +109,8 @@ def validate_audio(file_path: str) -> AudioDocument:
     except (DurationExceededError, AudioNotFoundError, UnsupportedFormatError):
         raise
     except Exception as e:
-        raise CorruptedAudioError(f"Failed to extract audio metadata: {e!s}", audio_path=file_path)
+        msg = f"Failed to extract audio metadata: {e!s}"
+        raise CorruptedAudioError(msg, audio_path=file_path)
 
 
 def _estimate_duration(file_path: str, file_size: int) -> float:
@@ -182,8 +188,9 @@ def process_audio(file_path: str, config: TranscriptionConfig | None = None) -> 
 
     # Check duration against config max
     if audio_doc.duration > config.max_duration_seconds:
+        msg = f"Audio duration ({audio_doc.duration}s) exceeds configured limit ({config.max_duration_seconds}s)"
         raise DurationExceededError(
-            f"Audio duration ({audio_doc.duration}s) exceeds configured limit ({config.max_duration_seconds}s)",
+            msg,
             audio_path=file_path,
         )
 
@@ -207,7 +214,8 @@ def process_audio(file_path: str, config: TranscriptionConfig | None = None) -> 
 
         # Detect no speech
         if not text or len(text) < 5:  # Threshold for "no speech"
-            raise NoSpeechDetectedError("No speech detected in audio", audio_path=file_path)
+            msg = "No speech detected in audio"
+            raise NoSpeechDetectedError(msg, audio_path=file_path)
 
         # Extract metadata
         detected_language = result.get("language", config.language)
@@ -232,12 +240,7 @@ def process_audio(file_path: str, config: TranscriptionConfig | None = None) -> 
                         segments.append(TranscriptionSegment(start=start_sec, end=end_sec, text=seg_text))
             else:
                 # Warn if timestamps were requested but unavailable
-                import sys
-
-                print(
-                    f"Warning: Timestamp data unavailable for {file_path}, continuing without timestamps",
-                    file=sys.stderr,
-                )
+                pass
 
         # Calculate processing time
         processing_time = time.time() - start_time

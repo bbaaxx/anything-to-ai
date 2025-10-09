@@ -37,8 +37,9 @@ class MLXAdapter(BaseAdapter):
         # Check for VISION_MODEL environment variable
         self.vision_model = os.environ.get("VISION_MODEL")
         if not self.vision_model:
+            msg = "VISION_MODEL environment variable must be set for MLX adapter"
             raise ConfigurationError(
-                "VISION_MODEL environment variable must be set for MLX adapter",
+                msg,
                 provider="mlx",
             )
 
@@ -64,8 +65,7 @@ class MLXAdapter(BaseAdapter):
         if match:
             path = match.group(1)
             # Clean up common trailing characters
-            path = path.rstrip(".,;:!?")
-            return path
+            return path.rstrip(".,;:!?")
 
         return None
 
@@ -79,13 +79,15 @@ class MLXAdapter(BaseAdapter):
                     break
 
         if not image_path:
+            msg = "No image path found in message content. Include image path in format: 'Describe path/to/image.jpg'"
             raise ConfigurationError(
-                "No image path found in message content. Include image path in format: 'Describe path/to/image.jpg'",
+                msg,
                 provider="mlx",
             )
 
         if not Path(image_path).exists():
-            raise GenerationError(f"Image file not found: {image_path}", provider="mlx")
+            msg = f"Image file not found: {image_path}"
+            raise GenerationError(msg, provider="mlx")
 
         return image_path
 
@@ -126,7 +128,8 @@ class MLXAdapter(BaseAdapter):
         try:
             from anyfile_to_ai import image_processor
         except ImportError as e:
-            raise ConnectionError("image_processor module not available", provider="mlx", original_error=e)
+            msg = "image_processor module not available"
+            raise ConnectionError(msg, provider="mlx", original_error=e)
 
         image_path = self._get_image_path_from_request(request)
         start_time = time.time()
@@ -146,20 +149,25 @@ class MLXAdapter(BaseAdapter):
             )
 
         except image_processor.ImageNotFoundError as e:
-            raise GenerationError(f"Image not found: {image_path}", provider="mlx", original_error=e)
+            msg = f"Image not found: {image_path}"
+            raise GenerationError(msg, provider="mlx", original_error=e)
         except image_processor.VLMConfigurationError as e:
-            raise ConfigurationError(f"VLM configuration error: {e}", provider="mlx", original_error=e)
+            msg = f"VLM configuration error: {e}"
+            raise ConfigurationError(msg, provider="mlx", original_error=e)
         except image_processor.VLMModelNotFoundError as e:
+            msg = f"VLM model not found: {self.vision_model}"
             raise ModelNotFoundError(
-                f"VLM model not found: {self.vision_model}",
+                msg,
                 provider="mlx",
                 original_error=e,
             )
         except image_processor.VLMProcessingError as e:
-            raise GenerationError(f"VLM processing error: {e}", provider="mlx", original_error=e)
+            msg = f"VLM processing error: {e}"
+            raise GenerationError(msg, provider="mlx", original_error=e)
         except Exception as e:
+            msg = f"Unexpected error during image processing: {e}"
             raise GenerationError(
-                f"Unexpected error during image processing: {e}",
+                msg,
                 provider="mlx",
                 original_error=e,
             )
@@ -176,7 +184,8 @@ class MLXAdapter(BaseAdapter):
         import importlib.util
 
         if importlib.util.find_spec("image_processor") is None:
-            raise ConnectionError("image_processor module not available", provider="mlx")
+            msg = "image_processor module not available"
+            raise ConnectionError(msg, provider="mlx")
 
         # Return the currently configured model
         return [

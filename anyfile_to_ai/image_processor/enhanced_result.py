@@ -17,16 +17,20 @@ class EnhancedResult:
     def __post_init__(self):
         """Validate enhanced result after initialization."""
         if not self.vlm_description:
-            raise ValueError("vlm_description cannot be empty")
+            msg = "vlm_description cannot be empty"
+            raise ValueError(msg)
 
         if self.technical_metadata is None:
-            raise ValueError("technical_metadata must be provided")
+            msg = "technical_metadata must be provided"
+            raise ValueError(msg)
 
         if self.processing_time <= 0:
-            raise ValueError("processing_time must be positive")
+            msg = "processing_time must be positive"
+            raise ValueError(msg)
 
         if self.confidence_score is not None and not (0.0 <= self.confidence_score <= 1.0):
-            raise ValueError("confidence_score must be between 0.0 and 1.0")
+            msg = "confidence_score must be between 0.0 and 1.0"
+            raise ValueError(msg)
 
     @property
     def has_confidence_score(self) -> bool:

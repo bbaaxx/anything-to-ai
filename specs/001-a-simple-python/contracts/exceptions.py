@@ -4,7 +4,7 @@
 class PDFExtractionError(Exception):
     """Base exception for PDF extraction errors"""
 
-    def __init__(self, message: str, file_path: str = None):
+    def __init__(self, message: str, file_path: str | None = None):
         self.message = message
         self.file_path = file_path
         super().__init__(self.format_message())
@@ -25,7 +25,7 @@ class PDFNotFoundError(PDFExtractionError):
 class PDFCorruptedError(PDFExtractionError):
     """Raised when PDF file is corrupted or invalid"""
 
-    def __init__(self, file_path: str, details: str = None):
+    def __init__(self, file_path: str, details: str | None = None):
         message = "PDF file is corrupted or invalid"
         if details:
             message += f": {details}"

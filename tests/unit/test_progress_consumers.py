@@ -60,7 +60,8 @@ class TestCallbackProgressConsumer:
         """Test that callback exceptions are logged."""
 
         def error_callback(current, total):
-            raise RuntimeError("Test error")
+            msg = "Test error"
+            raise RuntimeError(msg)
 
         consumer = CallbackProgressConsumer(error_callback)
         state = ProgressState(current=5, total=10)

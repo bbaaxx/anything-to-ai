@@ -34,27 +34,27 @@ from .exceptions import (
 __version__ = "0.1.0"
 
 __all__ = [
+    "ConfigurationValidationError",
+    "EnhancedExtractionError",
+    "ExtractionConfig",
+    "ExtractionResult",
+    "ImageExtractionError",
+    "PDFCorruptedError",
+    # Data models
+    "PDFDocument",
+    # Exceptions
+    "PDFExtractionError",
+    "PDFNoTextError",
+    "PDFNotFoundError",
+    "PDFPasswordProtectedError",
+    "PageResult",
+    "ProcessingInterruptedError",
+    "ProgressCallback",
+    "VLMConfigurationError",
+    "VLMServiceError",
     # Core functions
     "extract_text",
     "extract_text_streaming",
     "get_pdf_info",
-    # Data models
-    "PDFDocument",
-    "PageResult",
-    "ExtractionResult",
-    "ExtractionConfig",
-    "ProgressCallback",
-    # Exceptions
-    "PDFExtractionError",
-    "PDFNotFoundError",
-    "PDFCorruptedError",
-    "PDFPasswordProtectedError",
-    "PDFNoTextError",
-    "ProcessingInterruptedError",
-    "ImageExtractionError",
-    "VLMConfigurationError",
-    "VLMServiceError",
-    "EnhancedExtractionError",
-    "ConfigurationValidationError",
     # Progress tracking removed - use progress_tracker.ProgressEmitter instead
 ]

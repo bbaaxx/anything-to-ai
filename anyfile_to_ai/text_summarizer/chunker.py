@@ -23,16 +23,20 @@ def chunk_text(
         ValueError: If text is empty or invalid parameters
     """
     if not text or not text.strip():
-        raise ValueError("Text must not be empty")
+        msg = "Text must not be empty"
+        raise ValueError(msg)
 
     if chunk_size <= 0:
-        raise ValueError("chunk_size must be positive")
+        msg = "chunk_size must be positive"
+        raise ValueError(msg)
 
     if overlap < 0:
-        raise ValueError("overlap must be non-negative")
+        msg = "overlap must be non-negative"
+        raise ValueError(msg)
 
     if chunk_size <= overlap:
-        raise ValueError("chunk_size must be greater than overlap")
+        msg = "chunk_size must be greater than overlap"
+        raise ValueError(msg)
 
     # Split text into words
     words = text.split()

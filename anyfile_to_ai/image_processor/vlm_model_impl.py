@@ -78,7 +78,8 @@ class BaseVLMModel(ABC):
 
         except Exception as e:
             processing_time = time.time() - start_time
-            raise VLMProcessingError(f"VLM processing failed: {e!s}", image_path=image_path, model_name=self.model_name, error_details=str(e))
+            msg = f"VLM processing failed: {e!s}"
+            raise VLMProcessingError(msg, image_path=image_path, model_name=self.model_name, error_details=str(e))
 
     def get_model_info(self) -> dict[str, str]:
         """Get model information."""
@@ -110,7 +111,8 @@ class MLXVLMModel(BaseVLMModel):
         except Exception as e:
             from .vlm_exceptions import VLMModelLoadError
 
-            raise VLMModelLoadError(f"Failed to load MLX model '{self.model_name}'", model_name=self.model_name, error_reason=str(e))
+            msg = f"Failed to load MLX model '{self.model_name}'"
+            raise VLMModelLoadError(msg, model_name=self.model_name, error_reason=str(e))
 
     def _process_image_internal(self, image_path: str, prompt: str) -> str:
         """Process image using MLX VLM."""
@@ -139,7 +141,8 @@ class MLXVLMModel(BaseVLMModel):
             import os
 
             filename = os.path.basename(image_path)
-            raise VLMProcessingError(f"Failed to process image {filename} with MLX VLM: {e!s}", image_path=image_path, model_name=self.model_name, error_details=str(e))
+            msg = f"Failed to process image {filename} with MLX VLM: {e!s}"
+            raise VLMProcessingError(msg, image_path=image_path, model_name=self.model_name, error_details=str(e))
 
 
 class MockVLMModel(BaseVLMModel):

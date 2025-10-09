@@ -68,4 +68,5 @@ def test_pyproject_toml_valid():
         assert "[project]" in content, "Should have [project] section"
         assert "[build-system]" in content, "Should have [build-system] section"
     except Exception as e:
-        assert False, f"pyproject.toml should be valid TOML: {e}"
+        msg = f"pyproject.toml should be valid TOML: {e}"
+        raise AssertionError(msg)

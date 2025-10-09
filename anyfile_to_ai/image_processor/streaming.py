@@ -18,7 +18,8 @@ class StreamingProcessor:
     def process_batch(self, file_paths: list[str], config: ProcessingConfig) -> ProcessingResult:
         """Process multiple images in batch."""
         if not file_paths:
-            raise ValidationError("Cannot process empty list of images")
+            msg = "Cannot process empty list of images"
+            raise ValidationError(msg)
 
         start_time = time.time()
         results = []
@@ -28,7 +29,7 @@ class StreamingProcessor:
         # Create progress tracker
         progress = ProgressTracker(len(file_paths), config.progress_callback)
 
-        for i, file_path in enumerate(file_paths):
+        for _i, file_path in enumerate(file_paths):
             try:
                 # Validate and process each image
                 image_doc = self.processor.validate_image(file_path)
@@ -71,7 +72,8 @@ class StreamingProcessor:
     def process_streaming(self, file_paths: list[str], config: ProcessingConfig) -> Generator[DescriptionResult, None, None]:
         """Process images with streaming progress updates."""
         if not file_paths:
-            raise ValidationError("Cannot process empty list of images")
+            msg = "Cannot process empty list of images"
+            raise ValidationError(msg)
 
         # Create progress tracker
         progress = ProgressTracker(len(file_paths), config.progress_callback)

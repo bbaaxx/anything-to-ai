@@ -96,9 +96,11 @@ def format_timestamp(seconds: float) -> str:
         ValueError: If seconds is negative or exceeds 7200.0
     """
     if seconds < 0.0:
-        raise ValueError(f"Timestamp cannot be negative: {seconds}")
+        msg = f"Timestamp cannot be negative: {seconds}"
+        raise ValueError(msg)
     if seconds > 7200.0:
-        raise ValueError(f"Timestamp exceeds maximum duration (2 hours): {seconds}")
+        msg = f"Timestamp exceeds maximum duration (2 hours): {seconds}"
+        raise ValueError(msg)
 
     hours = int(seconds // 3600)
     minutes = int((seconds % 3600) // 60)

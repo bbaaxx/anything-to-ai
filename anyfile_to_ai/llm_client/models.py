@@ -40,11 +40,13 @@ class Message:
         ]:
             from anyfile_to_ai.llm_client.exceptions import ValidationError
 
-            raise ValidationError(f"Invalid message role: {self.role}. Must be one of: system, user, assistant")
+            msg = f"Invalid message role: {self.role}. Must be one of: system, user, assistant"
+            raise ValidationError(msg)
         if not self.content or not self.content.strip():
             from anyfile_to_ai.llm_client.exceptions import ValidationError
 
-            raise ValidationError("Message content must not be empty")
+            msg = "Message content must not be empty"
+            raise ValidationError(msg)
 
 
 @dataclass(frozen=True)
@@ -60,7 +62,8 @@ class Usage:
         if self.prompt_tokens < 0 or self.completion_tokens < 0 or self.total_tokens < 0:
             from anyfile_to_ai.llm_client.exceptions import ValidationError
 
-            raise ValidationError("Token counts must be non-negative")
+            msg = "Token counts must be non-negative"
+            raise ValidationError(msg)
 
 
 @dataclass(frozen=True)
@@ -80,11 +83,13 @@ class ModelInfo:
         if not self.id:
             from anyfile_to_ai.llm_client.exceptions import ValidationError
 
-            raise ValidationError("Model id must not be empty")
+            msg = "Model id must not be empty"
+            raise ValidationError(msg)
         if self.context_length is not None and self.context_length <= 0:
             from anyfile_to_ai.llm_client.exceptions import ValidationError
 
-            raise ValidationError("Context length must be positive")
+            msg = "Context length must be positive"
+            raise ValidationError(msg)
 
 
 @dataclass
@@ -104,16 +109,20 @@ class LLMRequest:
         from anyfile_to_ai.llm_client.exceptions import ValidationError
 
         if not self.messages:
-            raise ValidationError("Messages list must not be empty")
+            msg = "Messages list must not be empty"
+            raise ValidationError(msg)
 
         if not any(msg.role == MessageRole.USER.value for msg in self.messages):
-            raise ValidationError("At least one message with role='user' is required")
+            msg = "At least one message with role='user' is required"
+            raise ValidationError(msg)
 
         if not 0.0 <= self.temperature <= 2.0:
-            raise ValidationError(f"Temperature must be between 0.0 and 2.0, got {self.temperature}")
+            msg = f"Temperature must be between 0.0 and 2.0, got {self.temperature}"
+            raise ValidationError(msg)
 
         if self.max_tokens is not None and self.max_tokens <= 0:
-            raise ValidationError("max_tokens must be positive")
+            msg = "max_tokens must be positive"
+            raise ValidationError(msg)
 
 
 @dataclass(frozen=True)
@@ -140,14 +149,17 @@ class LLMResponse:
         ]:
             from anyfile_to_ai.llm_client.exceptions import ValidationError
 
-            raise ValidationError(f"Invalid finish_reason: {self.finish_reason}")
+            msg = f"Invalid finish_reason: {self.finish_reason}"
+            raise ValidationError(msg)
 
         if self.latency_ms < 0:
             from anyfile_to_ai.llm_client.exceptions import ValidationError
 
-            raise ValidationError("Latency must be non-negative")
+            msg = "Latency must be non-negative"
+            raise ValidationError(msg)
 
         if self.retry_count < 0:
             from anyfile_to_ai.llm_client.exceptions import ValidationError
 
-            raise ValidationError("Retry count must be non-negative")
+            msg = "Retry count must be non-negative"
+            raise ValidationError(msg)

@@ -23,15 +23,20 @@ class QualityReport:
     def __post_init__(self) -> None:
         """Validate quality report data."""
         if not self.id:
-            raise ValueError("Quality report ID cannot be empty")
+            msg = "Quality report ID cannot be empty"
+            raise ValueError(msg)
         if not self.module_name:
-            raise ValueError("Module name cannot be empty")
+            msg = "Module name cannot be empty"
+            raise ValueError(msg)
         if self.violation_count < 0:
-            raise ValueError("Violation count cannot be negative")
+            msg = "Violation count cannot be negative"
+            raise ValueError(msg)
         if not 0 <= self.complexity_score <= 20:  # McCain complexity typically 0-20
-            raise ValueError("Complexity score must be between 0 and 20")
+            msg = "Complexity score must be between 0 and 20"
+            raise ValueError(msg)
         if not 0 <= self.maintainability_index <= 100:
-            raise ValueError("Maintainability index must be between 0 and 100")
+            msg = "Maintainability index must be between 0 and 100"
+            raise ValueError(msg)
         if len(self.violations) != self.violation_count:
             self.violation_count = len(self.violations)
 

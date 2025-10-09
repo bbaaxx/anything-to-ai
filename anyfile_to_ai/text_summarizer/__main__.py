@@ -18,13 +18,10 @@ def read_input(file_path: str | None, use_stdin: bool) -> str:
             path = Path(file_path)
             return path.read_text(encoding="utf-8")
         except FileNotFoundError:
-            print(f"Error: File not found: {file_path}", file=sys.stderr)
             sys.exit(1)
         except UnicodeDecodeError:
-            print(f"Error: File is not valid UTF-8: {file_path}", file=sys.stderr)
             sys.exit(1)
     else:
-        print("Error: No input provided. Use a file path or --stdin", file=sys.stderr)
         sys.exit(1)
 
 
@@ -86,7 +83,8 @@ def format_output(result, output_format: str, include_metadata: bool) -> str:
             lines.append(f"Processing time: {result.metadata.processing_time:.2f}s")
 
         return "\n".join(lines)
-    raise ValueError(f"Unknown output format: {output_format}")
+    msg = f"Unknown output format: {output_format}"
+    raise ValueError(msg)
 
 
 def write_output(content: str, output_path: str | None) -> None:
@@ -94,7 +92,7 @@ def write_output(content: str, output_path: str | None) -> None:
     if output_path:
         Path(output_path).write_text(content, encoding="utf-8")
     else:
-        print(content)
+        pass
 
 
 def main():
@@ -157,15 +155,14 @@ def main():
         text = read_input(args.file, args.stdin)
 
         if args.verbose:
-            word_count = len(text.split())
-            print(f"Processing {word_count} words...", file=sys.stderr)
+            len(text.split())
 
         # Summarize
         include_metadata = not args.no_metadata
         result = summarize_text(text, include_metadata=include_metadata, model=args.model, provider=args.provider)
 
         if args.verbose:
-            print(f"Summary generated with {len(result.tags)} tags", file=sys.stderr)
+            pass
 
         # Format output
         output = format_output(result, args.format, include_metadata)
@@ -175,17 +172,13 @@ def main():
 
         sys.exit(0)
 
-    except InvalidInputError as e:
-        print(f"Error: Invalid input - {e}", file=sys.stderr)
+    except InvalidInputError:
         sys.exit(1)
-    except LLMError as e:
-        print(f"Error: LLM processing failed - {e}", file=sys.stderr)
+    except LLMError:
         sys.exit(2)
-    except ValidationError as e:
-        print(f"Error: Validation failed - {e}", file=sys.stderr)
+    except ValidationError:
         sys.exit(3)
-    except Exception as e:
-        print(f"Error: Unexpected error - {e}", file=sys.stderr)
+    except Exception:
         if args.verbose:
             import traceback
 

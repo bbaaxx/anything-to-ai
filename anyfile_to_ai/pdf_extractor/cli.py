@@ -1,7 +1,6 @@
 """Command line interface logic."""
 
 import argparse
-import json
 import sys
 from .reader import extract_text, get_pdf_info
 from .streaming import extract_text_streaming
@@ -30,8 +29,7 @@ class CLICommands:
             return None
 
         def progress_callback(current, total):
-            percentage = (current / total) * 100
-            print(f"Progress: {current}/{total} ({percentage:.1f}%)", file=sys.stderr)
+            (current / total) * 100
 
         return progress_callback
 
@@ -75,10 +73,7 @@ class CLICommands:
             for enhanced_page in processor.extract_with_images_streaming(file_path, enhanced_config):
                 enhanced_pages.append(enhanced_page)
                 if progress:
-                    print(
-                        f"Page {enhanced_page.page_number}: {enhanced_page.images_found} images found",
-                        file=sys.stderr,
-                    )
+                    pass
 
             OutputFormatter.print_enhanced_output(enhanced_pages, enhanced_config.output_format, file_path, streaming=True)
         else:
@@ -102,7 +97,6 @@ class CLICommands:
     @staticmethod
     def _handle_extraction_errors(e: Exception, file_path: str) -> int:
         """Handle extraction errors and return appropriate exit codes."""
-        import sys
 
         error_map = {
             VLMConfigurationError: (7, "Error: {e}"),
@@ -123,13 +117,11 @@ class CLICommands:
             ),
         }
 
-        for error_type, (code, template) in error_map.items():
+        for error_type, (code, _template) in error_map.items():
             if isinstance(e, error_type):
-                print(template.format(e=str(e)), file=sys.stderr)
                 return code
 
         # Default case for unexpected errors
-        print(f"Error: Unexpected error: {e}", file=sys.stderr)
         return 6
 
     @staticmethod
@@ -141,7 +133,7 @@ class CLICommands:
         include_images: bool = False,
         image_style: str = "detailed",
         image_fallback: str = "[Image: processing failed]",
-        max_images: int = None,
+        max_images: int | None = None,
         batch_size: int = 4,
     ) -> int:
         """
@@ -212,17 +204,13 @@ class CLICommands:
             info["file_path"] = file_path
             info["requires_streaming"] = info["is_large_file"]
 
-            print(json.dumps(info, indent=2))
             return 0
 
         except PDFNotFoundError:
-            print(f"Error: PDF file not found: {file_path}", file=sys.stderr)
             return 1
         except PDFCorruptedError:
-            print(f"Error: PDF file is corrupted: {file_path}", file=sys.stderr)
             return 2
-        except Exception as e:
-            print(f"Error: Unexpected error: {e}", file=sys.stderr)
+        except Exception:
             return 6
 
 

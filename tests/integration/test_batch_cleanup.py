@@ -78,7 +78,7 @@ class TestBatchCleanup:
             config = create_config(batch_size=2)
 
             # Add invalid image to cause processing error
-            invalid_images = sample_images + ["nonexistent.jpg"]
+            invalid_images = [*sample_images, "nonexistent.jpg"]
 
             try:
                 process_images(invalid_images, config)

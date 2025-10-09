@@ -95,7 +95,7 @@ def get_supported_formats() -> list:
     """Get list of supported image formats."""
     from .processor import SUPPORTED_FORMATS
 
-    return sorted(list(SUPPORTED_FORMATS))
+    return sorted(SUPPORTED_FORMATS)
 
 
 def process_images_streaming(file_paths: list, config: "ProcessingConfig" = None):
@@ -114,17 +114,20 @@ def create_config(description_style: str = "detailed", max_length: int = 500, ba
     if description_style not in valid_styles:
         from .exceptions import ValidationError
 
-        raise ValidationError(f"Must be one of {valid_styles}", "description_style")
+        msg = f"Must be one of {valid_styles}"
+        raise ValidationError(msg, "description_style")
 
     if not (50 <= max_length <= 1000):
         from .exceptions import ValidationError
 
-        raise ValidationError("Must be between 50 and 1000", "max_length")
+        msg = "Must be between 50 and 1000"
+        raise ValidationError(msg, "max_length")
 
     if not (1 <= batch_size <= 10):
         from .exceptions import ValidationError
 
-        raise ValidationError("Must be between 1 and 10", "batch_size")
+        msg = "Must be between 1 and 10"
+        raise ValidationError(msg, "batch_size")
 
     return ProcessingConfig(description_style=description_style, max_description_length=max_length, batch_size=batch_size, progress_callback=progress_callback, **kwargs)
 
@@ -137,33 +140,33 @@ def get_image_info(file_path: str) -> dict:
 
 __version__ = "0.1.0"
 __all__ = [
+    "CorruptedImageError",
+    "DescriptionResult",
     # Core models and data structures
     "ImageDocument",
-    "DescriptionResult",
-    "ProcessingResult",
-    "ProcessingConfig",
+    "ImageNotFoundError",
     # Exception hierarchy
     "ImageProcessingError",
-    "ImageNotFoundError",
-    "UnsupportedFormatError",
-    "CorruptedImageError",
+    "ProcessingConfig",
     "ProcessingError",
-    "ValidationError",
+    "ProcessingResult",
+    "UnsupportedFormatError",
     # VLM-specific exceptions
     "VLMConfigurationError",
     "VLMModelLoadError",
+    "VLMModelNotFoundError",
     "VLMProcessingError",
     "VLMTimeoutError",
-    "VLMModelNotFoundError",
+    "ValidationError",
+    "create_config",
+    "get_available_models",
+    "get_image_info",
+    "get_supported_formats",
     # Core processing functions
     "process_image",
     "process_images",
-    "validate_image",
-    "get_supported_formats",
     "process_images_streaming",
-    "create_config",
-    "get_image_info",
+    "validate_image",
     # VLM-specific functions
     "validate_model_availability",
-    "get_available_models",
 ]

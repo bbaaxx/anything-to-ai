@@ -31,7 +31,8 @@ def load_vlm_configuration() -> ModelConfiguration:
         )
 
     except Exception as e:
-        raise VLMConfigurationError(f"Failed to load VLM configuration: {e!s}", config_field="VISION_MODEL", suggested_fix="Set VISION_MODEL environment variable (e.g., export VISION_MODEL=google/gemma-3-4b)")
+        msg = f"Failed to load VLM configuration: {e!s}"
+        raise VLMConfigurationError(msg, config_field="VISION_MODEL", suggested_fix="Set VISION_MODEL environment variable (e.g., export VISION_MODEL=google/gemma-3-4b)")
 
 
 def validate_vlm_environment() -> bool:
@@ -80,7 +81,8 @@ def create_default_vlm_config() -> ModelConfiguration:
     """
     model_name = get_model_name_from_env()
     if not model_name:
-        raise VLMConfigurationError("No VLM model configured", config_field="VISION_MODEL", suggested_fix="Set VISION_MODEL environment variable")
+        msg = "No VLM model configured"
+        raise VLMConfigurationError(msg, config_field="VISION_MODEL", suggested_fix="Set VISION_MODEL environment variable")
 
     return ModelConfiguration(model_name=model_name, timeout_seconds=60, timeout_behavior="error", auto_download=True, validation_enabled=True)
 

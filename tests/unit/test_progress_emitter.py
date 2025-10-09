@@ -309,7 +309,8 @@ class TestProgressEmitterExceptionHandling:
 
         class ErrorConsumer:
             def on_progress(self, update):
-                raise RuntimeError("Test error")
+                msg = "Test error"
+                raise RuntimeError(msg)
 
             def on_complete(self, state):
                 pass
@@ -323,7 +324,8 @@ class TestProgressEmitterExceptionHandling:
 
         class ErrorConsumer:
             def on_progress(self, update):
-                raise RuntimeError("Test error")
+                msg = "Test error"
+                raise RuntimeError(msg)
 
             def on_complete(self, state):
                 pass
@@ -424,7 +426,7 @@ class TestProgressEmitterAsyncStreaming:
 
             async def consumer():
                 nonlocal stream_completed
-                async for update in emitter.stream():
+                async for _update in emitter.stream():
                     pass
                 stream_completed = True
 

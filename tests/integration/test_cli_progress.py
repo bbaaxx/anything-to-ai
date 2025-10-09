@@ -15,14 +15,14 @@ class TestCLIProgressIntegration:
         consumer = CLIProgressConsumer()
         emitter.add_consumer(consumer)
 
-        for i in range(10):
+        for _i in range(10):
             emitter.update(1)
             time.sleep(0.01)
 
         emitter.complete()
 
-        captured = capsys.readouterr()
-        assert captured.err or True
+        capsys.readouterr()
+        assert True
 
     def test_cli_renders_indeterminate_spinner(self, capsys):
         """Test that indeterminate progress renders a spinner."""
@@ -30,15 +30,15 @@ class TestCLIProgressIntegration:
         consumer = CLIProgressConsumer()
         emitter.add_consumer(consumer)
 
-        for i in range(5):
+        for _i in range(5):
             emitter.update(1)
             time.sleep(0.01)
 
         emitter.update_total(5)
         emitter.complete()
 
-        captured = capsys.readouterr()
-        assert captured.err or True
+        capsys.readouterr()
+        assert True
 
     def test_cli_updates_on_progress(self, capsys):
         """Test that CLI updates as progress increments."""
@@ -46,14 +46,14 @@ class TestCLIProgressIntegration:
         consumer = CLIProgressConsumer()
         emitter.add_consumer(consumer)
 
-        for i in range(5):
+        for _i in range(5):
             emitter.update(1)
             time.sleep(0.02)
 
         emitter.complete()
 
-        captured = capsys.readouterr()
-        assert captured.err or True
+        capsys.readouterr()
+        assert True
 
     def test_cli_completes_bar(self, capsys):
         """Test that bar completes at 100%."""
@@ -66,8 +66,8 @@ class TestCLIProgressIntegration:
         emitter.set_current(100)
         emitter.complete()
 
-        captured = capsys.readouterr()
-        assert captured.err or True
+        capsys.readouterr()
+        assert True
 
     def test_cli_handles_dynamic_total(self, capsys):
         """Test that CLI handles total updates mid-stream."""
@@ -82,8 +82,8 @@ class TestCLIProgressIntegration:
         time.sleep(0.02)
         emitter.complete()
 
-        captured = capsys.readouterr()
-        assert captured.err or True
+        capsys.readouterr()
+        assert True
 
     def test_cli_multiple_emitters_sequential(self, capsys):
         """Test multiple sequential progress bars."""
@@ -91,7 +91,7 @@ class TestCLIProgressIntegration:
         consumer = CLIProgressConsumer()
         emitter1.add_consumer(consumer)
 
-        for i in range(5):
+        for _i in range(5):
             emitter1.update(1)
             time.sleep(0.01)
         emitter1.complete()
@@ -99,13 +99,13 @@ class TestCLIProgressIntegration:
         emitter2 = ProgressEmitter(total=3, label="Phase 2")
         emitter2.add_consumer(consumer)
 
-        for i in range(3):
+        for _i in range(3):
             emitter2.update(1)
             time.sleep(0.01)
         emitter2.complete()
 
-        captured = capsys.readouterr()
-        assert captured.err or True
+        capsys.readouterr()
+        assert True
 
     def test_cli_with_custom_title(self, capsys):
         """Test CLI with custom title override."""
@@ -113,12 +113,12 @@ class TestCLIProgressIntegration:
         consumer = CLIProgressConsumer(title="Custom Title")
         emitter.add_consumer(consumer)
 
-        for i in range(10):
+        for _i in range(10):
             emitter.update(1)
         emitter.complete()
 
-        captured = capsys.readouterr()
-        assert captured.err or True
+        capsys.readouterr()
+        assert True
 
     def test_cli_fast_updates_with_throttling(self, capsys):
         """Test that fast updates are throttled properly."""
@@ -126,13 +126,13 @@ class TestCLIProgressIntegration:
         consumer = CLIProgressConsumer()
         emitter.add_consumer(consumer)
 
-        for i in range(1000):
+        for _i in range(1000):
             emitter.update(1)
 
         emitter.complete()
 
-        captured = capsys.readouterr()
-        assert captured.err or True
+        capsys.readouterr()
+        assert True
 
     def test_cli_stderr_not_stdout(self, capsys):
         """Verify progress goes to stderr, not stdout."""
@@ -140,14 +140,13 @@ class TestCLIProgressIntegration:
         consumer = CLIProgressConsumer()
         emitter.add_consumer(consumer)
 
-        print("This goes to stdout")
-        for i in range(5):
+        for _i in range(5):
             emitter.update(1)
         emitter.complete()
 
         captured = capsys.readouterr()
         assert "This goes to stdout" in captured.out
-        assert captured.err or True
+        assert True
 
     def test_cli_with_zero_total(self, capsys):
         """Test edge case: total=0."""
@@ -157,5 +156,5 @@ class TestCLIProgressIntegration:
 
         emitter.complete()
 
-        captured = capsys.readouterr()
-        assert captured.err or True
+        capsys.readouterr()
+        assert True

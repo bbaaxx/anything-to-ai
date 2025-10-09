@@ -278,7 +278,8 @@ class TestConsumerExceptionHandling:
 
         class BrokenConsumer:
             def on_progress(self, update):
-                raise RuntimeError("Consumer error")
+                msg = "Consumer error"
+                raise RuntimeError(msg)
 
             def on_complete(self, state):
                 pass
@@ -293,7 +294,8 @@ class TestConsumerExceptionHandling:
 
         class BrokenConsumer:
             def on_progress(self, update):
-                raise RuntimeError("Consumer error")
+                msg = "Consumer error"
+                raise RuntimeError(msg)
 
             def on_complete(self, state):
                 pass
@@ -312,7 +314,8 @@ class TestConsumerExceptionHandling:
 
         class BrokenConsumer:
             def on_progress(self, update):
-                raise RuntimeError("Consumer error")
+                msg = "Consumer error"
+                raise RuntimeError(msg)
 
             def on_complete(self, state):
                 pass
@@ -336,7 +339,7 @@ class TestThrottlingContract:
         emitter = ProgressEmitter(total=100, throttle_interval=0.1)
         emitter.add_consumer(CallbackProgressConsumer(capture))
 
-        for i in range(10):
+        for _i in range(10):
             emitter.update(1)
 
         assert len(updates) < 10

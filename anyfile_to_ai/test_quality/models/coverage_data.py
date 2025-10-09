@@ -31,27 +31,38 @@ class CoverageData:
     def __post_init__(self) -> None:
         """Validate coverage data."""
         if not self.id:
-            raise ValueError("Coverage data ID cannot be empty")
+            msg = "Coverage data ID cannot be empty"
+            raise ValueError(msg)
         if not self.module_name:
-            raise ValueError("Module name cannot be empty")
+            msg = "Module name cannot be empty"
+            raise ValueError(msg)
         if not 0 <= self.line_coverage <= 100:
-            raise ValueError("Line coverage must be between 0 and 100")
+            msg = "Line coverage must be between 0 and 100"
+            raise ValueError(msg)
         if not 0 <= self.branch_coverage <= 100:
-            raise ValueError("Branch coverage must be between 0 and 100")
+            msg = "Branch coverage must be between 0 and 100"
+            raise ValueError(msg)
         if not 0 <= self.function_coverage <= 100:
-            raise ValueError("Function coverage must be between 0 and 100")
+            msg = "Function coverage must be between 0 and 100"
+            raise ValueError(msg)
         if not 0 <= self.statement_coverage <= 100:
-            raise ValueError("Statement coverage must be between 0 and 100")
+            msg = "Statement coverage must be between 0 and 100"
+            raise ValueError(msg)
         if any(x < 0 for x in [self.total_lines, self.covered_lines, self.total_branches, self.covered_branches, self.total_functions, self.covered_functions, self.total_statements, self.covered_statements]):
-            raise ValueError("Coverage counts cannot be negative")
+            msg = "Coverage counts cannot be negative"
+            raise ValueError(msg)
         if self.covered_lines > self.total_lines:
-            raise ValueError("Covered lines cannot exceed total lines")
+            msg = "Covered lines cannot exceed total lines"
+            raise ValueError(msg)
         if self.covered_branches > self.total_branches:
-            raise ValueError("Covered branches cannot exceed total branches")
+            msg = "Covered branches cannot exceed total branches"
+            raise ValueError(msg)
         if self.covered_functions > self.total_functions:
-            raise ValueError("Covered functions cannot exceed total functions")
+            msg = "Covered functions cannot exceed total functions"
+            raise ValueError(msg)
         if self.covered_statements > self.total_statements:
-            raise ValueError("Covered statements cannot exceed total statements")
+            msg = "Covered statements cannot exceed total statements"
+            raise ValueError(msg)
 
     @property
     def overall_coverage(self) -> float:
@@ -91,7 +102,8 @@ class CoverageData:
     def add_partially_covered_file(self, file_path: str, coverage_percent: float) -> None:
         """Add a partially covered file with its coverage percentage."""
         if not 0 <= coverage_percent <= 100:
-            raise ValueError("Coverage percentage must be between 0 and 100")
+            msg = "Coverage percentage must be between 0 and 100"
+            raise ValueError(msg)
         self.partially_covered_files[file_path] = coverage_percent
 
     def get_coverage_summary(self) -> dict[str, float]:

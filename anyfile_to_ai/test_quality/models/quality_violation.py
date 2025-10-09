@@ -22,17 +22,23 @@ class QualityViolation:
     def __post_init__(self) -> None:
         """Validate quality violation data."""
         if not self.rule_code:
-            raise ValueError("Rule code cannot be empty")
+            msg = "Rule code cannot be empty"
+            raise ValueError(msg)
         if not self.message:
-            raise ValueError("Message cannot be empty")
+            msg = "Message cannot be empty"
+            raise ValueError(msg)
         if not self.file_path:
-            raise ValueError("File path cannot be empty")
+            msg = "File path cannot be empty"
+            raise ValueError(msg)
         if self.line_number < 1:
-            raise ValueError("Line number must be positive")
+            msg = "Line number must be positive"
+            raise ValueError(msg)
         if self.column_number < 1:
-            raise ValueError("Column number must be positive")
+            msg = "Column number must be positive"
+            raise ValueError(msg)
         if self.severity not in ["error", "warning", "info"]:
-            raise ValueError("Severity must be error, warning, or info")
+            msg = "Severity must be error, warning, or info"
+            raise ValueError(msg)
 
     @property
     def is_blocking(self) -> bool:

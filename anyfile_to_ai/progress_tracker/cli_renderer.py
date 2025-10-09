@@ -61,9 +61,8 @@ class CLIProgressConsumer:
     def on_complete(self, state: ProgressState) -> None:
         """Finalize progress bar display."""
         if self._bar_context is not None:
-            if self._bar is not None and not self._is_indeterminate:
-                if state.total is not None and self._bar.current < state.total:
-                    self._bar(state.total - self._bar.current)
+            if self._bar is not None and not self._is_indeterminate and state.total is not None and self._bar.current < state.total:
+                self._bar(state.total - self._bar.current)
 
             self._bar_context.__exit__(None, None, None)
             self._bar_context = None

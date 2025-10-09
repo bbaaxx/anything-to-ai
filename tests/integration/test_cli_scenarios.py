@@ -38,7 +38,7 @@ class TestCliScenarios:
 
     def test_cli_single_image_processing(self, sample_images_dir):
         """Test CLI processing of single image."""
-        temp_dir, images = sample_images_dir
+        _temp_dir, images = sample_images_dir
 
         # Scenario: python -m image_processor photo.jpg
         exit_code = main([images[0]])
@@ -46,7 +46,7 @@ class TestCliScenarios:
 
     def test_cli_multiple_images_with_style(self, sample_images_dir):
         """Test CLI processing multiple images with custom style."""
-        temp_dir, images = sample_images_dir
+        _temp_dir, images = sample_images_dir
 
         # Scenario: python -m image_processor *.png --style brief
         exit_code = main([images[1], "--style", "brief", "--max-length", "200"])
@@ -54,15 +54,15 @@ class TestCliScenarios:
 
     def test_cli_batch_processing_with_options(self, sample_images_dir):
         """Test CLI batch processing with various options."""
-        temp_dir, images = sample_images_dir
+        _temp_dir, images = sample_images_dir
 
         # Scenario: python -m image_processor images/ --verbose --batch-size 2
-        exit_code = main(images + ["--verbose", "--batch-size", "2"])
+        exit_code = main([*images, "--verbose", "--batch-size", "2"])
         assert exit_code == 0
 
     def test_cli_json_output_format(self, sample_images_dir):
         """Test CLI with JSON output format."""
-        temp_dir, images = sample_images_dir
+        _temp_dir, images = sample_images_dir
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             output_file = f.name
@@ -83,7 +83,7 @@ class TestCliScenarios:
 
     def test_cli_csv_output_format(self, sample_images_dir):
         """Test CLI with CSV output format."""
-        temp_dir, images = sample_images_dir
+        _temp_dir, images = sample_images_dir
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:
             output_file = f.name
@@ -105,7 +105,7 @@ class TestCliScenarios:
 
     def test_cli_plain_text_output(self, sample_images_dir):
         """Test CLI with plain text output to stdout."""
-        temp_dir, images = sample_images_dir
+        _temp_dir, images = sample_images_dir
 
         # Scenario: python -m image_processor image.jpg --format plain
         exit_code = main([images[0], "--format", "plain"])
@@ -113,7 +113,7 @@ class TestCliScenarios:
 
     def test_cli_path_expansion_functionality(self, sample_images_dir):
         """Test CLI path expansion for directories and patterns."""
-        temp_dir, images = sample_images_dir
+        temp_dir, _images = sample_images_dir
 
         # Test expand_image_paths function
         expanded_paths = expand_image_paths([temp_dir])
@@ -141,7 +141,7 @@ class TestCliScenarios:
 
     def test_cli_verbose_output_mode(self, sample_images_dir):
         """Test CLI verbose mode produces appropriate output."""
-        temp_dir, images = sample_images_dir
+        _temp_dir, images = sample_images_dir
 
         # Verbose mode should provide progress information
         exit_code = main([images[0], "--verbose"])
@@ -149,7 +149,7 @@ class TestCliScenarios:
 
     def test_cli_quiet_output_mode(self, sample_images_dir):
         """Test CLI quiet mode suppresses output."""
-        temp_dir, images = sample_images_dir
+        _temp_dir, images = sample_images_dir
 
         # Quiet mode should suppress progress but show results
         exit_code = main([images[0], "--quiet"])
@@ -157,7 +157,7 @@ class TestCliScenarios:
 
     def test_cli_timeout_parameter(self, sample_images_dir):
         """Test CLI timeout parameter is respected."""
-        temp_dir, images = sample_images_dir
+        _temp_dir, images = sample_images_dir
 
         # Test with custom timeout
         exit_code = main([images[0], "--timeout", "120"])

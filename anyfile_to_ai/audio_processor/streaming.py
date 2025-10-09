@@ -30,7 +30,8 @@ def process_audio_batch(file_paths: list[str], config: TranscriptionConfig | Non
     """
     # Validate input
     if not file_paths:
-        raise ValidationError("file_paths list cannot be empty", parameter_name="file_paths")
+        msg = "file_paths list cannot be empty"
+        raise ValidationError(msg, parameter_name="file_paths")
 
     # Use default config if not provided
     if config is None:

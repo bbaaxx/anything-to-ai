@@ -5,8 +5,11 @@ API endpoints for coverage data management.
 from datetime import datetime
 from pathlib import Path
 
-from anyfile_to_ai.test_quality.models.coverage_data import CoverageData
 from anyfile_to_ai.test_quality.services.coverage_service import CoverageService
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from anyfile_to_ai.test_quality.models.coverage_data import CoverageData
 
 
 class CoverageDataAPI:

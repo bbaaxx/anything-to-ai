@@ -16,11 +16,14 @@ class PDFDocument:
     def __post_init__(self):
         """Validate PDFDocument fields."""
         if self.page_count <= 0:
-            raise ValueError("page_count must be positive integer")
+            msg = "page_count must be positive integer"
+            raise ValueError(msg)
         if self.file_size < 0:
-            raise ValueError("file_size must be non-negative")
+            msg = "file_size must be non-negative"
+            raise ValueError(msg)
         if not self.file_path.endswith(".pdf"):
-            raise ValueError("file_path must have .pdf extension")
+            msg = "file_path must have .pdf extension"
+            raise ValueError(msg)
 
 
 @dataclass
@@ -35,13 +38,17 @@ class PageResult:
     def __post_init__(self):
         """Validate PageResult fields."""
         if self.page_number <= 0:
-            raise ValueError("page_number must be positive integer")
+            msg = "page_number must be positive integer"
+            raise ValueError(msg)
         if self.char_count < 0:
-            raise ValueError("char_count must be non-negative")
+            msg = "char_count must be non-negative"
+            raise ValueError(msg)
         if self.extraction_time < 0:
-            raise ValueError("extraction_time must be non-negative")
+            msg = "extraction_time must be non-negative"
+            raise ValueError(msg)
         if len(self.text) != self.char_count:
-            raise ValueError("char_count must match actual text length")
+            msg = "char_count must match actual text length"
+            raise ValueError(msg)
 
 
 @dataclass
@@ -58,13 +65,17 @@ class ExtractionResult:
     def __post_init__(self):
         """Validate ExtractionResult fields."""
         if self.success and self.error_message is not None:
-            raise ValueError("If success=True, error_message must be None")
+            msg = "If success=True, error_message must be None"
+            raise ValueError(msg)
         if not self.success and self.error_message is None:
-            raise ValueError("If success=False, error_message must be provided")
+            msg = "If success=False, error_message must be provided"
+            raise ValueError(msg)
         if len(self.pages) != self.total_pages:
-            raise ValueError("total_pages must match length of pages list")
+            msg = "total_pages must match length of pages list"
+            raise ValueError(msg)
         if self.processing_time <= 0:
-            raise ValueError("processing_time must be positive")
+            msg = "processing_time must be positive"
+            raise ValueError(msg)
 
 
 # Progress callback signature
@@ -82,4 +93,5 @@ class ExtractionConfig:
     def __post_init__(self):
         """Validate ExtractionConfig fields."""
         if self.output_format not in ["plain", "json"]:
-            raise ValueError("output_format must be 'plain' or 'json'")
+            msg = "output_format must be 'plain' or 'json'"
+            raise ValueError(msg)

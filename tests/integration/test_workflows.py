@@ -62,7 +62,7 @@ class TestLargePDFWorkflow:
 
         # Process first few pages
         pages_processed = 0
-        for page_result in extract_text_streaming("large_sample.pdf", config):
+        for _page_result in extract_text_streaming("large_sample.pdf", config):
             pages_processed += 1
             if pages_processed >= 3:
                 break

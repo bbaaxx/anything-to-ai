@@ -78,8 +78,7 @@ class LLMClient:
         """
         # Try primary provider with retry
         try:
-            response = self._execute_with_fallback(request)
-            return response
+            return self._execute_with_fallback(request)
         except LLMError:
             # All providers exhausted
             raise

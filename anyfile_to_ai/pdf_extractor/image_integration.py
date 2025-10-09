@@ -34,15 +34,18 @@ class PDFImageProcessor:
         if config.include_images:
             vision_model = os.getenv("VISION_MODEL")
             if not vision_model:
-                raise VLMConfigurationError("VISION_MODEL environment variable required for image processing", config_key="VISION_MODEL")
+                msg = "VISION_MODEL environment variable required for image processing"
+                raise VLMConfigurationError(msg, config_key="VISION_MODEL")
 
         # Validate batch size
         if not (1 <= config.image_batch_size <= 10):
-            raise ConfigurationValidationError("image_batch_size", config.image_batch_size, "must be between 1 and 10")
+            msg = "image_batch_size"
+            raise ConfigurationValidationError(msg, config.image_batch_size, "must be between 1 and 10")
 
         # Validate max images per page
         if config.max_images_per_page is not None and config.max_images_per_page < 1:
-            raise ConfigurationValidationError("max_images_per_page", config.max_images_per_page, "must be positive")
+            msg = "max_images_per_page"
+            raise ConfigurationValidationError(msg, config.max_images_per_page, "must be positive")
 
     def extract_with_images(self, file_path: str, config: EnhancedExtractionConfig) -> EnhancedExtractionResult:
         """Extract PDF text with optional image descriptions."""
@@ -149,7 +152,8 @@ class PDFImageProcessor:
 
                 # Verify the image is valid
                 if pil_image is None:
-                    raise Exception("Image cropping returned None")
+                    msg = "Image cropping returned None"
+                    raise Exception(msg)
 
                 context.pil_image = pil_image
 
@@ -187,10 +191,7 @@ class PDFImageProcessor:
 
         enhanced_text = text
         for i, context in enumerate(image_contexts, 1):
-            if context.description and context.description != "[Image: processing failed]":
-                image_marker = f"[Image {i}: {context.description}]"
-            else:
-                image_marker = f"[Image {i}: processing failed]"
+            image_marker = f"[Image {i}: {context.description}]" if context.description and context.description != "[Image: processing failed]" else f"[Image {i}: processing failed]"
 
             enhanced_text += f"\n\n{image_marker}"
 

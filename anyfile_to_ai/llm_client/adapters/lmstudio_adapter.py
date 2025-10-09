@@ -73,7 +73,8 @@ class LMStudioAdapter(BaseAdapter):
 
                 # Handle authentication errors
                 if response.status_code == 401:
-                    raise AuthenticationError("Invalid or missing API key", provider="lmstudio")
+                    msg = "Invalid or missing API key"
+                    raise AuthenticationError(msg, provider="lmstudio")
 
                 response.raise_for_status()
                 data = response.json()
@@ -107,26 +108,30 @@ class LMStudioAdapter(BaseAdapter):
         except AuthenticationError:
             raise
         except httpx.TimeoutException as e:
+            msg = f"Request to LM Studio timed out after {timeout}s"
             raise TimeoutError(
-                f"Request to LM Studio timed out after {timeout}s",
+                msg,
                 provider="lmstudio",
                 original_error=e,
             )
         except httpx.ConnectError as e:
+            msg = f"Failed to connect to LM Studio at {self.config.base_url}"
             raise ConnectionError(
-                f"Failed to connect to LM Studio at {self.config.base_url}",
+                msg,
                 provider="lmstudio",
                 original_error=e,
             )
         except httpx.HTTPStatusError as e:
+            msg = f"LM Studio returned error: {e.response.status_code} - {e.response.text}"
             raise GenerationError(
-                f"LM Studio returned error: {e.response.status_code} - {e.response.text}",
+                msg,
                 provider="lmstudio",
                 original_error=e,
             )
         except Exception as e:
+            msg = f"Unexpected error during generation: {e}"
             raise GenerationError(
-                f"Unexpected error during generation: {e}",
+                msg,
                 provider="lmstudio",
                 original_error=e,
             )
@@ -148,7 +153,8 @@ class LMStudioAdapter(BaseAdapter):
                 response = client.get(url, headers=self._get_headers())
 
                 if response.status_code == 401:
-                    raise AuthenticationError("Invalid or missing API key", provider="lmstudio")
+                    msg = "Invalid or missing API key"
+                    raise AuthenticationError(msg, provider="lmstudio")
 
                 response.raise_for_status()
                 data = response.json()
@@ -170,13 +176,15 @@ class LMStudioAdapter(BaseAdapter):
         except AuthenticationError:
             raise
         except httpx.ConnectError as e:
+            msg = f"Failed to connect to LM Studio at {self.config.base_url}"
             raise ConnectionError(
-                f"Failed to connect to LM Studio at {self.config.base_url}",
+                msg,
                 provider="lmstudio",
                 original_error=e,
             )
         except Exception as e:
-            raise ConnectionError(f"Failed to list models: {e}", provider="lmstudio", original_error=e)
+            msg = f"Failed to list models: {e}"
+            raise ConnectionError(msg, provider="lmstudio", original_error=e)
 
     def health_check(self) -> bool:
         """Check if LM Studio service is healthy.

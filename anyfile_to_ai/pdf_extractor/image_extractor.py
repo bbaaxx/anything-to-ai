@@ -24,7 +24,7 @@ class ImageExtractor:
                 page = pdf.pages[page_number - 1]  # Convert to 0-indexed
                 image_contexts = []
 
-                for i, image_info in enumerate(page.images):
+                for _i, image_info in enumerate(page.images):
                     # Extract dimensions and validate
                     width = int(image_info.get("width", 0))
                     height = int(image_info.get("height", 0))
@@ -70,13 +70,12 @@ class ImageExtractor:
                         page_image = page.to_image()
                         # Get the underlying PIL Image from PageImage.original
                         pil_image = page_image.original
-                        cropped_image = pil_image.crop(bounding_box)
-                        return cropped_image
+                        return pil_image.crop(bounding_box)
                     except Exception as crop_error:
                         # If direct cropping fails, try alternative method
                         if "invalid float value" in str(crop_error) or "Cannot set gray" in str(crop_error):
                             raise ImageCroppingError(page_number, bounding_box, file_path, "PDF contains corrupted image metadata - image cannot be extracted")
-                        raise crop_error
+                        raise
 
         except ImageCroppingError:
             # Re-raise ImageCroppingError as is

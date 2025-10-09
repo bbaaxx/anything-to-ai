@@ -23,9 +23,7 @@ class VLMCircuitBreaker:
                 self.state = "HALF_OPEN"
                 return True
             return False
-        if self.state == "HALF_OPEN":
-            return True
-        return False
+        return self.state == "HALF_OPEN"
 
     def record_success(self) -> None:
         """Record successful VLM operation."""

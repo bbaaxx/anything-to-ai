@@ -6,6 +6,7 @@ import time
 from collections.abc import AsyncIterator
 
 from .models import ProgressConsumer, ProgressState, ProgressUpdate, UpdateType
+import contextlib
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,8 @@ class ProgressEmitter:
             ValueError: If total < 0
         """
         if total is not None and total < 0:
-            raise ValueError("total must be non-negative")
+            msg = "total must be non-negative"
+            raise ValueError(msg)
 
         self._current = 0
         self._total = total
@@ -66,9 +68,11 @@ class ProgressEmitter:
         """
         new_current = self._current + increment
         if new_current < 0:
-            raise ValueError("update would make current negative")
+            msg = "update would make current negative"
+            raise ValueError(msg)
         if self._total is not None and new_current > self._total:
-            raise ValueError("update would exceed total")
+            msg = "update would exceed total"
+            raise ValueError(msg)
 
         self._current = new_current
         update_type = UpdateType.STARTED if self._current == increment and self._current > 0 else UpdateType.PROGRESS
@@ -89,9 +93,11 @@ class ProgressEmitter:
             ValueError: If value < 0 or value > total
         """
         if value < 0:
-            raise ValueError("value must be non-negative")
+            msg = "value must be non-negative"
+            raise ValueError(msg)
         if self._total is not None and value > self._total:
-            raise ValueError("value cannot exceed total")
+            msg = "value cannot exceed total"
+            raise ValueError(msg)
 
         delta = value - self._current
         self._current = value
@@ -112,7 +118,8 @@ class ProgressEmitter:
             ValueError: If new_total < current
         """
         if new_total is not None and new_total < self._current:
-            raise ValueError("new total cannot be less than current")
+            msg = "new total cannot be less than current"
+            raise ValueError(msg)
 
         self._total = new_total
         self._notify_consumers(UpdateType.TOTAL_CHANGED, 0, force=True)
@@ -126,7 +133,8 @@ class ProgressEmitter:
             ValueError: If total is None
         """
         if self._total is None:
-            raise ValueError("cannot complete indeterminate progress")
+            msg = "cannot complete indeterminate progress"
+            raise ValueError(msg)
 
         self._current = self._total
         self._notify_consumers(UpdateType.COMPLETED, 0, force=True)
@@ -156,7 +164,8 @@ class ProgressEmitter:
             ValueError: If weight <= 0
         """
         if weight <= 0:
-            raise ValueError("weight must be positive")
+            msg = "weight must be positive"
+            raise ValueError(msg)
 
         child = ProgressEmitter(total, label, self._throttle_interval)
         self._children.append(child)
@@ -190,16 +199,12 @@ class ProgressEmitter:
                 self.queue = queue
 
             def on_progress(self, update: ProgressUpdate) -> None:
-                try:
+                with contextlib.suppress(asyncio.QueueFull):
                     self.queue.put_nowait(update)
-                except asyncio.QueueFull:
-                    pass
 
             def on_complete(self, state: ProgressState) -> None:
-                try:
+                with contextlib.suppress(asyncio.QueueFull):
                     self.queue.put_nowait(ProgressUpdate(state, 0, UpdateType.COMPLETED))
-                except asyncio.QueueFull:
-                    pass
 
         consumer = StreamConsumer(self._update_queue)
         self.add_consumer(consumer)

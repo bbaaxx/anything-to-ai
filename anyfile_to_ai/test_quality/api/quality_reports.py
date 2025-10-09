@@ -5,8 +5,11 @@ API endpoints for quality reports management.
 from datetime import datetime
 from pathlib import Path
 
-from anyfile_to_ai.test_quality.models.quality_report import QualityReport
 from anyfile_to_ai.test_quality.services.quality_check_service import QualityCheckService
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from anyfile_to_ai.test_quality.models.quality_report import QualityReport
 
 
 class QualityReportsAPI:

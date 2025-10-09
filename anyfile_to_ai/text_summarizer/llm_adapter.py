@@ -36,10 +36,11 @@ class LLMAdapter:
             response = self.llm_client.generate(request)
             return response.content
         except Exception as e:
-            raise LLMError(f"LLM call failed: {e}")
+            msg = f"LLM call failed: {e}"
+            raise LLMError(msg)
 
     @staticmethod
-    def parse_response(response: str) -> dict[str, Any]:  # noqa: C901
+    def parse_response(response: str) -> dict[str, Any]:
         """Parse LLM response to extract summary, tags, and language."""
         # Try to parse as JSON (whole response)
         try:
@@ -69,7 +70,7 @@ class LLMAdapter:
         in_summary = False
         in_tags = False
 
-        for i, line in enumerate(lines):
+        for _i, line in enumerate(lines):
             line_lower = line.lower()
 
             # Detect summary section
@@ -178,7 +179,8 @@ def get_default_llm_client(model: str = "llama3.2:latest", provider: str = "olla
 
         provider_lower = provider.lower()
         if provider_lower not in provider_urls:
-            raise LLMError(f"Unknown provider: {provider}. Must be one of: ollama, lmstudio, mlx")
+            msg = f"Unknown provider: {provider}. Must be one of: ollama, lmstudio, mlx"
+            raise LLMError(msg)
 
         # Create config for specified provider
         config = LLMConfig(
@@ -187,6 +189,8 @@ def get_default_llm_client(model: str = "llama3.2:latest", provider: str = "olla
         )
         return LLMClient(config)
     except ImportError:
-        raise LLMError("llm_client module not available")
+        msg = "llm_client module not available"
+        raise LLMError(msg)
     except Exception as e:
-        raise LLMError(f"Failed to create default LLM client: {e}")
+        msg = f"Failed to create default LLM client: {e}"
+        raise LLMError(msg)

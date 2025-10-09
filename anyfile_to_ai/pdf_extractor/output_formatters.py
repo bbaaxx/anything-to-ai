@@ -1,6 +1,5 @@
 """Output formatting utilities for CLI."""
 
-import json
 from .markdown_formatter import format_extraction_result
 
 
@@ -11,7 +10,7 @@ class OutputFormatter:
     def print_regular_result(result, format_type: str, file_path: str):
         """Print regular extraction result."""
         if format_type == "json":
-            output = {
+            {
                 "success": result.success,
                 "file_path": file_path,
                 "total_pages": result.total_pages,
@@ -19,46 +18,42 @@ class OutputFormatter:
                 "processing_time": result.processing_time,
                 "pages": [{"page_number": p.page_number, "text": p.text, "char_count": p.char_count, "extraction_time": p.extraction_time} for p in result.pages],
             }
-            print(json.dumps(output, indent=2))
         elif format_type == "markdown":
             import os
 
             filename = os.path.basename(file_path)
-            markdown_output = format_extraction_result(result, filename)
-            print(markdown_output)
+            format_extraction_result(result, filename)
         else:
-            for page in result.pages:
-                print(page.text)
+            for _page in result.pages:
+                pass
 
     @staticmethod
     def print_regular_output(pages, format_type: str, file_path: str, streaming: bool = False):
         """Print regular streaming output."""
         if format_type == "json":
-            output = {
+            {
                 "success": True,
                 "file_path": file_path,
                 "total_pages": len(pages),
                 "total_chars": sum(p.char_count for p in pages),
                 "pages": [{"page_number": p.page_number, "text": p.text, "char_count": p.char_count, "extraction_time": p.extraction_time} for p in pages],
             }
-            print(json.dumps(output, indent=2))
         elif format_type == "markdown":
             import os
             from .markdown_formatter import format_markdown
 
             filename = os.path.basename(file_path)
             result_dict = {"filename": filename, "pages": [{"number": p.page_number, "text": p.text} for p in pages]}
-            markdown_output = format_markdown(result_dict)
-            print(markdown_output)
+            format_markdown(result_dict)
         else:
-            for page in pages:
-                print(page.text)
+            for _page in pages:
+                pass
 
     @staticmethod
     def print_enhanced_result(result, format_type: str, file_path: str):
         """Print enhanced extraction result with image information."""
         if format_type == "json":
-            output = {
+            {
                 "success": result.success,
                 "file_path": file_path,
                 "total_pages": result.total_pages,
@@ -84,21 +79,18 @@ class OutputFormatter:
                     for p in result.enhanced_pages
                 ],
             }
-            print(json.dumps(output, indent=2))
         elif format_type == "csv":
-            print("page_number,text,images_found,images_processed,processing_time")
             for page in result.enhanced_pages:
                 # Escape text for CSV
                 text = page.enhanced_text or page.text
                 text = text.replace('"', '""').replace("\n", "\\n")
-                print(f'{page.page_number},"{text}",{page.images_found},{page.images_processed},{page.extraction_time}')
         else:
             # Plain text with enhanced content
             for page in result.enhanced_pages:
                 if page.enhanced_text:
-                    print(page.enhanced_text)
+                    pass
                 else:
-                    print(page.text)
+                    pass
 
     @staticmethod
     def print_enhanced_output(enhanced_pages, format_type: str, file_path: str, streaming: bool = False):
@@ -108,7 +100,7 @@ class OutputFormatter:
             total_images_processed = sum(p.images_processed for p in enhanced_pages)
             total_images_failed = sum(p.images_failed for p in enhanced_pages)
 
-            output = {
+            {
                 "success": True,
                 "file_path": file_path,
                 "total_pages": len(enhanced_pages),
@@ -130,10 +122,9 @@ class OutputFormatter:
                     for p in enhanced_pages
                 ],
             }
-            print(json.dumps(output, indent=2))
         else:
             for page in enhanced_pages:
                 if page.enhanced_text:
-                    print(page.enhanced_text)
+                    pass
                 else:
-                    print(page.text)
+                    pass
