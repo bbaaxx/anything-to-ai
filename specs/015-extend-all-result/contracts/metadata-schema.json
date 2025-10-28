@@ -1,0 +1,224 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Universal Metadata Schema",
+  "description": "JSON Schema for metadata dictionary structure across all processing modules",
+  "type": "object",
+  "required": ["processing", "configuration", "source"],
+  "properties": {
+    "processing": {
+      "type": "object",
+      "required": ["timestamp", "model_version", "processing_time_seconds"],
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp with timezone (e.g., 2025-10-25T14:30:00+00:00)"
+        },
+        "model_version": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Version identifier of processing model used"
+        },
+        "processing_time_seconds": {
+          "type": "number",
+          "minimum": 0.0,
+          "description": "Total processing duration in seconds"
+        }
+      }
+    },
+    "configuration": {
+      "type": "object",
+      "required": ["user_provided", "effective"],
+      "properties": {
+        "user_provided": {
+          "type": "object",
+          "description": "Parameters explicitly set by user"
+        },
+        "effective": {
+          "type": "object",
+          "description": "Complete configuration after applying defaults"
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "description": "Type-specific source metadata (PDF, Image, Audio, or Text)",
+      "oneOf": [
+        {"$ref": "#/$defs/PDFSourceMetadata"},
+        {"$ref": "#/$defs/ImageSourceMetadata"},
+        {"$ref": "#/$defs/AudioSourceMetadata"},
+        {"$ref": "#/$defs/TextSourceMetadata"}
+      ]
+    }
+  },
+  "$defs": {
+    "PDFSourceMetadata": {
+      "type": "object",
+      "required": ["file_path", "file_size_bytes", "page_count", "creation_date"],
+      "properties": {
+        "file_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "file_size_bytes": {
+          "oneOf": [
+            {"type": "integer", "minimum": 0},
+            {"type": "string", "const": "unavailable"}
+          ]
+        },
+        "page_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "creation_date": {
+          "oneOf": [
+            {"type": "string", "format": "date-time"},
+            {"type": "string", "const": "unavailable"}
+          ]
+        },
+        "modification_date": {
+          "oneOf": [
+            {"type": "string", "format": "date-time"},
+            {"type": "string", "const": "unavailable"}
+          ]
+        },
+        "author": {
+          "oneOf": [
+            {"type": "string"},
+            {"type": "string", "const": "unavailable"}
+          ]
+        },
+        "title": {
+          "oneOf": [
+            {"type": "string"},
+            {"type": "string", "const": "unavailable"}
+          ]
+        }
+      }
+    },
+    "ImageSourceMetadata": {
+      "type": "object",
+      "required": ["file_path", "file_size_bytes", "dimensions", "format", "exif"],
+      "properties": {
+        "file_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "file_size_bytes": {
+          "oneOf": [
+            {"type": "integer", "minimum": 0},
+            {"type": "string", "const": "unavailable"}
+          ]
+        },
+        "dimensions": {
+          "type": "object",
+          "required": ["width", "height"],
+          "properties": {
+            "width": {"type": "integer", "minimum": 1},
+            "height": {"type": "integer", "minimum": 1}
+          }
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1
+        },
+        "exif": {
+          "type": "object",
+          "description": "All available EXIF tags as key-value pairs",
+          "additionalProperties": true
+        },
+        "camera_info": {
+          "type": "object",
+          "properties": {
+            "make": {"type": "string"},
+            "model": {"type": "string"},
+            "lens": {"type": "string"}
+          }
+        }
+      }
+    },
+    "AudioSourceMetadata": {
+      "type": "object",
+      "required": ["file_path", "file_size_bytes", "duration_seconds", "sample_rate_hz", "channels", "format", "detected_language", "language_confidence"],
+      "properties": {
+        "file_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "file_size_bytes": {
+          "oneOf": [
+            {"type": "integer", "minimum": 0},
+            {"type": "string", "const": "unavailable"}
+          ]
+        },
+        "duration_seconds": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "sample_rate_hz": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "channels": {
+          "type": "integer",
+          "enum": [1, 2]
+        },
+        "format": {
+          "type": "string",
+          "enum": ["mp3", "wav", "m4a"]
+        },
+        "detected_language": {
+          "oneOf": [
+            {"type": "string", "pattern": "^[a-z]{2}$"},
+            {"type": "string", "const": "unavailable"}
+          ]
+        },
+        "language_confidence": {
+          "oneOf": [
+            {"type": "number", "minimum": 0.0, "maximum": 1.0},
+            {"type": "string", "const": "unavailable"}
+          ]
+        }
+      }
+    },
+    "TextSourceMetadata": {
+      "type": "object",
+      "required": ["file_path", "file_size_bytes", "input_length_words", "input_length_chars", "detected_language", "chunked"],
+      "properties": {
+        "file_path": {
+          "oneOf": [
+            {"type": "string", "minLength": 1},
+            {"type": "string", "const": "unavailable"}
+          ]
+        },
+        "file_size_bytes": {
+          "oneOf": [
+            {"type": "integer", "minimum": 0},
+            {"type": "string", "const": "unavailable"}
+          ]
+        },
+        "input_length_words": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "input_length_chars": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "detected_language": {
+          "oneOf": [
+            {"type": "string", "pattern": "^[a-z]{2}$"},
+            {"type": "string", "const": "unavailable"}
+          ]
+        },
+        "chunked": {
+          "type": "boolean"
+        },
+        "chunk_count": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        }
+      }
+    }
+  }
+}

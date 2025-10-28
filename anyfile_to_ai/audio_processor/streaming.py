@@ -14,13 +14,14 @@ from anyfile_to_ai.audio_processor.processor import process_audio
 from anyfile_to_ai.audio_processor.progress import ProgressTracker
 
 
-def process_audio_batch(file_paths: list[str], config: TranscriptionConfig | None = None) -> ProcessingResult:
+def process_audio_batch(file_paths: list[str], config: TranscriptionConfig | None = None, include_metadata: bool = False) -> ProcessingResult:
     """
     Process multiple audio files in batch.
 
     Args:
         file_paths: List of audio file paths
         config: Processing configuration (uses defaults if not provided)
+        include_metadata: Include source file and processing metadata in output
 
     Returns:
         ProcessingResult: Aggregate results with statistics
@@ -51,7 +52,7 @@ def process_audio_batch(file_paths: list[str], config: TranscriptionConfig | Non
     for file_path in file_paths:
         try:
             # Process audio file
-            result = process_audio(file_path, config)
+            result = process_audio(file_path, config, include_metadata)
             results.append(result)
 
             # Track errors

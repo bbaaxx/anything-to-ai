@@ -96,6 +96,9 @@ def create_cli_parser() -> argparse.ArgumentParser:
     # Timestamps
     parser.add_argument("--timestamps", action="store_true", help="Include timestamps in transcription output (segment-level)")
 
+    # Metadata
+    parser.add_argument("--include-metadata", action="store_true", help="Include source file and processing metadata in output")
+
     return parser
 
 
@@ -177,6 +180,7 @@ def format_markdown_output(result: ProcessingResult) -> str:
             "model": r.model_used,
             "language": r.detected_language or "unknown",
             "segments": [{"start": 0.0, "end": r.processing_time, "text": r.text}],
+            "metadata": getattr(r, "metadata", None),
         }
         return format_markdown(result_dict)
 
@@ -199,6 +203,7 @@ def format_markdown_output(result: ProcessingResult) -> str:
                     "model": r.model_used,
                     "language": r.detected_language or "unknown",
                     "segments": [{"start": 0.0, "end": r.processing_time, "text": r.text}],
+                    "metadata": getattr(r, "metadata", None),
                 }
                 lines.append(format_markdown(result_dict))
                 lines.append("")
@@ -233,6 +238,9 @@ def format_json_output(result: ProcessingResult) -> str:
         # Add segments if available
         if r.segments:
             result_dict["segments"] = [{"start": seg.start, "end": seg.end, "text": seg.text} for seg in r.segments]
+        # Add metadata if available
+        if hasattr(r, "metadata") and r.metadata is not None:
+            result_dict["metadata"] = r.metadata
         return result_dict
 
     output_dict = {
@@ -322,7 +330,7 @@ def main(args: list[str] | None = None) -> int:
         config = _create_config_from_args(parsed_args, progress_callback)
 
         # Process audio files
-        result = process_audio_batch(parsed_args.audio_files, config)
+        result = process_audio_batch(parsed_args.audio_files, config, parsed_args.include_metadata)
 
         # Show completion message if verbose
         if parsed_args.verbose and not parsed_args.quiet:

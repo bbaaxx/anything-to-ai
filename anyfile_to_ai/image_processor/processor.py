@@ -100,6 +100,7 @@ class VLMProcessor:
         self,
         image_document: ImageDocument,
         config: ProcessingConfig,
+        include_metadata: bool = False,
     ) -> DescriptionResult:
         """Process single image with VLM."""
         start_time = time.time()
@@ -144,6 +145,22 @@ class VLMProcessor:
                     config.timeout_seconds,
                 )
 
+            # Extract metadata if requested
+            metadata = None
+            if include_metadata:
+                from .metadata import extract_image_metadata
+
+                with Image.open(image_document.file_path) as img:
+                    user_config = {"description_style": config.description_style, "model_name": config.model_name}
+                    effective_config = {
+                        "description_style": config.description_style,
+                        "model_name": config.model_name,
+                        "max_description_length": config.max_description_length,
+                        "batch_size": config.batch_size,
+                        "timeout_seconds": config.timeout_seconds,
+                    }
+                    metadata = extract_image_metadata(image_document.file_path, img, processing_time, vlm_result["model_info"]["version"], user_config, effective_config)
+
             return DescriptionResult(
                 image_path=image_document.file_path,
                 description=description,
@@ -156,6 +173,7 @@ class VLMProcessor:
                 technical_metadata=technical_metadata,
                 vlm_processing_time=vlm_result["processing_time"],
                 model_version=vlm_result["model_info"]["version"],
+                metadata=metadata,
             )
 
         except (VLMProcessingError, VLMConfigurationError) as e:
@@ -180,10 +198,11 @@ class VLMProcessor:
         self,
         image_path: str,
         config: ProcessingConfig,
+        include_metadata: bool = False,
     ) -> DescriptionResult:
         """Public method to process image with VLM (for backward compatibility)."""
         image_doc = self.validate_image(image_path)
-        return self.process_single_image(image_doc, config)
+        return self.process_single_image(image_doc, config, include_metadata)
 
     def cleanup(self) -> None:
         """Clean up model resources."""

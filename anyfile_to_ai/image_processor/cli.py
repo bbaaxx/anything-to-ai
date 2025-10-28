@@ -24,6 +24,7 @@ Examples:
     parser.add_argument("--timeout", type=int, default=60, metavar="SECONDS", help="Processing timeout per image")
     parser.add_argument("--output", "-o", help="Output file path")
     parser.add_argument("--format", choices=["plain", "json", "csv", "markdown"], default="plain", help="Output format")
+    parser.add_argument("--include-metadata", action="store_true", help="Include source file and processing metadata in output")
     parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose progress output")
     parser.add_argument("--quiet", "-q", action="store_true", help="Suppress all output except results")
 
@@ -99,7 +100,7 @@ def main(args: list[str] | None = None) -> int:
             pass
 
         # Process images
-        results = process_images(image_paths, config)
+        results = process_images(image_paths, config, parsed_args.include_metadata)
 
         # Handle output
         _handle_image_output(results, parsed_args)
@@ -119,7 +120,16 @@ def format_output(result: ProcessingResult, format_type: str) -> str:
         from .markdown_formatter import format_markdown
 
         # Convert ProcessingResult to list of dicts for formatter
-        results_list = [{"filename": os.path.basename(r.image_path), "image_path": r.image_path, "description": r.description, "processing_success": r.success} for r in result.results]
+        results_list = [
+            {
+                "filename": os.path.basename(r.image_path),
+                "image_path": r.image_path,
+                "description": r.description,
+                "processing_success": r.success,
+                "metadata": getattr(r, "metadata", None),
+            }
+            for r in result.results
+        ]
         return format_markdown(results_list)
 
     if format_type == "json":
@@ -143,6 +153,7 @@ def format_output(result: ProcessingResult, format_type: str) -> str:
                     "technical_metadata": getattr(r, "technical_metadata", None),
                     "vlm_processing_time": getattr(r, "vlm_processing_time", None),
                     "model_version": getattr(r, "model_version", None),
+                    **({"metadata": r.metadata} if getattr(r, "metadata", None) is not None else {}),
                 }
                 for r in result.results
             ],
@@ -156,27 +167,45 @@ def format_output(result: ProcessingResult, format_type: str) -> str:
         output = io.StringIO()
         writer = csv.writer(output)
 
+        # Check if any result has metadata
+        has_metadata = any(getattr(r, "metadata", None) is not None for r in result.results)
+
         # Write enhanced header
-        writer.writerow(["image_path", "description", "confidence_score", "processing_time", "success", "format", "width", "height", "file_size", "model_used", "model_version"])
+        headers = ["image_path", "description", "confidence_score", "processing_time", "success", "format", "width", "height", "file_size", "model_used", "model_version"]
+        if has_metadata:
+            headers.extend(["metadata.processing.timestamp", "metadata.processing.model_version", "metadata.source.file_path", "metadata.source.format"])
+        writer.writerow(headers)
 
         # Write data rows
         for r in result.results:
             tech_meta = getattr(r, "technical_metadata", {}) or {}
-            writer.writerow(
-                [
-                    r.image_path,
-                    r.description.replace("\n", " ").replace("\r", ""),
-                    r.confidence_score or "",
-                    r.processing_time,
-                    r.success,
-                    tech_meta.get("format", ""),
-                    tech_meta.get("dimensions", [0, 0])[0] if tech_meta.get("dimensions") else "",
-                    tech_meta.get("dimensions", [0, 0])[1] if tech_meta.get("dimensions") else "",
-                    tech_meta.get("file_size", ""),
-                    r.model_used,
-                    getattr(r, "model_version", ""),
-                ],
-            )
+            row = [
+                r.image_path,
+                r.description.replace("\n", " ").replace("\r", ""),
+                r.confidence_score or "",
+                r.processing_time,
+                r.success,
+                tech_meta.get("format", ""),
+                tech_meta.get("dimensions", [0, 0])[0] if tech_meta.get("dimensions") else "",
+                tech_meta.get("dimensions", [0, 0])[1] if tech_meta.get("dimensions") else "",
+                tech_meta.get("file_size", ""),
+                r.model_used,
+                getattr(r, "model_version", ""),
+            ]
+            if has_metadata:
+                metadata = getattr(r, "metadata", None)
+                if metadata:
+                    row.extend(
+                        [
+                            metadata["processing"]["timestamp"],
+                            metadata["processing"]["model_version"],
+                            metadata["source"]["file_path"],
+                            metadata["source"].get("format", ""),
+                        ]
+                    )
+                else:
+                    row.extend(["", "", "", ""])
+            writer.writerow(row)
 
         return output.getvalue()
 
@@ -220,6 +249,8 @@ def format_single_result(result: DescriptionResult, format_type: str) -> str:
             "vlm_processing_time": result.vlm_processing_time,
             "model_version": result.model_version,
         }
+        if result.metadata is not None:
+            data["metadata"] = result.metadata
         return json.dumps(data, indent=2)
 
     if format_type == "csv":

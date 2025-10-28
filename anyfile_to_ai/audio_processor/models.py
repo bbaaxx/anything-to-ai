@@ -56,6 +56,7 @@ class TranscriptionResult:
     success: bool
     error_message: str | None
     segments: list[TranscriptionSegment] | None = None  # Optional timestamped segments
+    metadata: dict | None = None
 
 
 @dataclass

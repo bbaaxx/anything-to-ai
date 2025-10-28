@@ -15,7 +15,7 @@ class StreamingProcessor:
         self.processor = processor
         self.vlm_processor = get_global_vlm_processor()
 
-    def process_batch(self, file_paths: list[str], config: ProcessingConfig) -> ProcessingResult:
+    def process_batch(self, file_paths: list[str], config: ProcessingConfig, include_metadata: bool = False) -> ProcessingResult:
         """Process multiple images in batch."""
         if not file_paths:
             msg = "Cannot process empty list of images"
@@ -33,7 +33,7 @@ class StreamingProcessor:
             try:
                 # Validate and process each image
                 image_doc = self.processor.validate_image(file_path)
-                result = self.processor.process_single_image(image_doc, config)
+                result = self.processor.process_single_image(image_doc, config, include_metadata)
                 results.append(result)
 
                 if result.success:
@@ -69,7 +69,7 @@ class StreamingProcessor:
             error_message=None if successful_count > 0 else "All images failed to process",
         )
 
-    def process_streaming(self, file_paths: list[str], config: ProcessingConfig) -> Generator[DescriptionResult, None, None]:
+    def process_streaming(self, file_paths: list[str], config: ProcessingConfig, include_metadata: bool = False) -> Generator[DescriptionResult, None, None]:
         """Process images with streaming progress updates."""
         if not file_paths:
             msg = "Cannot process empty list of images"
@@ -83,7 +83,7 @@ class StreamingProcessor:
                 try:
                     # Validate and process each image
                     image_doc = self.processor.validate_image(file_path)
-                    result = self.processor.process_single_image(image_doc, config)
+                    result = self.processor.process_single_image(image_doc, config, include_metadata)
                     yield result
 
                 except Exception:

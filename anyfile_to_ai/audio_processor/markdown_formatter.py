@@ -15,13 +15,16 @@ def format_markdown(result: dict[str, Any]) -> str:
             - model: str - Whisper model used
             - language: str - Language code
             - segments: List[Dict] - Transcript segments with optional timestamps/speakers
+            - metadata: dict | None - Optional processing metadata
 
     Returns:
         str: Markdown-formatted transcript with structure:
+            - YAML frontmatter (if metadata present)
             - H1: Transcription title with filename
             - Metadata: Duration, Model, Language as bullet list
             - H2: Segments with timestamps and speakers (if available)
             - Content: Transcript text (no escaping)
+            - Extended Metadata section (if present)
 
     Note:
         Special characters are NOT escaped per research.md decision (2025-10-02).
@@ -32,9 +35,20 @@ def format_markdown(result: dict[str, Any]) -> str:
     model = result.get("model", "unknown")
     language = result.get("language", "en")
     segments = result.get("segments", [])
+    metadata = result.get("metadata")
+
+    lines = []
+
+    if metadata is not None:
+        lines.append("---")
+        lines.append(f"processing_timestamp: {metadata['processing']['timestamp']}")
+        lines.append(f"model_version: {metadata['processing']['model_version']}")
+        lines.append(f"detected_language: {metadata['source'].get('detected_language', 'unknown')}")
+        lines.append("---")
+        lines.append("")
 
     # Build markdown document
-    lines = [f"# Transcription: {filename}", ""]
+    lines.extend([f"# Transcription: {filename}", ""])
 
     # Add metadata section
     duration_formatted = _format_duration(duration)
@@ -63,6 +77,17 @@ def format_markdown(result: dict[str, Any]) -> str:
     # Fallback: If no segments, output plain text
     if not segments and "text" in result:
         lines.append(result["text"])
+        lines.append("")
+
+    if metadata is not None:
+        lines.append("## Processing Metadata")
+        lines.append("")
+        lines.append(f"- Processing Time: {metadata['processing']['processing_time_seconds']:.2f}s")
+        lines.append(f"- Sample Rate: {metadata['source'].get('sample_rate_hz', 'unknown')} Hz")
+        lines.append(f"- Channels: {metadata['source'].get('channels', 'unknown')}")
+        if metadata["source"].get("language_confidence") != "unavailable":
+            conf = metadata["source"].get("language_confidence", 0)
+            lines.append(f"- Language Confidence: {conf:.2%}")
         lines.append("")
 
     return "\n".join(lines)

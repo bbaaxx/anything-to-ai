@@ -158,13 +158,14 @@ def get_audio_info(file_path: str) -> dict[str, Any]:
     }
 
 
-def process_audio(file_path: str, config: TranscriptionConfig | None = None) -> TranscriptionResult:
+def process_audio(file_path: str, config: TranscriptionConfig | None = None, include_metadata: bool = False) -> TranscriptionResult:
     """
     Process single audio file and generate transcribed text.
 
     Args:
         file_path: Path to audio file
         config: Processing configuration (uses defaults if not provided)
+        include_metadata: Include source file and processing metadata in output
 
     Returns:
         TranscriptionResult: Transcription result with text and metadata
@@ -245,6 +246,22 @@ def process_audio(file_path: str, config: TranscriptionConfig | None = None) -> 
         # Calculate processing time
         processing_time = time.time() - start_time
 
+        # Extract metadata if requested
+        metadata = None
+        if include_metadata:
+            from .metadata import extract_audio_metadata
+
+            user_config = {"model": config.model, "language": config.language, "quantization": config.quantization}
+            effective_config = {
+                "model": config.model,
+                "language": config.language,
+                "quantization": config.quantization,
+                "batch_size": config.batch_size,
+                "max_duration_seconds": config.max_duration_seconds,
+                "timestamps": config.timestamps,
+            }
+            metadata = extract_audio_metadata(audio_doc, processing_time, config.model, detected_language, confidence_score, user_config, effective_config)
+
         return TranscriptionResult(
             audio_path=file_path,
             text=text,
@@ -256,6 +273,7 @@ def process_audio(file_path: str, config: TranscriptionConfig | None = None) -> 
             success=True,
             error_message=None,
             segments=segments,
+            metadata=metadata,
         )
 
     except NoSpeechDetectedError:

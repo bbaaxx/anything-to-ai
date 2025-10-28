@@ -141,12 +141,40 @@ class TextSummarizer:
         # Add metadata
         if include_metadata:
             processing_time = time.time() - start_time
+
+            # Get universal metadata fields
+            from .metadata import extract_text_metadata
+
+            user_config = {"model": self.adapter.model, "chunk_size": self.chunk_size, "chunk_overlap": self.chunk_overlap}
+            effective_config = {
+                "model": self.adapter.model,
+                "chunk_size": self.chunk_size,
+                "chunk_overlap": self.chunk_overlap,
+            }
+
+            chunk_count = len(chunk_text(text, self.chunk_size, self.chunk_overlap)) if needs_chunking else None
+            universal_metadata = extract_text_metadata(
+                text=text,
+                file_path=None,  # Text summarizer doesn't track file path (stdin or API)
+                processing_time=processing_time,
+                model_version=self.adapter.model,
+                detected_language=result.get("language"),
+                chunked=needs_chunking,
+                chunk_count=chunk_count,
+                user_config=user_config,
+                effective_config=effective_config,
+            )
+
             metadata = SummaryMetadata(
                 input_length=word_count,
                 chunked=needs_chunking,
-                chunk_count=len(chunk_text(text, self.chunk_size, self.chunk_overlap)) if needs_chunking else None,
+                chunk_count=chunk_count,
                 detected_language=result.get("language"),
                 processing_time=processing_time,
+                processing_timestamp=universal_metadata["processing_timestamp"],
+                model_version=universal_metadata["model_version"],
+                configuration=universal_metadata["configuration"],
+                source=universal_metadata["source"],
             )
             return SummaryResult(summary=result["summary"], tags=result["tags"], metadata=metadata)
         return SummaryResult(summary=result["summary"], tags=result["tags"])

@@ -82,16 +82,16 @@ class CLICommands:
             OutputFormatter.print_enhanced_result(result, enhanced_config.output_format, file_path)
 
     @staticmethod
-    def _extract_regular(file_path: str, config, stream: bool):
+    def _extract_regular(file_path: str, config, stream: bool, include_metadata: bool = False):
         """Extract PDF without image processing."""
         if stream:
             pages = []
-            for page_result in extract_text_streaming(file_path, config):
+            for page_result in extract_text_streaming(file_path, config, include_metadata=include_metadata):
                 pages.append(page_result)
 
             OutputFormatter.print_regular_output(pages, config.output_format, file_path, streaming=True)
         else:
-            result = extract_text(file_path, config)
+            result = extract_text(file_path, config, include_metadata=include_metadata)
             OutputFormatter.print_regular_result(result, config.output_format, file_path)
 
     @staticmethod
@@ -144,6 +144,7 @@ class CLICommands:
             stream: Enable streaming mode
             format_type: Output format (plain/json/csv)
             progress: Show progress information
+            include_metadata: Include source and processing metadata
             include_images: Enable AI-generated image descriptions
             image_style: Style of image descriptions (brief/detailed/technical)
             image_fallback: Fallback text when image processing fails
@@ -181,7 +182,7 @@ class CLICommands:
                     output_format=format_type,
                 )
 
-                CLICommands._extract_regular(file_path, config, stream)
+                CLICommands._extract_regular(file_path, config, stream, include_metadata)
 
             return 0
 
@@ -232,6 +233,7 @@ def main():
         help="Output format (default: plain)",
     )
     extract_parser.add_argument("--progress", action="store_true", help="Show progress information")
+    extract_parser.add_argument("--include-metadata", action="store_true", help="Include source file and processing metadata in output")
 
     # Enhanced image processing options
     extract_parser.add_argument(
@@ -274,6 +276,7 @@ def main():
             stream=args.stream,
             format_type=args.format,
             progress=args.progress,
+            include_metadata=args.include_metadata,
             include_images=args.include_images,
             image_style=args.image_style,
             image_fallback=args.image_fallback,

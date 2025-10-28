@@ -61,6 +61,7 @@ class ExtractionResult:
     total_chars: int
     processing_time: float
     error_message: str | None = None
+    metadata: dict | None = None
 
     def __post_init__(self):
         """Validate ExtractionResult fields."""

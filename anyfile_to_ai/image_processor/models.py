@@ -36,6 +36,7 @@ class DescriptionResult:
     technical_metadata: dict[str, Any] | None = None
     vlm_processing_time: float | None = None
     model_version: str | None = None
+    metadata: dict | None = None
 
 
 @dataclass

@@ -6,6 +6,7 @@ from typing import Optional, Any
 import pdfplumber
 from .models import PageResult, ExtractionResult, ExtractionConfig
 from .exceptions import PDFNotFoundError, PDFCorruptedError
+from .metadata import extract_pdf_metadata
 
 try:
     from anyfile_to_ai.progress_tracker import ProgressEmitter
@@ -20,6 +21,7 @@ def extract_text(
     file_path: str,
     config: ExtractionConfig | None = None,
     progress_emitter: Optional["ProgressEmitter"] = None,
+    include_metadata: bool = False,
 ) -> ExtractionResult:
     """Extract text from PDF file.
 
@@ -27,6 +29,7 @@ def extract_text(
         file_path: Path to PDF file
         config: Extraction configuration (legacy)
         progress_emitter: Optional progress tracker (recommended)
+        include_metadata: Include source and processing metadata
     """
     config = config or ExtractionConfig()
     start_time = time.time()
@@ -69,12 +72,21 @@ def extract_text(
 
             processing_time = time.time() - start_time
 
+            metadata = None
+            if include_metadata:
+                from .metadata import extract_pdf_metadata
+
+                user_config = {"output_format": config.output_format, "streaming_enabled": config.streaming_enabled}
+                effective_config = user_config.copy()
+                metadata = extract_pdf_metadata(file_path, pdf, processing_time, user_config, effective_config)
+
             return ExtractionResult(
                 success=True,
                 pages=pages,
                 total_pages=len(pages),
                 total_chars=total_chars,
                 processing_time=processing_time,
+                metadata=metadata,
             )
 
     except Exception as e:

@@ -29,6 +29,10 @@ class SummaryMetadata(BaseModel):
     chunk_count: int | None = Field(default=None, ge=1, description="Number of chunks")
     detected_language: str | None = Field(default=None, description="ISO 639-1 language code")
     processing_time: float = Field(..., ge=0.0, description="Processing time in seconds")
+    processing_timestamp: str | None = Field(default=None, description="ISO 8601 timestamp")
+    model_version: str | None = Field(default=None, description="LLM model version")
+    configuration: dict | None = Field(default=None, description="Configuration metadata")
+    source: dict | None = Field(default=None, description="Source metadata")
 
     @field_validator("chunk_count")
     @classmethod

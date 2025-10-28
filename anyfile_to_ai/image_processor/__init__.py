@@ -66,23 +66,23 @@ def _get_streaming_processor():
 
 
 # Core API functions
-def process_image(file_path: str, config: "ProcessingConfig" = None) -> "DescriptionResult":
+def process_image(file_path: str, config: "ProcessingConfig" = None, include_metadata: bool = False) -> "DescriptionResult":
     """Process single image and generate descriptive text."""
     if config is None:
         config = ProcessingConfig()
 
     processor = _get_processor()
     image_doc = processor.validate_image(file_path)
-    return processor.process_single_image(image_doc, config)
+    return processor.process_single_image(image_doc, config, include_metadata)
 
 
-def process_images(file_paths: list, config: "ProcessingConfig" = None) -> "ProcessingResult":
+def process_images(file_paths: list, config: "ProcessingConfig" = None, include_metadata: bool = False) -> "ProcessingResult":
     """Process multiple images in batch."""
     if config is None:
         config = ProcessingConfig()
 
     streaming_processor = _get_streaming_processor()
-    return streaming_processor.process_batch(file_paths, config)
+    return streaming_processor.process_batch(file_paths, config, include_metadata)
 
 
 def validate_image(file_path: str) -> "ImageDocument":
@@ -98,13 +98,13 @@ def get_supported_formats() -> list:
     return sorted(SUPPORTED_FORMATS)
 
 
-def process_images_streaming(file_paths: list, config: "ProcessingConfig" = None):
+def process_images_streaming(file_paths: list, config: "ProcessingConfig" = None, include_metadata: bool = False):
     """Process images with streaming progress updates."""
     if config is None:
         config = ProcessingConfig()
 
     streaming_processor = _get_streaming_processor()
-    return streaming_processor.process_streaming(file_paths, config)
+    return streaming_processor.process_streaming(file_paths, config, include_metadata)
 
 
 def create_config(description_style: str = "detailed", max_length: int = 500, batch_size: int = 4, progress_callback=None, **kwargs) -> "ProcessingConfig":
