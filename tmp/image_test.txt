@@ -1,9 +1,0 @@
-Processed 1 images
-Successful: 1, Failed: 0
-Total time: 7.13s
-
-✓ sample-data/images/SCR-20241019-fraf.png
-
-
-The image shows a close-up portrait of Sofia Vergara, a Colombian actress. She is smiling warmly, with a genuine and inviting expression. Her dark brown hair is styled in loose, wavy layers that fall around her face. Her makeup is natural and enhances her features, with a focus on her eyes and lips. She has a slightly rosy complexion and a healthy glow. Her eyes are a warm brown, and her smile reveals her white teeth. The lighting is soft and flattering, highlighting her
-   Format: PNG, Size: 439x572, 383040 bytes

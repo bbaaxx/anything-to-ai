@@ -312,3 +312,5 @@ Each module is documented independently. Check their individual READMEs for deta
 ## Contributing
 
 This is an experimental project exploring modular design patterns. Feel free to explore the code and documentation in the `specs/` directory to understand the development process.
+
+Added this line to the README
