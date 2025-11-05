@@ -86,7 +86,7 @@ class CLICommands:
         """Extract PDF without image processing."""
         if stream:
             pages = []
-            for page_result in extract_text_streaming(file_path, config, include_metadata=include_metadata):
+            for page_result in extract_text_streaming(file_path, config):
                 pages.append(page_result)
 
             OutputFormatter.print_regular_output(pages, config.output_format, file_path, streaming=True)
@@ -130,6 +130,7 @@ class CLICommands:
         stream: bool = False,
         format_type: str = "plain",
         progress: bool = False,
+        include_metadata: bool = False,
         include_images: bool = False,
         image_style: str = "detailed",
         image_fallback: str = "[Image: processing failed]",
