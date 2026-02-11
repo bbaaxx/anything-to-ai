@@ -204,7 +204,7 @@ class TestCLIProgressConsumer:
         assert consumer.show_count is False
         assert consumer.title == "Custom Title"
 
-    @patch("progress_tracker.cli_renderer.alive_bar")
+    @patch("anyfile_to_ai.progress_tracker.cli_renderer.alive_bar")
     def test_on_progress_creates_bar(self, mock_alive_bar):
         """Test that on_progress creates progress bar."""
         mock_context = MagicMock()
@@ -223,7 +223,7 @@ class TestCLIProgressConsumer:
         mock_alive_bar.assert_called_once()
         mock_context.__enter__.assert_called_once()
 
-    @patch("progress_tracker.cli_renderer.alive_bar")
+    @patch("anyfile_to_ai.progress_tracker.cli_renderer.alive_bar")
     def test_on_progress_indeterminate(self, mock_alive_bar):
         """Test on_progress with indeterminate progress."""
         mock_context = MagicMock()
@@ -240,7 +240,7 @@ class TestCLIProgressConsumer:
 
         mock_alive_bar.assert_called_with(monitor=True, title="Test")
 
-    @patch("progress_tracker.cli_renderer.alive_bar")
+    @patch("anyfile_to_ai.progress_tracker.cli_renderer.alive_bar")
     def test_on_complete_closes_bar(self, mock_alive_bar):
         """Test that on_complete finalizes the bar."""
         mock_context = MagicMock()
@@ -261,7 +261,7 @@ class TestCLIProgressConsumer:
 
         mock_context.__exit__.assert_called()
 
-    @patch("progress_tracker.cli_renderer.alive_bar")
+    @patch("anyfile_to_ai.progress_tracker.cli_renderer.alive_bar")
     def test_total_change_recreates_bar(self, mock_alive_bar):
         """Test that changing total recreates the bar."""
         mock_context = MagicMock()
@@ -283,7 +283,7 @@ class TestCLIProgressConsumer:
         consumer.on_progress(update2)
         assert mock_alive_bar.call_count == 2
 
-    @patch("progress_tracker.cli_renderer.alive_bar")
+    @patch("anyfile_to_ai.progress_tracker.cli_renderer.alive_bar")
     def test_custom_title_used(self, mock_alive_bar):
         """Test that custom title is used."""
         mock_context = MagicMock()

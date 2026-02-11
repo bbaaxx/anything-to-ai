@@ -99,9 +99,18 @@ rm -f ./tmp/human_test_*.log ./tmp/*_test.*
 The script automatically configures:
 
 - **VISION_MODEL** for image processing (defaults to `mlx-community/gemma-3-4b-it-4bit`)
-- **LLM models** for text summarization (uses available local models)
+- **PROVIDER/BASE_URL/TEXT_MODEL** for text summarization and provider-backed tests
 - **Temporary directories** and file cleanup
 - **Progress tracking** and verbose output
+
+For provider-aware runs, set:
+
+```bash
+export PROVIDER=lmstudio
+export BASE_URL=http://127.0.0.1:1234/v1
+export TEXT_MODEL=qwen/qwen3-14b
+export VISION_MODEL=qwen/qwen3-vl-8b
+```
 
 ### Exit Codes
 
@@ -138,16 +147,27 @@ All tests completed!
 
 ## Running Tests
 
+### Provider-Aware Configuration
+
+Integration and provider-backed contract tests honor the unified provider env vars:
+
+- `PROVIDER` selects the provider for integration tests (`ollama`, `lmstudio`, `mlx`).
+- `BASE_URL` sets the base URL for the selected provider.
+- `TEXT_MODEL` selects the text model for text generation tests.
+- `VISION_MODEL` selects the vision model for vision tests.
+
+When `PROVIDER` is unset, tests default to Ollama/LMS default base URLs and skip if the service is unavailable.
+
 ### All Tests
 
 ```bash
-# Run all test suites
-uv run pytest
+# Fast test loop (disables coverage instrumentation from pytest defaults)
+./run_tests_fast.sh
 
 # Run specific test categories
-uv run pytest tests/unit/
-uv run pytest tests/integration/
-uv run pytest tests/contract/
+./run_tests_fast.sh tests/unit/
+./run_tests_fast.sh tests/integration/
+./run_tests_fast.sh tests/contract/
 ```
 
 ### Individual Test Files
@@ -159,8 +179,34 @@ uv run pytest tests/unit/test_chunker.py
 # Run with verbose output
 uv run pytest tests/integration/test_workflows.py -v
 
-# Run with coverage
-uv run pytest --cov=.
+# Run coverage gate (separate from the fast loop)
+./run_coverage.sh
+
+# Optional: limit coverage run scope while debugging
+./run_coverage.sh tests/contract
+```
+
+### Provider-Specific Runs
+
+```bash
+# Run Ollama-backed integration + provider contract tests
+export PROVIDER=ollama
+export BASE_URL=http://localhost:11434
+export TEXT_MODEL=llama2
+export VISION_MODEL=llava:latest
+uv run pytest tests/integration tests/contract/test_llm_client_api.py tests/contract/test_adapter_interface.py
+
+# Run LM Studio-backed integration + provider contract tests
+export PROVIDER=lmstudio
+export BASE_URL=http://127.0.0.1:1234/v1
+export TEXT_MODEL=qwen/qwen3-14b
+export VISION_MODEL=qwen/qwen3-vl-8b
+uv run pytest tests/integration tests/contract/test_llm_client_api.py tests/contract/test_adapter_interface.py
+
+# Run MLX vision integration
+export PROVIDER=mlx
+export VISION_MODEL=mlx-community/Qwen2-VL-2B-Instruct-4bit
+uv run pytest tests/integration/test_vision_provider_integration.py -m "slow"
 ```
 
 ## Test Data

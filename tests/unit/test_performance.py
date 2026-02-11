@@ -1,10 +1,16 @@
 """Unit tests for performance validation."""
 
+import os
 import pytest
 import tempfile
 import time
-import os
 from PIL import Image
+
+pytest.importorskip("mlx_vlm")
+
+if os.getenv("RUN_PERF_TESTS", "").lower() not in {"1", "true", "yes"}:
+    pytest.skip("Performance tests are optional. Set RUN_PERF_TESTS=1 to enable.", allow_module_level=True)
+
 from anyfile_to_ai.image_processor import (
     process_image,
     process_images,
