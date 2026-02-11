@@ -18,6 +18,11 @@ from anyfile_to_ai.pdf_extractor.exceptions import (
     EnhancedExtractionError,
     PartialExtractionError,
     ConfigurationValidationError,
+    ExceptionHierarchyInterface,
+    ErrorRecoveryStrategy,
+    validate_exception_inheritance,
+    validate_exception_attributes,
+    validate_error_messages,
 )
 
 

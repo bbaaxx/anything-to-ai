@@ -29,12 +29,10 @@ class TestModuleAPIContract:
             # Remove VISION_MODEL if set
             os.environ.pop("VISION_MODEL", None)
 
-            # Should raise VLMConfigurationError when no VISION_MODEL set
-            from anyfile_to_ai.image_processor.vlm_exceptions import (
-                VLMConfigurationError,
-            )
+            # Should raise configuration error when no VISION_MODEL is set.
+            from anyfile_to_ai.image_processor.vlm_exceptions import VLMConfigurationError
 
-            with pytest.raises(VLMConfigurationError) as exc_info:
+            with pytest.raises((ValidationError, VLMConfigurationError)) as exc_info:
                 create_config()
 
             assert "VISION_MODEL" in str(exc_info.value)

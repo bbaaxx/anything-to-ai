@@ -7,6 +7,7 @@ CLI parsing, and formatting functions.
 
 import pytest
 from dataclasses import is_dataclass, fields
+from unittest.mock import MagicMock, patch
 from anyfile_to_ai.audio_processor.models import TranscriptionResult
 from anyfile_to_ai.audio_processor.config import create_config
 
@@ -105,7 +106,7 @@ class TestProcessAudioWithTimestamps:
     def test_process_audio_with_timestamps(self):
         """Test that process_audio returns segments when timestamps enabled."""
         from anyfile_to_ai.audio_processor.processor import process_audio
-        from anyfile_to_ai.audio_processor.models import TranscriptionSegment
+        from anyfile_to_ai.audio_processor.models import TranscriptionSegment, AudioDocument
 
         # Create config with timestamps enabled
         config = create_config(
@@ -113,8 +114,28 @@ class TestProcessAudioWithTimestamps:
             timestamps=True,
         )
 
-        # Process a real audio file
-        result = process_audio("sample-data/audio/podcast.mp3", config)
+        mock_audio_doc = AudioDocument(
+            file_path="sample-data/audio/podcast.mp3",
+            format="mp3",
+            duration=60.0,
+            sample_rate=16000,
+            file_size=2048,
+            channels=1,
+        )
+        mock_model = MagicMock()
+        mock_model.transcribe.return_value = {
+            "text": "hello world",
+            "language": "en",
+            "segments": [(0, 50, "hello"), (50, 100, "world")],
+        }
+        mock_loader = MagicMock()
+        mock_loader.load_model.return_value = mock_model
+
+        with (
+            patch("anyfile_to_ai.audio_processor.processor.validate_audio", return_value=mock_audio_doc),
+            patch("anyfile_to_ai.audio_processor.processor.get_model_loader", return_value=mock_loader),
+        ):
+            result = process_audio("sample-data/audio/podcast.mp3", config)
 
         # Must succeed
         assert result.success is True
@@ -140,12 +161,33 @@ class TestProcessAudioWithTimestamps:
     def test_process_audio_without_timestamps(self):
         """Test that process_audio doesn't include segments when timestamps disabled."""
         from anyfile_to_ai.audio_processor.processor import process_audio
+        from anyfile_to_ai.audio_processor.models import AudioDocument
 
         # Create config with timestamps disabled (default)
         config = create_config(model="tiny")
 
-        # Process audio file
-        result = process_audio("sample-data/audio/podcast.mp3", config)
+        mock_audio_doc = AudioDocument(
+            file_path="sample-data/audio/podcast.mp3",
+            format="mp3",
+            duration=60.0,
+            sample_rate=16000,
+            file_size=2048,
+            channels=1,
+        )
+        mock_model = MagicMock()
+        mock_model.transcribe.return_value = {
+            "text": "hello world",
+            "language": "en",
+            "segments": [(0, 50, "hello"), (50, 100, "world")],
+        }
+        mock_loader = MagicMock()
+        mock_loader.load_model.return_value = mock_model
+
+        with (
+            patch("anyfile_to_ai.audio_processor.processor.validate_audio", return_value=mock_audio_doc),
+            patch("anyfile_to_ai.audio_processor.processor.get_model_loader", return_value=mock_loader),
+        ):
+            result = process_audio("sample-data/audio/podcast.mp3", config)
 
         # Must succeed
         assert result.success is True

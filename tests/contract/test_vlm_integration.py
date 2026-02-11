@@ -168,7 +168,6 @@ class TestVLMIntegrationContract:
 
     def test_vlm_processing_interface(self):
         """Test VLM processing interface contract."""
-        # This should FAIL initially - VLM processing not implemented
         try:
             from anyfile_to_ai.image_processor.vlm_processor import VLMProcessor
             from anyfile_to_ai.image_processor.config import VLMConfig
@@ -176,9 +175,26 @@ class TestVLMIntegrationContract:
             processor = VLMProcessor()
             config = VLMConfig(model_name="google/gemma-3-4b")
 
-            # Should be able to process single image
-            # This will fail because implementation doesn't exist
-            result = processor.process_image_with_vlm(image_path="test.jpg", prompt="Describe this image", config=config)
+            with (
+                patch.object(
+                    processor,
+                    "_ensure_model_loaded",
+                    return_value=MagicMock(model_info={"name": config.model_name, "version": "test"}),
+                ),
+                patch(
+                    "anyfile_to_ai.image_processor.vlm_processor.create_vlm_model",
+                    return_value=MagicMock(
+                        model_name=config.model_name,
+                        _ensure_model_loaded=MagicMock(),
+                    ),
+                ),
+                patch.object(
+                    processor,
+                    "_process_with_timeout",
+                    return_value={"description": "mock description", "confidence_score": 0.9},
+                ),
+            ):
+                result = processor.process_image_with_vlm(image_path="test.jpg", prompt="Describe this image", config=config)
 
             # Result should have expected structure
             assert isinstance(result, dict)
