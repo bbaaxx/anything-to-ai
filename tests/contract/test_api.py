@@ -14,7 +14,7 @@ class TestExtractTextContract:
 
     def test_extract_text_returns_extraction_result(self):
         """Test extract_text() returns ExtractionResult object."""
-        result = extract_text("sample.pdf")
+        result = extract_text("sample-data/pdf/research_paper_no_images.pdf")
         assert isinstance(result, ExtractionResult)
         assert hasattr(result, "success")
         assert hasattr(result, "pages")
@@ -25,7 +25,7 @@ class TestExtractTextContract:
     def test_extract_text_with_config(self):
         """Test extract_text() accepts optional ExtractionConfig."""
         config = ExtractionConfig(streaming_enabled=False, output_format="json")
-        result = extract_text("sample.pdf", config)
+        result = extract_text("sample-data/pdf/research_paper_no_images.pdf", config)
         assert isinstance(result, ExtractionResult)
 
     def test_extract_text_raises_pdf_not_found_error(self):
@@ -41,7 +41,7 @@ class TestExtractTextStreamingContract:
 
     def test_extract_text_streaming_returns_generator(self):
         """Test extract_text_streaming() returns generator of PageResult objects."""
-        gen = extract_text_streaming("sample.pdf")
+        gen = extract_text_streaming("sample-data/pdf/research_paper_no_images.pdf")
         page_result = next(gen)
         assert isinstance(page_result, PageResult)
         assert hasattr(page_result, "page_number")
@@ -52,7 +52,7 @@ class TestExtractTextStreamingContract:
     def test_extract_text_streaming_with_config(self):
         """Test extract_text_streaming() accepts optional ExtractionConfig."""
         config = ExtractionConfig(progress_callback=lambda x, y: None)
-        gen = extract_text_streaming("sample.pdf", config)
+        gen = extract_text_streaming("sample-data/pdf/research_paper_no_images.pdf", config)
         page_result = next(gen)
         assert isinstance(page_result, PageResult)
 
@@ -62,7 +62,7 @@ class TestGetPdfInfoContract:
 
     def test_get_pdf_info_returns_dict(self):
         """Test get_pdf_info() returns dictionary with required fields."""
-        info = get_pdf_info("sample.pdf")
+        info = get_pdf_info("sample-data/pdf/research_paper_no_images.pdf")
         assert isinstance(info, dict)
         assert "page_count" in info
         assert "file_size" in info

@@ -4,42 +4,49 @@ These tests define the expected behavior of provider adapters.
 All tests should FAIL until implementation is complete.
 """
 
+import os
 import pytest
 
+from provider_env import (
+    check_lmstudio_available,
+    check_ollama_available,
+    generation_skip_reason,
+    mlx_available,
+    provider_mismatch_reason,
+    resolve_base_url,
+    resolve_text_model,
+    resolve_vision_model,
+)
+from anyfile_to_ai.llm_client.exceptions import GenerationError
 
-def check_ollama_available() -> bool:
-    """Check if Ollama service is available."""
+OLLAMA_BASE_URL = resolve_base_url("ollama", "http://localhost:11434")
+LMSTUDIO_BASE_URL = resolve_base_url("lmstudio", "http://localhost:1234")
+REQUESTED_TEXT_MODEL = resolve_text_model(os.environ.get("LMSTUDIO_MODEL"))
+VISION_MODEL = resolve_vision_model(ignore_defaulted=True)
+
+_OLLAMA_SKIP_REASON = provider_mismatch_reason("ollama")
+if not _OLLAMA_SKIP_REASON and not check_ollama_available(OLLAMA_BASE_URL):
+    _OLLAMA_SKIP_REASON = f"Ollama service not available at {OLLAMA_BASE_URL}"
+
+_LMSTUDIO_SKIP_REASON = provider_mismatch_reason("lmstudio")
+if not _LMSTUDIO_SKIP_REASON and not check_lmstudio_available(LMSTUDIO_BASE_URL):
+    _LMSTUDIO_SKIP_REASON = f"LM Studio service not available at {LMSTUDIO_BASE_URL}"
+
+_MLX_SKIP_REASON = provider_mismatch_reason("mlx")
+if not _MLX_SKIP_REASON and not VISION_MODEL:
+    _MLX_SKIP_REASON = "VISION_MODEL not set"
+if not _MLX_SKIP_REASON and not mlx_available():
+    _MLX_SKIP_REASON = "mlx-vlm dependency not available"
+
+
+def _generate_or_skip(adapter, request, provider: str):
     try:
-        import httpx
-
-        response = httpx.get("http://localhost:11434/api/tags", timeout=5.0)
-        return response.status_code == 200
-    except Exception:
-        return False
-
-
-def check_lmstudio_available() -> bool:
-    """Check if LMStudio service is available and has a model loaded."""
-    try:
-        import httpx
-
-        # Check if service is running
-        response = httpx.get("http://localhost:1234/v1/models", timeout=5.0)
-        if response.status_code != 200:
-            return False
-
-        # Check if any models are loaded
-        models = response.json()
-        return len(models.get("data", [])) > 0
-    except Exception:
-        return False
-
-
-def check_vision_model_set() -> bool:
-    """Check if VISION_MODEL environment variable is set."""
-    import os
-
-    return bool(os.environ.get("VISION_MODEL"))
+        return adapter.generate(request)
+    except GenerationError as exc:
+        skip_reason = generation_skip_reason(exc, provider)
+        if skip_reason:
+            pytest.skip(skip_reason)
+        raise
 
 
 class TestAdapterInterface:
@@ -51,6 +58,7 @@ class TestAdapterInterface:
 
         # Check required methods exist
         assert hasattr(BaseAdapter, "generate")
+        assert hasattr(BaseAdapter, "generate_vision")
         assert hasattr(BaseAdapter, "list_models")
         assert hasattr(BaseAdapter, "health_check")
 
@@ -70,7 +78,7 @@ class TestAdapterInterface:
         from anyfile_to_ai.llm_client.adapters.ollama_adapter import OllamaAdapter
         from anyfile_to_ai.llm_client import LLMConfig
 
-        config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
+        config = LLMConfig(provider="ollama", base_url=OLLAMA_BASE_URL)
 
         adapter = OllamaAdapter(config)
 
@@ -78,8 +86,8 @@ class TestAdapterInterface:
 
 
 @pytest.mark.skipif(
-    not check_ollama_available(),
-    reason="Ollama service not available at localhost:11434",
+    _OLLAMA_SKIP_REASON is not None,
+    reason=_OLLAMA_SKIP_REASON or "",
 )
 class TestOllamaAdapter:
     """Contract tests for Ollama provider adapter."""
@@ -89,12 +97,12 @@ class TestOllamaAdapter:
         from anyfile_to_ai.llm_client.adapters.ollama_adapter import OllamaAdapter
         from anyfile_to_ai.llm_client import LLMConfig, LLMRequest, Message
 
-        config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
+        config = LLMConfig(provider="ollama", base_url=OLLAMA_BASE_URL)
         adapter = OllamaAdapter(config)
 
         request = LLMRequest(messages=[Message(role="user", content="Hello")], model="deepseek-r1:1.5b")
 
-        response = adapter.generate(request)
+        response = _generate_or_skip(adapter, request, "ollama")
 
         assert response is not None
         assert response.content
@@ -105,7 +113,7 @@ class TestOllamaAdapter:
         from anyfile_to_ai.llm_client.adapters.ollama_adapter import OllamaAdapter
         from anyfile_to_ai.llm_client import LLMConfig, ModelInfo
 
-        config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
+        config = LLMConfig(provider="ollama", base_url=OLLAMA_BASE_URL)
         adapter = OllamaAdapter(config)
 
         models = adapter.list_models()
@@ -119,7 +127,7 @@ class TestOllamaAdapter:
         from anyfile_to_ai.llm_client.adapters.ollama_adapter import OllamaAdapter
         from anyfile_to_ai.llm_client import LLMConfig
 
-        config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
+        config = LLMConfig(provider="ollama", base_url=OLLAMA_BASE_URL)
         adapter = OllamaAdapter(config)
 
         is_healthy = adapter.health_check()
@@ -128,8 +136,8 @@ class TestOllamaAdapter:
 
 
 @pytest.mark.skipif(
-    not check_lmstudio_available(),
-    reason="LMStudio service not available at localhost:1234",
+    _LMSTUDIO_SKIP_REASON is not None,
+    reason=_LMSTUDIO_SKIP_REASON or "",
 )
 class TestLMStudioAdapter:
     """Contract tests for LM Studio provider adapter."""
@@ -139,15 +147,20 @@ class TestLMStudioAdapter:
         from anyfile_to_ai.llm_client.adapters.lmstudio_adapter import LMStudioAdapter
         from anyfile_to_ai.llm_client import LLMConfig, LLMRequest, Message
 
-        config = LLMConfig(provider="lmstudio", base_url="http://localhost:1234")
+        config = LLMConfig(provider="lmstudio", base_url=LMSTUDIO_BASE_URL)
         adapter = LMStudioAdapter(config)
 
-        request = LLMRequest(
-            messages=[Message(role="user", content="Hello")],
-            model="mistralai/magistral-small-2509",
-        )
+        models = adapter.list_models()
+        if not models:
+            pytest.skip("No models available in LM Studio")
 
-        response = adapter.generate(request)
+        target_model = REQUESTED_TEXT_MODEL or models[0].id
+        if REQUESTED_TEXT_MODEL and target_model not in {m.id for m in models}:
+            pytest.skip(f"TEXT_MODEL not available: {target_model}")
+
+        request = LLMRequest(messages=[Message(role="user", content="Hello")], model=target_model)
+
+        response = _generate_or_skip(adapter, request, "lmstudio")
 
         assert response is not None
         assert response.content
@@ -158,7 +171,7 @@ class TestLMStudioAdapter:
         from anyfile_to_ai.llm_client.adapters.lmstudio_adapter import LMStudioAdapter
         from anyfile_to_ai.llm_client import LLMConfig, ModelInfo
 
-        config = LLMConfig(provider="lmstudio", base_url="http://localhost:1234")
+        config = LLMConfig(provider="lmstudio", base_url=LMSTUDIO_BASE_URL)
         adapter = LMStudioAdapter(config)
 
         models = adapter.list_models()
@@ -172,13 +185,13 @@ class TestLMStudioAdapter:
         from anyfile_to_ai.llm_client.adapters.lmstudio_adapter import LMStudioAdapter
         from anyfile_to_ai.llm_client import LLMConfig
 
-        config = LLMConfig(provider="lmstudio", base_url="http://localhost:1234", api_key="test-key")
+        config = LLMConfig(provider="lmstudio", base_url=LMSTUDIO_BASE_URL, api_key="test-key")
         adapter = LMStudioAdapter(config)
 
         assert adapter.config.api_key == "test-key"
 
 
-@pytest.mark.skipif(not check_vision_model_set(), reason="VISION_MODEL environment variable not set")
+@pytest.mark.skipif(_MLX_SKIP_REASON is not None, reason=_MLX_SKIP_REASON or "")
 class TestMLXAdapter:
     """Contract tests for MLX provider adapter."""
 
@@ -193,7 +206,7 @@ class TestMLXAdapter:
         )
         adapter = MLXAdapter(config)
 
-        request = LLMRequest(messages=[Message(role="user", content="Describe this image")])
+        request = LLMRequest(messages=[Message(role="user", content="Describe sample-data/images/ui-screenshot.png")])
 
         response = adapter.generate(request)
 
@@ -216,7 +229,6 @@ class TestMLXAdapter:
         """MLX adapter maintains compatibility with image_processor."""
         from anyfile_to_ai.llm_client.adapters.mlx_adapter import MLXAdapter
         from anyfile_to_ai.llm_client import LLMConfig
-        import os
 
         # Should respect VISION_MODEL environment variable
         os.environ["VISION_MODEL"] = "google/gemma-3-4b"
@@ -236,7 +248,7 @@ class TestAdapterFactory:
         from anyfile_to_ai.llm_client.adapters import get_adapter
         from anyfile_to_ai.llm_client import LLMConfig
 
-        config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
+        config = LLMConfig(provider="ollama", base_url=OLLAMA_BASE_URL)
         adapter = get_adapter(config)
 
         assert adapter is not None

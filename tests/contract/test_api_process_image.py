@@ -17,9 +17,9 @@ class TestProcessImageContract:
 
     def test_process_image_basic_call(self):
         """Test basic process_image call returns DescriptionResult."""
-        result = process_image("sample.jpg")
+        result = process_image("sample-data/images/ai-generated-tattoo.png")
         assert isinstance(result, DescriptionResult)
-        assert result.image_path == "sample.jpg"
+        assert result.image_path == "sample-data/images/ai-generated-tattoo.png"
         assert isinstance(result.description, str)
         assert len(result.description) > 0
         assert result.success is True
@@ -27,7 +27,7 @@ class TestProcessImageContract:
     def test_process_image_with_config(self):
         """Test process_image with custom configuration."""
         config = ProcessingConfig(description_style="brief", max_description_length=200)
-        result = process_image("sample.jpg", config)
+        result = process_image("sample-data/images/ai-generated-tattoo.png", config)
         assert isinstance(result, DescriptionResult)
         assert result.success is True
         assert len(result.description) <= 200
@@ -41,12 +41,12 @@ class TestProcessImageContract:
     def test_process_image_unsupported_format(self):
         """Test process_image raises UnsupportedFormatError for unsupported formats."""
         with pytest.raises(UnsupportedFormatError) as exc_info:
-            process_image("document.txt")
-        assert "document.txt" in str(exc_info.value)
+            process_image("sample-data/images/flower-nature.JPG")
+        assert "flower-nature.JPG" in str(exc_info.value)
 
     def test_process_image_result_metadata(self):
         """Test process_image returns complete metadata."""
-        result = process_image("sample.jpg")
+        result = process_image("sample-data/images/ai-generated-tattoo.png")
         assert hasattr(result, "confidence_score")
         assert hasattr(result, "processing_time")
         assert hasattr(result, "model_used")

@@ -4,6 +4,7 @@ Tests FR-008, FR-009: Batch processing with progress callbacks.
 """
 
 import pytest
+from anyfile_to_ai import audio_processor
 
 
 class TestBatchAudioProcessing:

@@ -14,9 +14,9 @@ class TestValidateImageContract:
 
     def test_validate_image_basic_call(self):
         """Test basic validate_image call returns ImageDocument."""
-        result = validate_image("sample.jpg")
+        result = validate_image("sample-data/images/zeldadraw.jpg")
         assert isinstance(result, ImageDocument)
-        assert result.file_path == "sample.jpg"
+        assert result.file_path == "sample-data/images/zeldadraw.jpg"
         assert result.format in ["JPG", "JPEG"]
         assert result.width > 0
         assert result.height > 0
@@ -24,7 +24,7 @@ class TestValidateImageContract:
 
     def test_validate_image_large_file_detection(self):
         """Test validate_image detects large images correctly."""
-        result = validate_image("large_image.jpg")
+        result = validate_image("sample-data/images/zeldadraw.jpg")
         assert isinstance(result, ImageDocument)
         assert isinstance(result.is_large_image, bool)
 
@@ -37,18 +37,18 @@ class TestValidateImageContract:
     def test_validate_image_unsupported_format(self):
         """Test validate_image raises UnsupportedFormatError for unsupported formats."""
         with pytest.raises(UnsupportedFormatError) as exc_info:
-            validate_image("document.txt")
-        assert "document.txt" in str(exc_info.value)
+            validate_image("sample-data/images/flower-nature.JPG")
+        assert "flower-nature.JPG" in str(exc_info.value)
 
     def test_validate_image_corrupted_file(self):
         """Test validate_image raises CorruptedImageError for corrupted files."""
         with pytest.raises(CorruptedImageError) as exc_info:
-            validate_image("corrupted.jpg")
+            validate_image("sample-data/images/corrupted.jpg")
         assert "corrupted.jpg" in str(exc_info.value)
 
     def test_validate_image_metadata_fields(self):
         """Test validate_image returns all required metadata fields."""
-        result = validate_image("sample.jpg")
+        result = validate_image("sample-data/images/zeldadraw.jpg")
         assert hasattr(result, "file_path")
         assert hasattr(result, "format")
         assert hasattr(result, "width")

@@ -4,6 +4,7 @@ Tests FR-010, FR-023: Error detection and handling.
 """
 
 import pytest
+from anyfile_to_ai import audio_processor
 
 
 class TestAudioErrorWorkflows:

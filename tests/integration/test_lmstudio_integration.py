@@ -17,32 +17,54 @@ from anyfile_to_ai.llm_client import (
 from anyfile_to_ai.llm_client.exceptions import (
     ConnectionError as LLMConnectionError,
     AuthenticationError,
+    GenerationError,
+)
+from provider_env import (
+    check_lmstudio_available,
+    generation_skip_reason,
+    provider_mismatch_reason,
+    resolve_base_url,
+    resolve_text_model,
 )
 
 # Test configuration
-LMSTUDIO_BASE_URL = "http://localhost:1234"
+LMSTUDIO_BASE_URL = resolve_base_url("lmstudio", "http://localhost:1234")
+REQUESTED_TEXT_MODEL = resolve_text_model(os.environ.get("LMSTUDIO_MODEL"))
 TEST_TIMEOUT = 30.0
 
 
-def check_lmstudio_available() -> bool:
+def check_lmstudio_available_for_tests() -> bool:
     """Check if LM Studio service is available."""
-    try:
-        import httpx
+    return check_lmstudio_available(LMSTUDIO_BASE_URL)
 
-        response = httpx.get(f"{LMSTUDIO_BASE_URL}/v1/models", timeout=5.0)
-        return response.status_code in [
-            200,
-            401,
-        ]  # 401 means auth required but service is up
-    except Exception:
-        return False
 
+_SKIP_REASON = provider_mismatch_reason("lmstudio")
+if not _SKIP_REASON and not check_lmstudio_available_for_tests():
+    _SKIP_REASON = f"LM Studio service not available at {LMSTUDIO_BASE_URL}"
 
 # Skip all tests if LM Studio is not running
-pytestmark = pytest.mark.skipif(
-    not check_lmstudio_available(),
-    reason="LM Studio service not available at localhost:1234",
-)
+pytestmark = pytest.mark.skipif(_SKIP_REASON is not None, reason=_SKIP_REASON or "")
+
+
+def _select_model(models: list[ModelInfo]) -> str:
+    if not models:
+        pytest.skip("No models available in LM Studio")
+    if REQUESTED_TEXT_MODEL:
+        for model in models:
+            if model.id == REQUESTED_TEXT_MODEL:
+                return model.id
+        pytest.skip(f"TEXT_MODEL not available: {REQUESTED_TEXT_MODEL}")
+    return models[0].id
+
+
+def _generate_or_skip(client: LLMClient, request: LLMRequest):
+    try:
+        return client.generate(request)
+    except GenerationError as exc:
+        skip_reason = generation_skip_reason(exc, "lmstudio")
+        if skip_reason:
+            pytest.skip(skip_reason)
+        raise
 
 
 @pytest.mark.integration
@@ -95,7 +117,7 @@ class TestLMStudioAuthentication:
         """Test authentication with API key from environment."""
         api_key = os.environ.get("LMSTUDIO_API_KEY")
         if not api_key:
-            pytest.skip("LMSTUDIO_API_KEY not set")
+            pytest.skip("LMSTUDIO_API_KEY not set (optional: only required when LM Studio auth is enabled)")
 
         config = LLMConfig(provider="lmstudio", base_url=LMSTUDIO_BASE_URL, api_key=api_key)
         client = LLMClient(config)
@@ -114,6 +136,7 @@ class TestLMStudioModelListing:
             provider="lmstudio",
             base_url=LMSTUDIO_BASE_URL,
             api_key=os.environ.get("LMSTUDIO_API_KEY"),
+            max_retries=0,
         )
         client = LLMClient(config)
 
@@ -168,6 +191,7 @@ class TestLMStudioGeneration:
             provider="lmstudio",
             base_url=LMSTUDIO_BASE_URL,
             api_key=os.environ.get("LMSTUDIO_API_KEY"),
+            max_retries=0,
         )
         client = LLMClient(config)
 
@@ -176,17 +200,14 @@ class TestLMStudioGeneration:
         except AuthenticationError:
             pytest.skip("LM Studio requires authentication")
 
-        if len(models) == 0:
-            pytest.skip("No models available in LM Studio")
-
         request = LLMRequest(
             messages=[Message(role="user", content="Say 'test' and nothing else.")],
-            model=models[0].id,
+            model=_select_model(models),
             temperature=0.0,
             max_tokens=10,
         )
 
-        response = client.generate(request)
+        response = _generate_or_skip(client, request)
 
         assert isinstance(response, LLMResponse)
         assert response.content
@@ -200,6 +221,7 @@ class TestLMStudioGeneration:
             provider="lmstudio",
             base_url=LMSTUDIO_BASE_URL,
             api_key=os.environ.get("LMSTUDIO_API_KEY"),
+            max_retries=0,
         )
         client = LLMClient(config)
 
@@ -208,11 +230,7 @@ class TestLMStudioGeneration:
         except AuthenticationError:
             pytest.skip("LM Studio requires authentication")
 
-        if len(models) == 0:
-            pytest.skip("No models available")
-
-        # Use first available model
-        target_model = models[0].id
+        target_model = _select_model(models)
 
         request = LLMRequest(
             messages=[Message(role="user", content="Hello")],
@@ -220,7 +238,7 @@ class TestLMStudioGeneration:
             temperature=0.5,
         )
 
-        response = client.generate(request)
+        response = _generate_or_skip(client, request)
 
         assert response.content
         assert response.model == target_model
@@ -239,12 +257,9 @@ class TestLMStudioGeneration:
         except AuthenticationError:
             pytest.skip("LM Studio requires authentication")
 
-        if len(models) == 0:
-            pytest.skip("No models available")
+        request = LLMRequest(messages=[Message(role="user", content="Hello")], model=_select_model(models))
 
-        request = LLMRequest(messages=[Message(role="user", content="Hello")], model=models[0].id)
-
-        response = client.generate(request)
+        response = _generate_or_skip(client, request)
 
         # Check metadata
         assert response.response_id

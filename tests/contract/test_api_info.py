@@ -13,13 +13,13 @@ class TestGetImageInfoContract:
 
     def test_get_image_info_basic_call(self):
         """Test basic get_image_info call returns dictionary."""
-        result = get_image_info("sample.jpg")
+        result = get_image_info("sample-data/images/famous-portrait.png")
         assert isinstance(result, dict)
         assert len(result) > 0
 
     def test_get_image_info_required_fields(self):
         """Test get_image_info returns required metadata fields."""
-        result = get_image_info("sample.jpg")
+        result = get_image_info("sample-data/images/famous-portrait.png")
         required_fields = [
             "file_path",
             "format",
@@ -33,7 +33,7 @@ class TestGetImageInfoContract:
 
     def test_get_image_info_data_types(self):
         """Test get_image_info returns correct data types."""
-        result = get_image_info("sample.jpg")
+        result = get_image_info("sample-data/images/famous-portrait.png")
         assert isinstance(result["file_path"], str)
         assert isinstance(result["format"], str)
         assert isinstance(result["width"], int)
@@ -43,7 +43,7 @@ class TestGetImageInfoContract:
 
     def test_get_image_info_positive_values(self):
         """Test get_image_info returns positive values for dimensions."""
-        result = get_image_info("sample.jpg")
+        result = get_image_info("sample-data/images/famous-portrait.png")
         assert result["width"] > 0
         assert result["height"] > 0
         assert result["file_size"] > 0
@@ -57,13 +57,13 @@ class TestGetImageInfoContract:
     def test_get_image_info_corrupted_file(self):
         """Test get_image_info raises CorruptedImageError for corrupted files."""
         with pytest.raises(CorruptedImageError) as exc_info:
-            get_image_info("corrupted.jpg")
+            get_image_info("sample-data/images/corrupted.jpg")
         assert "corrupted.jpg" in str(exc_info.value)
 
     def test_get_image_info_large_image_detection(self):
         """Test get_image_info correctly identifies large images."""
         # This test requires actual implementation logic
-        result = get_image_info("large_image.jpg")
+        result = get_image_info("sample-data/images/zeldadraw.jpg")
         if result["file_size"] > 10 * 1024 * 1024 or result["width"] > 2048 or result["height"] > 2048:
             assert result["is_large_image"] is True
         else:

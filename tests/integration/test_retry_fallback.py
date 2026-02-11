@@ -28,33 +28,53 @@ from anyfile_to_ai.llm_client import (
 )
 from anyfile_to_ai.llm_client.exceptions import (
     ConnectionError as LLMConnectionError,
+    GenerationError,
+)
+from provider_env import (
+    check_lmstudio_available,
+    check_ollama_available,
+    generation_skip_reason,
+    resolve_text_provider,
 )
 
 
-def check_service_available() -> bool:
-    """Check if any LLM service is available."""
-    try:
-        import httpx
+def _get_text_provider(check_service: bool = True):
+    provider, base_url, text_model, reason = resolve_text_provider()
+    if reason:
+        pytest.skip(reason)
+    if check_service:
+        if provider == "ollama" and not check_ollama_available(base_url):
+            pytest.skip(f"Ollama service not available at {base_url}")
+        if provider == "lmstudio" and not check_lmstudio_available(base_url):
+            pytest.skip(f"LM Studio service not available at {base_url}")
+    return provider, base_url, text_model
 
-        response = httpx.get("http://localhost:11434/api/tags", timeout=5.0)
-        if response.status_code == 200:
-            return True
-    except Exception:
-        pass
-    return False
 
-
-def get_test_model() -> str:
+def get_test_model(provider: str, base_url: str, text_model: str | None) -> str:
     """Get first available model for testing."""
-    config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
+    config = LLMConfig(provider=provider, base_url=base_url)
     client = LLMClient(config)
     models = client.list_models()
-    if models:
-        return models[0].id
-    return "test-model"  # Fallback
+    if not models:
+        pytest.skip(f"No models available for provider '{provider}'")
+
+    if text_model:
+        available = {model.id for model in models}
+        if text_model in available:
+            return text_model
+        pytest.skip(f"TEXT_MODEL not available: {text_model}")
+
+    return models[0].id
 
 
-pytestmark = pytest.mark.skipif(not check_service_available(), reason="No LLM service available")
+def _generate_or_skip(client: LLMClient, request: LLMRequest, provider: str):
+    try:
+        return client.generate(request)
+    except GenerationError as exc:
+        skip_reason = generation_skip_reason(exc, provider)
+        if skip_reason:
+            pytest.skip(skip_reason)
+        raise
 
 
 @pytest.mark.integration
@@ -63,8 +83,9 @@ class TestRetryBehavior:
 
     def test_retry_on_connection_error(self):
         """Test that client retries on connection errors."""
+        provider, _, _ = _get_text_provider(check_service=False)
         config = LLMConfig(
-            provider="ollama",
+            provider=provider,
             base_url="http://localhost:99999",  # Invalid port
             max_retries=3,
             retry_delay=0.1,
@@ -84,8 +105,9 @@ class TestRetryBehavior:
         """Test that retry delay increases exponentially."""
         import time
 
+        provider, _, _ = _get_text_provider(check_service=False)
         config = LLMConfig(
-            provider="ollama",
+            provider=provider,
             base_url="http://localhost:99999",  # Invalid port
             max_retries=3,
             retry_delay=0.5,
@@ -118,28 +140,29 @@ class TestFallbackBehavior:
 
     def test_no_fallback_when_primary_succeeds(self):
         """Test that fallback is not used when primary succeeds."""
-        LLMConfig(
-            provider="ollama",
-            base_url="http://localhost:11434",  # Valid
-        )
+        provider, base_url, text_model = _get_text_provider()
+        primary_client = LLMClient(LLMConfig(provider=provider, base_url=base_url))
+        model = get_test_model(provider, base_url, text_model)
+        warmup_request = LLMRequest(messages=[Message(role="user", content="Hello")], model=model)
+
+        # If the active runtime/model cannot serve chat completions, skip explicitly.
+        _generate_or_skip(primary_client, warmup_request, provider)
 
         fallback = LLMConfig(
-            provider="ollama",
+            provider=provider,
             base_url="http://localhost:99999",  # Would fail if used
         )
 
         config = LLMConfig(
-            provider="ollama",
-            base_url="http://localhost:11434",
+            provider=provider,
+            base_url=base_url,
             fallback_configs=[fallback],
         )
 
         client = LLMClient(config)
-
-        model = get_test_model()
         request = LLMRequest(messages=[Message(role="user", content="Hello")], model=model)
 
-        response = client.generate(request)
+        response = _generate_or_skip(client, request, provider)
 
         # Should NOT have used fallback
         assert response.used_fallback is False
@@ -152,13 +175,14 @@ class TestRetryMetadata:
 
     def test_metadata_on_success_without_retry(self):
         """Test metadata when request succeeds on first try."""
-        config = LLMConfig(provider="ollama", base_url="http://localhost:11434", max_retries=3)
+        provider, base_url, text_model = _get_text_provider()
+        config = LLMConfig(provider=provider, base_url=base_url, max_retries=3)
         client = LLMClient(config)
 
-        model = get_test_model()
+        model = get_test_model(provider, base_url, text_model)
         request = LLMRequest(messages=[Message(role="user", content="Hello")], model=model)
 
-        response = client.generate(request)
+        response = _generate_or_skip(client, request, provider)
 
         # Should have zero retries
         assert response.retry_count == 0

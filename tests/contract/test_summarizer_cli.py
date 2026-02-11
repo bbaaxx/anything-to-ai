@@ -18,7 +18,7 @@ class TestCLIInterface:
         test_file.write_text("This is test content for summarization.")
 
         result = subprocess.run(
-            [sys.executable, "-m", "text_summarizer", str(test_file)],
+            [sys.executable, "-m", "anyfile_to_ai.text_summarizer", str(test_file)],
             check=False,
             capture_output=True,
             text=True,
@@ -31,7 +31,7 @@ class TestCLIInterface:
         input_text = "Test content from stdin for summarization."
 
         result = subprocess.run(
-            [sys.executable, "-m", "text_summarizer", "--stdin"],
+            [sys.executable, "-m", "anyfile_to_ai.text_summarizer", "--stdin"],
             check=False,
             input=input_text,
             capture_output=True,
@@ -45,7 +45,7 @@ class TestCLIInterface:
         test_file.write_text("Content for JSON output test.")
 
         result = subprocess.run(
-            [sys.executable, "-m", "text_summarizer", str(test_file)],
+            [sys.executable, "-m", "anyfile_to_ai.text_summarizer", str(test_file)],
             check=False,
             capture_output=True,
             text=True,
@@ -65,7 +65,7 @@ class TestCLIInterface:
         test_file.write_text("Content for plain text output test.")
 
         result = subprocess.run(
-            [sys.executable, "-m", "text_summarizer", str(test_file), "--format", "plain"],
+            [sys.executable, "-m", "anyfile_to_ai.text_summarizer", str(test_file), "--format", "plain"],
             check=False,
             capture_output=True,
             text=True,
@@ -81,7 +81,7 @@ class TestCLIInterface:
         test_file.write_text("Content for stdout test.")
 
         result = subprocess.run(
-            [sys.executable, "-m", "text_summarizer", str(test_file)],
+            [sys.executable, "-m", "anyfile_to_ai.text_summarizer", str(test_file)],
             check=False,
             capture_output=True,
             text=True,
@@ -101,7 +101,7 @@ class TestCLIInterface:
             [
                 sys.executable,
                 "-m",
-                "text_summarizer",
+                "anyfile_to_ai.text_summarizer",
                 str(test_file),
                 "--output",
                 str(output_file),
@@ -118,7 +118,7 @@ class TestCLIInterface:
     def test_shows_help_with_help_flag(self):
         """Test that --help shows help message."""
         result = subprocess.run(
-            [sys.executable, "-m", "text_summarizer", "--help"],
+            [sys.executable, "-m", "anyfile_to_ai.text_summarizer", "--help"],
             check=False,
             capture_output=True,
             text=True,
@@ -132,7 +132,7 @@ class TestCLIInterface:
         """Test that invalid input results in exit code 1."""
         # Empty input should be invalid
         result = subprocess.run(
-            [sys.executable, "-m", "text_summarizer", "--stdin"],
+            [sys.executable, "-m", "anyfile_to_ai.text_summarizer", "--stdin"],
             check=False,
             input="",
             capture_output=True,
@@ -150,7 +150,7 @@ class TestCLIInterface:
         test_file.write_text("Test content.")
 
         result = subprocess.run(
-            [sys.executable, "-m", "text_summarizer", str(test_file)],
+            [sys.executable, "-m", "anyfile_to_ai.text_summarizer", str(test_file)],
             check=False,
             capture_output=True,
             text=True,
@@ -166,7 +166,7 @@ class TestCLIInterface:
         test_file.write_text("Test content for validation.")
 
         result = subprocess.run(
-            [sys.executable, "-m", "text_summarizer", str(test_file)],
+            [sys.executable, "-m", "anyfile_to_ai.text_summarizer", str(test_file)],
             check=False,
             capture_output=True,
             text=True,
@@ -178,7 +178,7 @@ class TestCLIInterface:
     def test_file_not_found_error(self):
         """Test that non-existent file produces appropriate error."""
         result = subprocess.run(
-            [sys.executable, "-m", "text_summarizer", "/nonexistent/file.txt"],
+            [sys.executable, "-m", "anyfile_to_ai.text_summarizer", "/nonexistent/file.txt"],
             check=False,
             capture_output=True,
             text=True,

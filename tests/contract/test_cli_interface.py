@@ -10,7 +10,7 @@ from unittest.mock import patch, MagicMock
 from io import StringIO
 
 # Import CLI components
-from anyfile_to_ai.image_processor.cli import create_cli_parser, main
+from anyfile_to_ai.image_processor.cli import create_cli_parser, format_output, main
 
 
 class TestCLIInterfaceContract:
@@ -71,24 +71,28 @@ class TestCLIInterfaceContract:
 
     def test_main_with_vision_model_env(self):
         """Test main() with VISION_MODEL environment variable set."""
-        # This should FAIL initially - no VLM integration in CLI yet
         with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}):
-            # Mock the image processing to avoid actual file operations
-            with patch("image_processor.process_images") as mock_process:
+            # Mock processing and path expansion to avoid filesystem/model usage
+            with (
+                patch("anyfile_to_ai.image_processor.process_images") as mock_process,
+                patch("anyfile_to_ai.image_processor.cli.expand_image_paths", return_value=["test.jpg"]),
+                patch("anyfile_to_ai.image_processor.cli._create_image_config", return_value=MagicMock()),
+            ):
                 mock_result = MagicMock()
                 mock_result.results = []
                 mock_result.success = True
                 mock_result.total_images = 0
+                mock_result.successful_count = 0
+                mock_result.failed_count = 0
+                mock_result.total_processing_time = 0.01
                 mock_process.return_value = mock_result
 
                 # Should run without VLM environment error
-                exit_code = main(["--help"])  # Use help to avoid file operations
-                # Help should work regardless of VLM setup
-                assert exit_code in [0, None]  # Help might not return explicit code
+                exit_code = main(["test.jpg"])
+                assert exit_code == 0
 
     def test_json_output_format_enhanced(self):
         """Test that JSON output includes enhanced VLM fields."""
-        # This should FAIL initially - enhanced output not implemented
         with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}):
             # Mock image processing to return enhanced results
             mock_enhanced_result = MagicMock()
@@ -115,7 +119,12 @@ class TestCLIInterfaceContract:
             mock_result.failed_count = 0
             mock_result.total_processing_time = 1.0
 
-            with patch("image_processor.process_images", return_value=mock_result), patch("sys.stdout", new_callable=StringIO) as mock_stdout:
+            with (
+                patch("anyfile_to_ai.image_processor.process_images", return_value=mock_result),
+                patch("anyfile_to_ai.image_processor.cli.expand_image_paths", return_value=["test.jpg"]),
+                patch("anyfile_to_ai.image_processor.cli._create_image_config", return_value=MagicMock()),
+                patch("sys.stdout", new_callable=StringIO) as mock_stdout,
+            ):
                 # This should produce enhanced JSON output
                 main(["test.jpg", "--format", "json"])
 
@@ -137,14 +146,17 @@ class TestCLIInterfaceContract:
 
     def test_csv_output_format_enhanced(self):
         """Test that CSV output includes enhanced VLM columns."""
-        # This should FAIL initially - enhanced CSV output not implemented
-        with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}), patch("image_processor.process_images") as mock_process:
+        with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}), patch("anyfile_to_ai.image_processor.process_images") as mock_process:
             mock_result = MagicMock()
             mock_result.results = []
             mock_result.success = True
             mock_process.return_value = mock_result
 
-            with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
+            with (
+                patch("anyfile_to_ai.image_processor.cli.expand_image_paths", return_value=["test.jpg"]),
+                patch("anyfile_to_ai.image_processor.cli._create_image_config", return_value=MagicMock()),
+                patch("sys.stdout", new_callable=StringIO) as mock_stdout,
+            ):
                 # Should produce enhanced CSV with VLM columns
                 main(["test.jpg", "--format", "csv"])
 
@@ -172,8 +184,7 @@ class TestCLIInterfaceContract:
 
     def test_plain_output_format_enhanced(self):
         """Test that plain output includes VLM information."""
-        # This should FAIL initially - enhanced plain output not implemented
-        with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}), patch("image_processor.process_images") as mock_process:
+        with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}), patch("anyfile_to_ai.image_processor.process_images") as mock_process:
             # Mock enhanced result
             mock_enhanced_result = MagicMock()
             mock_enhanced_result.image_path = "test.jpg"
@@ -195,19 +206,12 @@ class TestCLIInterfaceContract:
 
             mock_process.return_value = mock_result
 
-            with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
-                main(["test.jpg", "--format", "plain"])
-
-                output = mock_stdout.getvalue()
-                # Should contain VLM description, not mock text
-                assert "Real VLM description" in output
-                assert "Mock description" not in output
+            output = format_output(mock_result, "plain")
+            assert "Real VLM description" in output
+            assert "Mock description" not in output
 
     def test_error_messages_for_vlm_issues(self):
         """Test proper error messages for VLM-specific issues."""
-        # This should FAIL initially - VLM error handling not implemented
-
-        # Test missing VISION_MODEL
         with patch.dict(os.environ, {}, clear=True):
             os.environ.pop("VISION_MODEL", None)
 
@@ -217,20 +221,28 @@ class TestCLIInterfaceContract:
                 assert exit_code == 1
                 error_output = mock_stderr.getvalue()
                 assert "VISION_MODEL" in error_output
-                assert "environment variable" in error_output.lower()
+                assert "missing required configuration" in error_output.lower()
 
     def test_exit_codes_preserved(self):
         """Test that exit codes follow the contract."""
         # Success case
-        with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}), patch("image_processor.process_images") as mock_process:
+        with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}), patch("anyfile_to_ai.image_processor.process_images") as mock_process:
             mock_result = MagicMock()
             mock_result.results = []
             mock_result.success = True
+            mock_result.total_images = 0
+            mock_result.successful_count = 0
+            mock_result.failed_count = 0
+            mock_result.total_processing_time = 0.01
             mock_process.return_value = mock_result
 
             # Should return 0 for success
-            exit_code = main(["--help"])
-            assert exit_code in [0, None]
+            with (
+                patch("anyfile_to_ai.image_processor.cli.expand_image_paths", return_value=["test.jpg"]),
+                patch("anyfile_to_ai.image_processor.cli._create_image_config", return_value=MagicMock()),
+            ):
+                exit_code = main(["test.jpg"])
+            assert exit_code == 0
 
         # Error case - missing VISION_MODEL
         with patch.dict(os.environ, {}, clear=True):
@@ -242,14 +254,17 @@ class TestCLIInterfaceContract:
 
     def test_verbose_output_includes_vlm_info(self):
         """Test that verbose mode includes VLM processing information."""
-        # This should FAIL initially - VLM verbose output not implemented
-        with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}), patch("image_processor.process_images") as mock_process:
+        with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}), patch("anyfile_to_ai.image_processor.process_images") as mock_process:
             mock_result = MagicMock()
             mock_result.results = []
             mock_result.success = True
             mock_process.return_value = mock_result
 
-            with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
+            with (
+                patch("anyfile_to_ai.image_processor.cli.expand_image_paths", return_value=["test.jpg"]),
+                patch("anyfile_to_ai.image_processor.cli._create_image_config", return_value=MagicMock()),
+                patch("sys.stdout", new_callable=StringIO) as mock_stdout,
+            ):
                 main(["test.jpg", "--verbose"])
 
                 mock_stdout.getvalue()
@@ -290,3 +305,11 @@ class TestCLIInterfaceContract:
         assert args.output == "output.csv"
         assert args.format == "csv"
         assert args.verbose is True
+
+    def test_parser_accepts_provider_and_base_url(self):
+        """Test unified provider flags are accepted by parser."""
+        parser = create_cli_parser()
+        args = parser.parse_args(["image.jpg", "--provider", "ollama", "--base-url", "http://localhost:11434", "--vision-model", "foo"])
+        assert args.provider == "ollama"
+        assert args.base_url == "http://localhost:11434"
+        assert args.vision_model == "foo"

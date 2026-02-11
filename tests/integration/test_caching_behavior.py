@@ -7,37 +7,24 @@ Requires Ollama or LM Studio running.
 import time
 import pytest
 from anyfile_to_ai.llm_client import LLMClient, LLMConfig
-
-
-def check_service_available() -> bool:
-    """Check if any LLM service is available."""
-    try:
-        import httpx
-
-        # Try Ollama first
-        response = httpx.get("http://localhost:11434/api/tags", timeout=5.0)
-        if response.status_code == 200:
-            return True
-    except Exception:
-        pass
-
-    try:
-        import httpx
-
-        # Try LM Studio
-        response = httpx.get("http://localhost:1234/v1/models", timeout=5.0)
-        if response.status_code in [200, 401]:
-            return True
-    except Exception:
-        pass
-
-    return False
-
-
-pytestmark = pytest.mark.skipif(
-    not check_service_available(),
-    reason="No LLM service available (Ollama or LM Studio)",
+from provider_env import (
+    check_lmstudio_available,
+    check_ollama_available,
+    env_provider,
+    resolve_base_url,
+    resolve_text_provider,
 )
+
+
+def _get_text_provider_config():
+    provider, base_url, _, reason = resolve_text_provider()
+    if reason:
+        pytest.skip(reason)
+    if provider == "ollama" and not check_ollama_available(base_url):
+        pytest.skip(f"Ollama service not available at {base_url}")
+    if provider == "lmstudio" and not check_lmstudio_available(base_url):
+        pytest.skip(f"LM Studio service not available at {base_url}")
+    return provider, base_url
 
 
 @pytest.mark.integration
@@ -46,7 +33,8 @@ class TestCacheHitMiss:
 
     def test_cache_miss_on_first_call(self):
         """Test that first call is a cache miss."""
-        config = LLMConfig(provider="ollama", base_url="http://localhost:11434", cache_ttl=300)
+        provider, base_url = _get_text_provider_config()
+        config = LLMConfig(provider=provider, base_url=base_url, cache_ttl=300)
         client = LLMClient(config)
 
         # Clear cache first
@@ -62,7 +50,8 @@ class TestCacheHitMiss:
 
     def test_cache_hit_on_second_call(self):
         """Test that second call hits cache."""
-        config = LLMConfig(provider="ollama", base_url="http://localhost:11434", cache_ttl=300)
+        provider, base_url = _get_text_provider_config()
+        config = LLMConfig(provider=provider, base_url=base_url, cache_ttl=300)
         client = LLMClient(config)
 
         # Clear cache
@@ -86,7 +75,8 @@ class TestCacheHitMiss:
 
     def test_multiple_cache_hits(self):
         """Test multiple consecutive cache hits."""
-        config = LLMConfig(provider="ollama", base_url="http://localhost:11434", cache_ttl=300)
+        provider, base_url = _get_text_provider_config()
+        config = LLMConfig(provider=provider, base_url=base_url, cache_ttl=300)
         client = LLMClient(config)
 
         client.invalidate_cache()
@@ -106,9 +96,10 @@ class TestCacheTTL:
 
     def test_cache_expires_after_ttl(self):
         """Test that cache expires after TTL."""
+        provider, base_url = _get_text_provider_config()
         config = LLMConfig(
-            provider="ollama",
-            base_url="http://localhost:11434",
+            provider=provider,
+            base_url=base_url,
             cache_ttl=2,  # 2 seconds TTL
         )
         client = LLMClient(config)
@@ -134,9 +125,10 @@ class TestCacheTTL:
 
     def test_cache_valid_within_ttl(self):
         """Test that cache remains valid within TTL."""
+        provider, base_url = _get_text_provider_config()
         config = LLMConfig(
-            provider="ollama",
-            base_url="http://localhost:11434",
+            provider=provider,
+            base_url=base_url,
             cache_ttl=60,  # 1 minute
         )
         client = LLMClient(config)
@@ -159,9 +151,10 @@ class TestCacheTTL:
 
     def test_zero_ttl_disables_cache(self):
         """Test that TTL=0 disables caching."""
+        provider, base_url = _get_text_provider_config()
         config = LLMConfig(
-            provider="ollama",
-            base_url="http://localhost:11434",
+            provider=provider,
+            base_url=base_url,
             cache_ttl=0,  # Disable cache
         )
         client = LLMClient(config)
@@ -186,7 +179,8 @@ class TestCacheInvalidation:
 
     def test_invalidate_cache_clears_all_entries(self):
         """Test that invalidate_cache clears all entries."""
-        config = LLMConfig(provider="ollama", base_url="http://localhost:11434", cache_ttl=300)
+        provider, base_url = _get_text_provider_config()
+        config = LLMConfig(provider=provider, base_url=base_url, cache_ttl=300)
         client = LLMClient(config)
 
         # Populate cache
@@ -203,7 +197,8 @@ class TestCacheInvalidation:
 
     def test_invalidate_then_repopulate(self):
         """Test cache repopulation after invalidation."""
-        config = LLMConfig(provider="ollama", base_url="http://localhost:11434", cache_ttl=300)
+        provider, base_url = _get_text_provider_config()
+        config = LLMConfig(provider=provider, base_url=base_url, cache_ttl=300)
         client = LLMClient(config)
 
         # Initial population
@@ -231,32 +226,39 @@ class TestCachePerProvider:
 
     def test_different_providers_have_separate_caches(self):
         """Test that different providers maintain separate caches."""
-        config_ollama = LLMConfig(provider="ollama", base_url="http://localhost:11434", cache_ttl=300)
+        if env_provider():
+            pytest.skip("Cross-provider cache test requires both providers; unset PROVIDER to run")
+
+        ollama_base_url = resolve_base_url("ollama", "http://localhost:11434")
+        lmstudio_base_url = resolve_base_url("lmstudio", "http://localhost:1234")
+
+        if not check_ollama_available(ollama_base_url):
+            pytest.skip(f"Ollama service not available at {ollama_base_url}")
+        if not check_lmstudio_available(lmstudio_base_url):
+            pytest.skip(f"LM Studio service not available at {lmstudio_base_url}")
+
+        config_ollama = LLMConfig(provider="ollama", base_url=ollama_base_url, cache_ttl=300)
         client_ollama = LLMClient(config_ollama)
 
-        config_lmstudio = LLMConfig(provider="lmstudio", base_url="http://localhost:1234", cache_ttl=300)
+        config_lmstudio = LLMConfig(provider="lmstudio", base_url=lmstudio_base_url, cache_ttl=300)
         client_lmstudio = LLMClient(config_lmstudio)
 
-        try:
-            # Populate both caches
-            client_ollama.list_models()
-            client_lmstudio.list_models()
+        # Populate both caches
+        client_ollama.list_models()
+        client_lmstudio.list_models()
 
-            # Invalidate one cache
-            client_ollama.invalidate_cache()
+        # Invalidate one cache
+        client_ollama.invalidate_cache()
 
-            # Ollama cache should be cleared
-            start = time.time()
-            client_ollama.list_models()
-            ollama_duration = time.time() - start
+        # Ollama cache should be cleared
+        start = time.time()
+        client_ollama.list_models()
+        ollama_duration = time.time() - start
 
-            # LM Studio cache should still be valid
-            start = time.time()
-            client_lmstudio.list_models()
-            lmstudio_duration = time.time() - start
+        # LM Studio cache should still be valid
+        start = time.time()
+        client_lmstudio.list_models()
+        lmstudio_duration = time.time() - start
 
-            # LM Studio should be faster (still cached)
-            assert lmstudio_duration < ollama_duration
-
-        except Exception:
-            pytest.skip("LM Studio not available for cross-provider cache test")
+        # LM Studio should be faster (still cached)
+        assert lmstudio_duration < ollama_duration

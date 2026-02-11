@@ -14,7 +14,10 @@ class TestProcessImagesContract:
 
     def test_process_images_basic_call(self):
         """Test basic process_images call returns ProcessingResult."""
-        image_paths = ["image1.jpg", "image2.png"]
+        image_paths = [
+            "sample-data/images/ui-screenshot.png",
+            "sample-data/images/ai-generated-tattoo.png",
+        ]
         result = process_images(image_paths)
         assert isinstance(result, ProcessingResult)
         assert result.total_images == 2
@@ -24,7 +27,11 @@ class TestProcessImagesContract:
     def test_process_images_with_config(self):
         """Test process_images with custom configuration."""
         config = ProcessingConfig(batch_size=2, description_style="brief")
-        image_paths = ["image1.jpg", "image2.png", "image3.gif"]
+        image_paths = [
+            "sample-data/images/ui-screenshot.png",
+            "sample-data/images/ai-generated-tattoo.png",
+            "sample-data/images/complex-screenshot.png",
+        ]
         result = process_images(image_paths, config)
         assert isinstance(result, ProcessingResult)
         assert result.total_images == 3
@@ -37,7 +44,11 @@ class TestProcessImagesContract:
 
     def test_process_images_mixed_results(self):
         """Test process_images handles mixed success/failure results."""
-        image_paths = ["valid.jpg", "nonexistent.jpg", "valid2.png"]
+        image_paths = [
+            "sample-data/images/ui-screenshot.png",
+            "nonexistent.jpg",
+            "sample-data/images/ai-generated-tattoo.png",
+        ]
         result = process_images(image_paths)
         assert isinstance(result, ProcessingResult)
         assert result.total_images == 3
@@ -47,7 +58,10 @@ class TestProcessImagesContract:
 
     def test_process_images_timing_metadata(self):
         """Test process_images returns timing metadata."""
-        image_paths = ["image1.jpg", "image2.png"]
+        image_paths = [
+            "sample-data/images/ui-screenshot.png",
+            "sample-data/images/ai-generated-tattoo.png",
+        ]
         result = process_images(image_paths)
         assert hasattr(result, "total_processing_time")
         assert result.total_processing_time > 0

@@ -38,8 +38,8 @@ def test_coverage_config_exists_in_pyproject(pyproject_toml):
 
 
 def test_coverage_sources_include_all_modules(pyproject_toml):
-    """Verify pdf_extractor, audio_processor, image_processor in source."""
-    required_modules = {"pdf_extractor", "audio_processor", "image_processor"}
+    """Verify coverage sources track the package root."""
+    required_modules = {"anyfile_to_ai"}
     coverage_run = pyproject_toml.get("tool", {}).get("coverage", {}).get("run", {})
     sources = set(coverage_run.get("source", []))
 
@@ -48,10 +48,10 @@ def test_coverage_sources_include_all_modules(pyproject_toml):
 
 
 def test_coverage_minimum_threshold(pyproject_toml):
-    """Verify fail_under = 70 in coverage report configuration."""
+    """Verify fail_under = 80 in coverage report configuration."""
     coverage_report = pyproject_toml.get("tool", {}).get("coverage", {}).get("report", {})
     fail_under = coverage_report.get("fail_under", 0)
-    assert fail_under == 70, f"Expected fail_under=70, got {fail_under}"
+    assert fail_under == 80, f"Expected fail_under=80, got {fail_under}"
 
 
 def test_coverage_omits_test_files(pyproject_toml):

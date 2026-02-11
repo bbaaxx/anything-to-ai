@@ -16,6 +16,16 @@ from anyfile_to_ai.text_summarizer import (
 )
 
 
+@pytest.fixture(autouse=True)
+def mock_llm_call(monkeypatch):
+    """Keep contract tests deterministic and offline."""
+
+    def _mock_call(self, prompt: str) -> str:
+        return '{"summary":"Mock summary for contract tests.","tags":["ai","ml","summary"]}'
+
+    monkeypatch.setattr("anyfile_to_ai.text_summarizer.llm_adapter.LLMAdapter.call", _mock_call)
+
+
 class TestSummarizeText:
     """Contract tests for summarize_text function."""
 
@@ -137,14 +147,14 @@ class TestCreateSummarizer:
     def test_raises_value_error_for_invalid_chunk_size(self):
         """Test that ValueError is raised for invalid chunk_size."""
         with pytest.raises(ValueError):
-            create_summarizer(chunk_size=0)
+            create_summarizer(chunk_size=0, chunk_overlap=0)
         with pytest.raises(ValueError):
-            create_summarizer(chunk_size=-100)
+            create_summarizer(chunk_size=-100, chunk_overlap=0)
 
     def test_raises_value_error_for_negative_overlap(self):
         """Test that ValueError is raised for negative chunk_overlap."""
         with pytest.raises(ValueError):
-            create_summarizer(chunk_overlap=-50)
+            create_summarizer(chunk_size=1000, chunk_overlap=-50)
 
 
 class TestChunkText:
@@ -153,7 +163,7 @@ class TestChunkText:
     def test_returns_single_chunk_for_small_text(self):
         """Test that text smaller than chunk_size returns single chunk."""
         text = "Short text with few words."
-        chunks = chunk_text(text, chunk_size=100)
+        chunks = chunk_text(text, chunk_size=100, overlap=0)
         assert len(chunks) == 1
         assert isinstance(chunks[0], TextChunk)
 

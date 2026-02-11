@@ -26,18 +26,24 @@ def test_ruff_format_command_available():
 def test_ruff_fixes_unused_imports():
     """Create temp file with unused import, run ruff --fix, verify fixed."""
     with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
-        f.write("import os\nimport sys\n\nprint('hello')\n")
+        f.write("import os\nimport sys\n\nprint(sys.version)\n")
         temp_path = Path(f.name)
 
     try:
         # Run ruff check with --fix
-        subprocess.run(["uv", "run", "ruff", "check", "--fix", str(temp_path)], check=False, capture_output=True, text=True)
+        subprocess.run(
+            ["uv", "run", "ruff", "check", "--fix", "--select", "F401", str(temp_path)],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
 
         # Read the fixed file
         content = temp_path.read_text()
 
-        # Verify unused imports were removed
-        assert "import os" not in content or "import sys" not in content, "Unused imports should be removed by ruff --fix"
+        # Verify only the unused import was removed and used import was preserved.
+        assert "import os" not in content, "Unused import should be removed by ruff --fix"
+        assert "import sys" in content, "Used import should remain after ruff --fix"
 
     finally:
         temp_path.unlink()
@@ -70,27 +76,34 @@ def test_ruff_reports_complexity():
     """Create temp file with high complexity, verify ruff reports C901."""
     complex_code = """
 def complex_function(x):
+    total = 0
     if x > 0:
-        if x > 10:
-            if x > 20:
-                if x > 30:
-                    if x > 40:
-                        if x > 50:
-                            if x > 60:
-                                if x > 70:
-                                    if x > 80:
-                                        if x > 90:
-                                            return "very high"
-                                        return "90+"
-                                    return "80+"
-                                return "70+"
-                            return "60+"
-                        return "50+"
-                    return "40+"
-                return "30+"
-            return "20+"
-        return "10+"
-    return "low"
+        total += 1
+    if x > 10:
+        total += 1
+    if x > 20:
+        total += 1
+    if x > 30:
+        total += 1
+    if x > 40:
+        total += 1
+    if x > 50:
+        total += 1
+    if x > 60:
+        total += 1
+    if x > 70:
+        total += 1
+    if x > 80:
+        total += 1
+    if x > 90:
+        total += 1
+    if x > 100:
+        total += 1
+    if x > 110:
+        total += 1
+    if x > 120:
+        total += 1
+    return total
 """
     with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
         f.write(complex_code)
@@ -98,7 +111,7 @@ def complex_function(x):
 
     try:
         # Run ruff check (without --fix to see violations)
-        result = subprocess.run(["uv", "run", "ruff", "check", str(temp_path)], check=False, capture_output=True, text=True)
+        result = subprocess.run(["uv", "run", "ruff", "check", "--select", "C901", str(temp_path)], check=False, capture_output=True, text=True)
 
         # Verify C901 (complexity) violation is reported
         output = result.stdout + result.stderr

@@ -6,6 +6,55 @@ All tests should FAIL until implementation is complete.
 
 import pytest
 
+from anyfile_to_ai.llm_client.exceptions import GenerationError
+from provider_env import (
+    check_lmstudio_available,
+    check_ollama_available,
+    generation_skip_reason,
+    resolve_base_url,
+    resolve_text_provider,
+)
+
+
+def _require_text_provider():
+    provider, base_url, text_model, reason = resolve_text_provider()
+    if reason:
+        pytest.skip(reason)
+    return provider, base_url, text_model
+
+
+def _require_text_service():
+    provider, base_url, text_model = _require_text_provider()
+    if provider == "ollama" and not check_ollama_available(base_url):
+        pytest.skip(f"Ollama service not available at {base_url}")
+    if provider == "lmstudio" and not check_lmstudio_available(base_url):
+        pytest.skip(f"LM Studio service not available at {base_url}")
+    return provider, base_url, text_model
+
+
+def _pick_text_model(client, requested_model: str | None) -> str:
+    models = client.list_models()
+    if not models:
+        pytest.skip("No models available in provider runtime")
+
+    if requested_model:
+        available = {model.id for model in models}
+        if requested_model in available:
+            return requested_model
+        pytest.skip(f"TEXT_MODEL not available: {requested_model}")
+
+    return models[0].id
+
+
+def _generate_or_skip(client, request, provider: str):
+    try:
+        return client.generate(request)
+    except GenerationError as exc:
+        skip_reason = generation_skip_reason(exc, provider)
+        if skip_reason:
+            pytest.skip(skip_reason)
+        raise
+
 
 class TestLLMClientAPI:
     """Contract tests for public LLM client API."""
@@ -14,7 +63,8 @@ class TestLLMClientAPI:
         """Client can be created with LLMConfig."""
         from anyfile_to_ai.llm_client import LLMClient, LLMConfig
 
-        config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
+        provider, base_url, _ = _require_text_provider()
+        config = LLMConfig(provider=provider, base_url=base_url)
         client = LLMClient(config)
 
         assert client is not None
@@ -24,7 +74,8 @@ class TestLLMClientAPI:
         """Client can be created with minimal config."""
         from anyfile_to_ai.llm_client import LLMClient, LLMConfig
 
-        config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
+        provider, base_url, _ = _require_text_provider()
+        config = LLMConfig(provider=provider, base_url=base_url)
         client = LLMClient(config)
 
         # Should have default values from config
@@ -35,34 +86,39 @@ class TestLLMClientAPI:
         """Client can generate completion from simple message."""
         from anyfile_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
 
-        config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
+        provider, base_url, text_model = _require_text_service()
+        config = LLMConfig(provider=provider, base_url=base_url, max_retries=0)
         client = LLMClient(config)
 
-        request = LLMRequest(messages=[Message(role="user", content="Hello, world!")])
+        model = _pick_text_model(client, text_model)
+        request = LLMRequest(messages=[Message(role="user", content="Hello, world!")], model=model)
 
-        response = client.generate(request)
+        response = _generate_or_skip(client, request, provider)
 
         assert response is not None
         assert response.content
         assert isinstance(response.content, str)
-        assert response.provider == "ollama"
+        assert response.provider == provider
         assert response.model
 
     def test_generate_with_multiple_messages(self):
         """Client can handle conversation with multiple messages."""
         from anyfile_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
 
-        config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
+        provider, base_url, text_model = _require_text_service()
+        config = LLMConfig(provider=provider, base_url=base_url, max_retries=0)
         client = LLMClient(config)
 
+        model = _pick_text_model(client, text_model)
         request = LLMRequest(
             messages=[
                 Message(role="system", content="You are a helpful assistant."),
                 Message(role="user", content="What is 2+2?"),
             ],
+            model=model,
         )
 
-        response = client.generate(request)
+        response = _generate_or_skip(client, request, provider)
 
         assert response is not None
         assert response.content
@@ -72,20 +128,23 @@ class TestLLMClientAPI:
         """Client can generate with specific model."""
         from anyfile_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
 
-        config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
+        provider, base_url, text_model = _require_text_service()
+        config = LLMConfig(provider=provider, base_url=base_url, max_retries=0)
         client = LLMClient(config)
 
-        request = LLMRequest(messages=[Message(role="user", content="Hello")], model="llama2")
+        model = _pick_text_model(client, text_model)
+        request = LLMRequest(messages=[Message(role="user", content="Hello")], model=model)
 
-        response = client.generate(request)
+        response = _generate_or_skip(client, request, provider)
 
-        assert response.model == "llama2"
+        assert response.model == model
 
     def test_list_models_returns_list(self):
         """Client can list available models."""
         from anyfile_to_ai.llm_client import LLMClient, LLMConfig, ModelInfo
 
-        config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
+        provider, base_url, _ = _require_text_service()
+        config = LLMConfig(provider=provider, base_url=base_url)
         client = LLMClient(config)
 
         models = client.list_models()
@@ -96,16 +155,17 @@ class TestLLMClientAPI:
         if models:
             assert isinstance(models[0], ModelInfo)
             assert models[0].id
-            assert models[0].provider == "ollama"
+            assert models[0].provider == provider
 
     def test_list_models_uses_cache(self):
         """Second call to list_models uses cache (faster)."""
         from anyfile_to_ai.llm_client import LLMClient, LLMConfig
         import time
 
+        provider, base_url, _ = _require_text_service()
         config = LLMConfig(
-            provider="ollama",
-            base_url="http://localhost:11434",
+            provider=provider,
+            base_url=base_url,
             cache_ttl=60,  # 1 minute cache
         )
         client = LLMClient(config)
@@ -127,7 +187,8 @@ class TestLLMClientAPI:
         """Client can invalidate model list cache."""
         from anyfile_to_ai.llm_client import LLMClient, LLMConfig
 
-        config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
+        provider, base_url, _ = _require_text_service()
+        config = LLMConfig(provider=provider, base_url=base_url)
         client = LLMClient(config)
 
         # Populate cache
@@ -144,12 +205,14 @@ class TestLLMClientAPI:
         """Response includes token usage statistics."""
         from anyfile_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
 
-        config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
+        provider, base_url, text_model = _require_text_service()
+        config = LLMConfig(provider=provider, base_url=base_url)
         client = LLMClient(config)
 
-        request = LLMRequest(messages=[Message(role="user", content="Say 'hi'")])
+        model = _pick_text_model(client, text_model)
+        request = LLMRequest(messages=[Message(role="user", content="Say 'hi'")], model=model)
 
-        response = client.generate(request)
+        response = _generate_or_skip(client, request, provider)
 
         # Usage may be None for providers that don't support it
         if response.usage:
@@ -161,12 +224,14 @@ class TestLLMClientAPI:
         """Response includes latency measurement."""
         from anyfile_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
 
-        config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
+        provider, base_url, text_model = _require_text_service()
+        config = LLMConfig(provider=provider, base_url=base_url)
         client = LLMClient(config)
 
-        request = LLMRequest(messages=[Message(role="user", content="Hello")])
+        model = _pick_text_model(client, text_model)
+        request = LLMRequest(messages=[Message(role="user", content="Hello")], model=model)
 
-        response = client.generate(request)
+        response = _generate_or_skip(client, request, provider)
 
         assert response.latency_ms > 0
 
@@ -179,8 +244,9 @@ class TestErrorHandlingContracts:
         from anyfile_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
         from anyfile_to_ai.llm_client.exceptions import ConnectionError
 
+        provider, _, _ = _require_text_provider()
         config = LLMConfig(
-            provider="ollama",
+            provider=provider,
             base_url="http://localhost:9999",  # Non-existent port
             max_retries=0,  # No retries for faster test
         )
@@ -215,14 +281,16 @@ class TestErrorHandlingContracts:
         from anyfile_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
         from anyfile_to_ai.llm_client.exceptions import TimeoutError
 
+        provider, base_url, text_model = _require_text_service()
         config = LLMConfig(
-            provider="ollama",
-            base_url="http://localhost:11434",
+            provider=provider,
+            base_url=base_url,
             timeout=0.001,  # Very short timeout
         )
         client = LLMClient(config)
-
-        request = LLMRequest(messages=[Message(role="user", content="Hello")])
+        if not text_model:
+            pytest.skip("Set TEXT_MODEL to run timeout contract deterministically")
+        request = LLMRequest(messages=[Message(role="user", content="Hello")], model=text_model)
 
         with pytest.raises(TimeoutError):
             client.generate(request)
@@ -235,12 +303,14 @@ class TestRetryAndFallbackContracts:
         """Client retries on transient failures."""
         from anyfile_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
 
-        config = LLMConfig(provider="ollama", base_url="http://localhost:11434", max_retries=3)
+        provider, base_url, text_model = _require_text_service()
+        config = LLMConfig(provider=provider, base_url=base_url, max_retries=3)
         client = LLMClient(config)
 
-        request = LLMRequest(messages=[Message(role="user", content="Hello")])
+        model = _pick_text_model(client, text_model)
+        request = LLMRequest(messages=[Message(role="user", content="Hello")], model=model)
 
-        response = client.generate(request)
+        response = _generate_or_skip(client, request, provider)
 
         # If request succeeded after retries
         assert response.retry_count >= 0
@@ -249,20 +319,31 @@ class TestRetryAndFallbackContracts:
         """Client falls back to secondary provider on primary failure."""
         from anyfile_to_ai.llm_client import LLMClient, LLMConfig, LLMRequest, Message
 
-        fallback_config = LLMConfig(provider="lmstudio", base_url="http://localhost:1234")
+        primary_provider, _, text_model = _require_text_provider()
+        fallback_provider = "lmstudio" if primary_provider == "ollama" else "ollama"
+        fallback_base_url = resolve_base_url(fallback_provider, "http://localhost:1234" if fallback_provider == "lmstudio" else "http://localhost:11434")
+
+        if fallback_provider == "ollama" and not check_ollama_available(fallback_base_url):
+            pytest.skip(f"Ollama service not available at {fallback_base_url}")
+        if fallback_provider == "lmstudio" and not check_lmstudio_available(fallback_base_url):
+            pytest.skip(f"LM Studio service not available at {fallback_base_url}")
+
+        fallback_config = LLMConfig(provider=fallback_provider, base_url=fallback_base_url)
 
         config = LLMConfig(
-            provider="ollama",
+            provider=primary_provider,
             base_url="http://localhost:9999",  # Non-existent
             max_retries=0,
             fallback_configs=[fallback_config],
         )
 
         client = LLMClient(config)
+        fallback_client = LLMClient(fallback_config)
 
-        request = LLMRequest(messages=[Message(role="user", content="Hello")])
+        model = _pick_text_model(fallback_client, text_model)
+        request = LLMRequest(messages=[Message(role="user", content="Hello")], model=model)
 
-        response = client.generate(request)
+        response = _generate_or_skip(client, request, primary_provider)
 
         assert response.used_fallback is True
-        assert response.fallback_provider == "lmstudio"
+        assert response.fallback_provider == fallback_provider

@@ -14,14 +14,20 @@ class TestStreamingProcessingContract:
 
     def test_process_images_streaming_basic_call(self):
         """Test basic process_images_streaming call returns generator."""
-        image_paths = ["image1.jpg", "image2.png"]
+        image_paths = [
+            "sample-data/images/ui-screenshot.png",
+            "sample-data/images/complex-screenshot.png",
+        ]
         result = process_images_streaming(image_paths)
         assert hasattr(result, "__iter__")
         assert hasattr(result, "__next__")
 
     def test_process_images_streaming_yields_results(self):
         """Test process_images_streaming yields DescriptionResult objects."""
-        image_paths = ["image1.jpg", "image2.png"]
+        image_paths = [
+            "sample-data/images/ui-screenshot.png",
+            "sample-data/images/complex-screenshot.png",
+        ]
         results = list(process_images_streaming(image_paths))
         assert len(results) == 2
         for result in results:
@@ -35,7 +41,10 @@ class TestStreamingProcessingContract:
             progress_calls.append((current, total))
 
         config = ProcessingConfig(progress_callback=progress_callback)
-        image_paths = ["image1.jpg", "image2.png"]
+        image_paths = [
+            "sample-data/images/ui-screenshot.png",
+            "sample-data/images/complex-screenshot.png",
+        ]
         list(process_images_streaming(image_paths, config))
 
         assert len(progress_calls) > 0
@@ -48,17 +57,21 @@ class TestStreamingProcessingContract:
 
     def test_process_images_streaming_order_preservation(self):
         """Test process_images_streaming preserves input order."""
-        image_paths = ["first.jpg", "second.png", "third.gif"]
+        image_paths = [
+            "sample-data/images/ui-screenshot.png",
+            "sample-data/images/github-discussion-screenshot.png",
+            "sample-data/images/ai-generated-tattoo.png",
+        ]
         results = list(process_images_streaming(image_paths))
         assert len(results) == 3
-        assert results[0].image_path == "first.jpg"
-        assert results[1].image_path == "second.png"
-        assert results[2].image_path == "third.gif"
+        assert results[0].image_path == "sample-data/images/ui-screenshot.png"
+        assert results[1].image_path == "sample-data/images/github-discussion-screenshot.png"
+        assert results[2].image_path == "sample-data/images/ai-generated-tattoo.png"
 
     def test_process_images_streaming_with_config(self):
         """Test process_images_streaming respects configuration."""
         config = ProcessingConfig(description_style="brief", max_description_length=100)
-        image_paths = ["image1.jpg"]
+        image_paths = ["sample-data/images/ai-generated-tattoo.png"]
         results = list(process_images_streaming(image_paths, config))
         assert len(results) == 1
         assert len(results[0].description) <= 100
