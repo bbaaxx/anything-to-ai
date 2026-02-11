@@ -57,7 +57,7 @@ class TestModuleAPIContract:
             config = create_config()
 
             # Mock image files for testing
-            test_images = ["test_image.jpg"]
+            test_images = ["sample-data/images/ai-generated-tattoo.png"]
 
             # This will fail because VLM integration not implemented
             result = process_images(test_images, config)
