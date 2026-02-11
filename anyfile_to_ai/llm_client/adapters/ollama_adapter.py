@@ -3,8 +3,11 @@
 This adapter provides integration with Ollama's OpenAI-compatible API.
 """
 
+import base64
+import mimetypes
 import time
 import uuid
+from pathlib import Path
 
 import httpx
 
@@ -14,11 +17,37 @@ from anyfile_to_ai.llm_client.exceptions import (
     GenerationError,
     TimeoutError,
 )
-from anyfile_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo, Usage
+from anyfile_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo, Usage, VisionRequest, VisionResponse
 
 
 class OllamaAdapter(BaseAdapter):
     """Adapter for Ollama LLM service."""
+
+    def _normalize_base_url(self) -> str:
+        base_url = self.config.base_url.rstrip("/")
+        if base_url.endswith("/v1"):
+            return base_url[:-3]
+        return base_url
+
+    def _encode_image(self, request: VisionRequest) -> tuple[str, str]:
+        """Encode image data for OpenAI-style multimodal requests."""
+        if request.image_path:
+            image_path = Path(request.image_path)
+            if not image_path.exists():
+                msg = f"Image file not found: {request.image_path}"
+                raise GenerationError(msg, provider="ollama")
+            image_bytes = image_path.read_bytes()
+            mime_type = request.image_mime_type or mimetypes.guess_type(str(image_path))[0] or "image/png"
+        else:
+            image_bytes = request.image_bytes
+            mime_type = request.image_mime_type or "image/png"
+
+        if not image_bytes:
+            msg = "Image data is empty"
+            raise GenerationError(msg, provider="ollama")
+
+        encoded = base64.b64encode(image_bytes).decode("ascii")
+        return mime_type, encoded
 
     def generate(self, request: LLMRequest) -> LLMResponse:
         """Generate completion using Ollama's OpenAI-compatible API.
@@ -34,7 +63,8 @@ class OllamaAdapter(BaseAdapter):
             TimeoutError: If request times out
             GenerationError: If generation fails
         """
-        url = f"{self.config.base_url}/v1/chat/completions"
+        base_url = self._normalize_base_url()
+        url = f"{base_url}/v1/chat/completions"
         timeout = request.timeout_override if request.timeout_override else self.config.timeout
 
         # Build request payload
@@ -113,6 +143,94 @@ class OllamaAdapter(BaseAdapter):
                 original_error=e,
             )
 
+    def generate_vision(self, request: VisionRequest) -> VisionResponse:
+        """Generate completion using Ollama's OpenAI-compatible vision API."""
+        base_url = self._normalize_base_url()
+        url = f"{base_url}/v1/chat/completions"
+        timeout = request.timeout_override if request.timeout_override else self.config.timeout
+
+        mime_type, encoded = self._encode_image(request)
+        payload = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": request.prompt},
+                        {"type": "image_url", "image_url": {"url": f"data:{mime_type};base64,{encoded}"}},
+                    ],
+                },
+            ],
+            "temperature": request.temperature,
+            "stream": False,
+        }
+
+        if request.model:
+            payload["model"] = request.model
+
+        if request.max_tokens:
+            payload["max_tokens"] = request.max_tokens
+
+        start_time = time.time()
+
+        try:
+            with httpx.Client(timeout=timeout, verify=self.config.verify_ssl) as client:
+                response = client.post(url, json=payload)
+                response.raise_for_status()
+                data = response.json()
+
+            latency_ms = (time.time() - start_time) * 1000
+
+            choice = data["choices"][0]
+            content = choice["message"]["content"]
+            finish_reason = choice.get("finish_reason", "stop")
+
+            usage = None
+            if "usage" in data:
+                usage = Usage(
+                    prompt_tokens=data["usage"]["prompt_tokens"],
+                    completion_tokens=data["usage"]["completion_tokens"],
+                    total_tokens=data["usage"]["total_tokens"],
+                )
+
+            return VisionResponse(
+                content=content,
+                model=data.get("model", request.model or "unknown"),
+                finish_reason=finish_reason,
+                response_id=data.get("id", str(uuid.uuid4())),
+                provider="ollama",
+                latency_ms=latency_ms,
+                usage=usage,
+            )
+
+        except httpx.TimeoutException as e:
+            msg = f"Request to Ollama timed out after {timeout}s"
+            raise TimeoutError(
+                msg,
+                provider="ollama",
+                original_error=e,
+            )
+        except httpx.ConnectError as e:
+            msg = f"Failed to connect to Ollama at {self.config.base_url}"
+            raise ConnectionError(
+                msg,
+                provider="ollama",
+                original_error=e,
+            )
+        except httpx.HTTPStatusError as e:
+            msg = f"Ollama returned error: {e.response.status_code} - {e.response.text}"
+            raise GenerationError(
+                msg,
+                provider="ollama",
+                original_error=e,
+            )
+        except Exception as e:
+            msg = f"Unexpected error during generation: {e}"
+            raise GenerationError(
+                msg,
+                provider="ollama",
+                original_error=e,
+            )
+
     def list_models(self) -> list[ModelInfo]:
         """List available models from Ollama.
 
@@ -122,7 +240,8 @@ class OllamaAdapter(BaseAdapter):
         Raises:
             ConnectionError: If Ollama service is unreachable
         """
-        url = f"{self.config.base_url}/v1/models"
+        base_url = self._normalize_base_url()
+        url = f"{base_url}/v1/models"
 
         try:
             with httpx.Client(timeout=self.config.timeout, verify=self.config.verify_ssl) as client:
@@ -162,7 +281,8 @@ class OllamaAdapter(BaseAdapter):
             True if service is responding, False otherwise
         """
         # Ollama has a specific health check endpoint
-        url = f"{self.config.base_url}/api/tags"
+        base_url = self._normalize_base_url()
+        url = f"{base_url}/api/tags"
 
         try:
             with httpx.Client(timeout=5.0, verify=self.config.verify_ssl) as client:

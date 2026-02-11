@@ -7,6 +7,7 @@ from pathlib import Path
 
 from .processor import summarize_text
 from .exceptions import InvalidInputError, LLMError, ValidationError
+from anyfile_to_ai.cli_config import resolve_provider_config
 
 
 def read_input(file_path: str | None, use_stdin: bool) -> str:
@@ -134,14 +135,26 @@ def main():
     )
     parser.add_argument(
         "--model",
-        default="llama3.2:latest",
-        help="LLM model to use for summarization (default: llama3.2:latest)",
+        default=None,
+        help="Deprecated alias for --text-model",
     )
     parser.add_argument(
         "--provider",
-        default="ollama",
+        default=None,
         choices=["ollama", "lmstudio", "mlx"],
         help="LLM provider/adapter to use (default: ollama)",
+    )
+    parser.add_argument(
+        "--base-url",
+        dest="base_url",
+        default=None,
+        help="Provider base URL (overrides BASE_URL env)",
+    )
+    parser.add_argument(
+        "--text-model",
+        dest="text_model",
+        default=None,
+        help="Text model to use for summarization (default: llama3.2:latest)",
     )
 
     args = parser.parse_args()
@@ -157,9 +170,23 @@ def main():
         if args.verbose:
             len(text.split())
 
+        # Resolve provider configuration
+        provider_config = resolve_provider_config(
+            args,
+            text_model_alias="model",
+            provider_default="ollama",
+            text_default="llama3.2:latest",
+        )
+
         # Summarize
         include_metadata = not args.no_metadata
-        result = summarize_text(text, include_metadata=include_metadata, model=args.model, provider=args.provider)
+        result = summarize_text(
+            text,
+            include_metadata=include_metadata,
+            model=provider_config.text_model or "llama3.2:latest",
+            provider=provider_config.provider or "ollama",
+            base_url=provider_config.base_url,
+        )
 
         if args.verbose:
             pass

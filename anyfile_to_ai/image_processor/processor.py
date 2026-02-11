@@ -96,6 +96,83 @@ class VLMProcessor:
                 f"Preprocessing failed: {e}",
             )
 
+    def _get_provider(self) -> str:
+        provider = os.getenv("PROVIDER") or "mlx"
+        return provider.strip().lower()
+
+    def _process_with_remote_provider(
+        self,
+        image_document: ImageDocument,
+        config: ProcessingConfig,
+        include_metadata: bool,
+        provider: str,
+    ) -> DescriptionResult:
+        base_url = os.getenv("BASE_URL")
+        if not base_url:
+            msg = f"BASE_URL environment variable required for provider '{provider}'"
+            raise VLMConfigurationError(msg, config_field="BASE_URL", suggested_fix="Set BASE_URL for the selected provider (e.g., export BASE_URL=http://localhost:1234)")
+
+        try:
+            from anyfile_to_ai.llm_client import LLMClient, LLMConfig, VisionRequest
+        except ImportError as e:
+            raise ProcessingError(image_document.file_path, f"llm_client module not available: {e!s}")
+
+        prompt = config.prompt_template.format(style=config.description_style)
+        start_time = time.time()
+
+        request = VisionRequest(
+            prompt=prompt,
+            image_path=image_document.file_path,
+            model=config.model_name,
+            temperature=0.7,
+            max_tokens=config.max_description_length,
+            timeout_override=config.timeout_seconds,
+        )
+
+        try:
+            client = LLMClient(LLMConfig(provider=provider, base_url=base_url))
+            response = client.generate_vision(request)
+            processing_time = time.time() - start_time
+
+            description = response.content
+            if len(description) > config.max_description_length:
+                description = description[: config.max_description_length].rstrip()
+
+            technical_metadata = self._create_technical_metadata(image_document)
+
+            metadata = None
+            if include_metadata:
+                from .metadata import extract_image_metadata
+
+                with Image.open(image_document.file_path) as img:
+                    user_config = {"description_style": config.description_style, "model_name": config.model_name}
+                    effective_config = {
+                        "description_style": config.description_style,
+                        "model_name": config.model_name,
+                        "max_description_length": config.max_description_length,
+                        "batch_size": config.batch_size,
+                        "timeout_seconds": config.timeout_seconds,
+                    }
+                    metadata = extract_image_metadata(image_document.file_path, img, processing_time, "unknown", user_config, effective_config)
+
+            return DescriptionResult(
+                image_path=image_document.file_path,
+                description=description,
+                confidence_score=None,
+                processing_time=processing_time,
+                model_used=response.model,
+                prompt_used=prompt,
+                success=True,
+                technical_metadata=technical_metadata,
+                vlm_processing_time=response.latency_ms / 1000.0,
+                model_version="unknown",
+                metadata=metadata,
+            )
+
+        except Exception as e:
+            msg = f"VLM processing failed: {e!s}"
+            raise VLMProcessingError(msg, image_path=image_document.file_path, model_name=config.model_name, error_details=str(e))
+
     def process_single_image(
         self,
         image_document: ImageDocument,
@@ -106,6 +183,14 @@ class VLMProcessor:
         start_time = time.time()
 
         try:
+            provider = self._get_provider()
+            if provider not in {"mlx", "lmstudio", "ollama"}:
+                msg = f"Unsupported provider for vision (PROVIDER={provider})"
+                raise VLMConfigurationError(msg, config_field="PROVIDER", suggested_fix="Set PROVIDER to one of: mlx, lmstudio, ollama")
+
+            if provider in {"lmstudio", "ollama"}:
+                return self._process_with_remote_provider(image_document, config, include_metadata, provider)
+
             # Ensure VLM configuration is loaded
             if self._current_config is None:
                 self.load_model(config.model_name)

@@ -8,7 +8,7 @@ from anyfile_to_ai.llm_client.adapters import get_adapter
 from anyfile_to_ai.llm_client.cache import ModelCache
 from anyfile_to_ai.llm_client.config import LLMConfig
 from anyfile_to_ai.llm_client.exceptions import LLMError
-from anyfile_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo
+from anyfile_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo, VisionRequest, VisionResponse
 from anyfile_to_ai.llm_client.retry import RetryHandler
 
 
@@ -83,6 +83,13 @@ class LLMClient:
             # All providers exhausted
             raise
 
+    def generate_vision(self, request: VisionRequest) -> VisionResponse:
+        """Generate completion using configured vision-capable provider."""
+        try:
+            return self._execute_vision_with_fallback(request)
+        except LLMError:
+            raise
+
     def _execute_with_fallback(self, request: LLMRequest) -> LLMResponse:
         """Execute request with fallback support.
 
@@ -148,6 +155,59 @@ class LLMClient:
             continue
 
         # All providers failed
+        raise last_error
+
+    def _execute_vision_with_fallback(self, request: VisionRequest) -> VisionResponse:
+        """Execute vision request with fallback support."""
+        last_error = None
+
+        result = self.retry_handler.execute_with_retry(lambda: self.adapter.generate_vision(request))
+
+        if result["success"]:
+            response = result["result"]
+            retry_count = result["attempts"] - 1
+            return VisionResponse(
+                content=response.content,
+                model=response.model,
+                finish_reason=response.finish_reason,
+                usage=response.usage,
+                response_id=response.response_id,
+                provider=response.provider,
+                latency_ms=response.latency_ms,
+                retry_count=retry_count,
+                used_fallback=False,
+                fallback_provider=None,
+            )
+        last_error = result["error"]
+
+        for fallback_config, fallback_adapter in self.fallback_adapters:
+            fallback_retry = RetryHandler(
+                max_attempts=fallback_config.max_retries,
+                base_delay=fallback_config.retry_delay,
+                max_delay=fallback_config.retry_max_delay,
+                exponential_base=fallback_config.retry_exponential_base,
+            )
+
+            result = fallback_retry.execute_with_retry(lambda: fallback_adapter.generate_vision(request))
+
+            if result["success"]:
+                response = result["result"]
+                retry_count = result["attempts"] - 1
+                return VisionResponse(
+                    content=response.content,
+                    model=response.model,
+                    finish_reason=response.finish_reason,
+                    usage=response.usage,
+                    response_id=response.response_id,
+                    provider=response.provider,
+                    latency_ms=response.latency_ms,
+                    retry_count=retry_count,
+                    used_fallback=True,
+                    fallback_provider=fallback_config.provider,
+                )
+            last_error = result["error"]
+            continue
+
         raise last_error
 
     def list_models(self, use_cache: bool = True) -> list[ModelInfo]:

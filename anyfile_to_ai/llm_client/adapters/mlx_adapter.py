@@ -9,6 +9,7 @@ import re
 import time
 import uuid
 from pathlib import Path
+import tempfile
 
 from anyfile_to_ai.llm_client.adapters.base import BaseAdapter
 from anyfile_to_ai.llm_client.exceptions import (
@@ -17,7 +18,7 @@ from anyfile_to_ai.llm_client.exceptions import (
     GenerationError,
     ModelNotFoundError,
 )
-from anyfile_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo
+from anyfile_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo, VisionRequest, VisionResponse
 
 
 class MLXAdapter(BaseAdapter):
@@ -90,6 +91,26 @@ class MLXAdapter(BaseAdapter):
             raise GenerationError(msg, provider="mlx")
 
         return image_path
+
+    def _get_image_path_from_vision_request(self, request: VisionRequest) -> str:
+        """Get image path from vision request, writing temp file if needed."""
+        if request.image_path:
+            image_path = request.image_path
+            if not Path(image_path).exists():
+                msg = f"Image file not found: {image_path}"
+                raise GenerationError(msg, provider="mlx")
+            return image_path
+
+        suffix = ".png"
+        if request.image_mime_type == "image/jpeg":
+            suffix = ".jpg"
+        elif request.image_mime_type == "image/webp":
+            suffix = ".webp"
+
+        temp_file = tempfile.NamedTemporaryFile(suffix=suffix, delete=False)
+        temp_file.write(request.image_bytes or b"")
+        temp_file.close()
+        return temp_file.name
 
     def _process_with_image_processor(self, image_path: str, request: LLMRequest, image_processor):
         """Process image using image_processor module."""
@@ -171,6 +192,72 @@ class MLXAdapter(BaseAdapter):
                 provider="mlx",
                 original_error=e,
             )
+
+    def generate_vision(self, request: VisionRequest) -> VisionResponse:
+        """Generate completion using MLX vision model."""
+        try:
+            from anyfile_to_ai import image_processor
+        except ImportError as e:
+            msg = "image_processor module not available"
+            raise ConnectionError(msg, provider="mlx", original_error=e)
+
+        start_time = time.time()
+        temp_path = None
+
+        try:
+            image_path = self._get_image_path_from_vision_request(request)
+            if request.image_path is None:
+                temp_path = image_path
+
+            from anyfile_to_ai.llm_client.models import Message, MessageRole
+
+            llm_request = LLMRequest(
+                messages=[Message(role=MessageRole.USER, content=request.prompt)],
+                temperature=request.temperature,
+                max_tokens=request.max_tokens,
+            )
+            result = self._process_with_image_processor(image_path, llm_request, image_processor)
+            latency_ms = (time.time() - start_time) * 1000
+
+            return VisionResponse(
+                content=result.description,
+                model=self.vision_model,
+                finish_reason="stop",
+                response_id=str(uuid.uuid4()),
+                provider="mlx",
+                latency_ms=latency_ms,
+                usage=None,
+            )
+
+        except image_processor.ImageNotFoundError as e:
+            msg = f"Image not found: {request.image_path}"
+            raise GenerationError(msg, provider="mlx", original_error=e)
+        except image_processor.VLMConfigurationError as e:
+            msg = f"VLM configuration error: {e}"
+            raise ConfigurationError(msg, provider="mlx", original_error=e)
+        except image_processor.VLMModelNotFoundError as e:
+            msg = f"VLM model not found: {self.vision_model}"
+            raise ModelNotFoundError(
+                msg,
+                provider="mlx",
+                original_error=e,
+            )
+        except image_processor.VLMProcessingError as e:
+            msg = f"VLM processing error: {e}"
+            raise GenerationError(msg, provider="mlx", original_error=e)
+        except Exception as e:
+            msg = f"Unexpected error during image processing: {e}"
+            raise GenerationError(
+                msg,
+                provider="mlx",
+                original_error=e,
+            )
+        finally:
+            if temp_path:
+                try:
+                    os.unlink(temp_path)
+                except OSError:
+                    pass
 
     def list_models(self) -> list[ModelInfo]:
         """List available MLX vision models.

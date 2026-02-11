@@ -25,6 +25,8 @@ from anyfile_to_ai.llm_client.models import (
     MessageRole,
     ModelInfo,
     Usage,
+    VisionRequest,
+    VisionResponse,
 )
 
 __version__ = "0.1.0"
@@ -53,6 +55,8 @@ __all__ = [
     "TimeoutError",
     "Usage",
     "ValidationError",
+    "VisionRequest",
+    "VisionResponse",
     # Version
     "__version__",
 ]

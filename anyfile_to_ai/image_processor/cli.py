@@ -2,6 +2,7 @@
 
 import argparse
 from .models import ProcessingResult, DescriptionResult
+from anyfile_to_ai.cli_config import resolve_provider_config, ProviderConfigError
 
 
 def create_cli_parser() -> argparse.ArgumentParser:
@@ -25,17 +26,13 @@ Examples:
     parser.add_argument("--output", "-o", help="Output file path")
     parser.add_argument("--format", choices=["plain", "json", "csv", "markdown"], default="plain", help="Output format")
     parser.add_argument("--include-metadata", action="store_true", help="Include source file and processing metadata in output")
+    parser.add_argument("--vision-model", help="Override VISION_MODEL for this run")
+    parser.add_argument("--provider", help="LLM provider (overrides PROVIDER env)")
+    parser.add_argument("--base-url", dest="base_url", help="Provider base URL (overrides BASE_URL env)")
     parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose progress output")
     parser.add_argument("--quiet", "-q", action="store_true", help="Suppress all output except results")
 
     return parser
-
-
-def _check_vlm_environment():
-    """Check for VLM environment configuration."""
-    import os
-
-    return os.getenv("VISION_MODEL")
 
 
 def _create_image_config(parsed_args):
@@ -73,15 +70,20 @@ def _handle_image_output(results, parsed_args):
 
 def main(args: list[str] | None = None) -> int:
     """Main CLI entry point."""
-
+    parsed_args = None
     try:
         from . import process_images
 
         parser = create_cli_parser()
         parsed_args = parser.parse_args(args)
 
-        # Check for VLM environment configuration
-        if not _check_vlm_environment():
+        # Resolve and validate provider configuration
+        try:
+            resolve_provider_config(parsed_args, require_vision=True)
+        except ProviderConfigError:
+            import sys
+
+            print("Missing required configuration: VISION_MODEL (set VISION_MODEL or pass --vision-model)", file=sys.stderr)
             return 1
 
         # Expand image paths

@@ -157,17 +157,20 @@ class LLMAdapter:
         }
 
 
-def get_default_llm_client(model: str = "llama3.2:latest", provider: str = "ollama") -> Any:
+def get_default_llm_client(model: str | None = None, provider: str | None = None, base_url: str | None = None) -> Any:
     """Get default LLM client configured for specified provider.
 
     Args:
         model: Model name to use (default: "llama3.2:latest")
         provider: Provider to use - "ollama", "lmstudio", or "mlx" (default: "ollama")
+        base_url: Optional provider base URL override
 
     Returns:
         Configured LLM client instance
     """
     try:
+        import os
+
         from anyfile_to_ai.llm_client import LLMClient, LLMConfig
 
         # Map provider to base URL
@@ -177,15 +180,18 @@ def get_default_llm_client(model: str = "llama3.2:latest", provider: str = "olla
             "mlx": "mlx",  # MLX uses local models
         }
 
-        provider_lower = provider.lower()
+        provider_value = provider or os.getenv("PROVIDER") or "ollama"
+        provider_lower = provider_value.lower()
         if provider_lower not in provider_urls:
-            msg = f"Unknown provider: {provider}. Must be one of: ollama, lmstudio, mlx"
+            msg = f"Unknown provider: {provider_value}. Must be one of: ollama, lmstudio, mlx"
             raise LLMError(msg)
+
+        base_url_value = base_url or os.getenv("BASE_URL") or provider_urls[provider_lower]
 
         # Create config for specified provider
         config = LLMConfig(
             provider=provider_lower,
-            base_url=provider_urls[provider_lower],
+            base_url=base_url_value,
         )
         return LLMClient(config)
     except ImportError:

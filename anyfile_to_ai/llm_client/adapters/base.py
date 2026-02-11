@@ -6,7 +6,7 @@ This module defines the abstract base class that all provider adapters must impl
 from abc import ABC, abstractmethod
 
 from anyfile_to_ai.llm_client.config import LLMConfig
-from anyfile_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo
+from anyfile_to_ai.llm_client.models import LLMRequest, LLMResponse, ModelInfo, VisionRequest, VisionResponse
 
 
 class BaseAdapter(ABC):
@@ -29,6 +29,22 @@ class BaseAdapter(ABC):
 
         Returns:
             LLM response with generated content
+
+        Raises:
+            ConnectionError: If service is unreachable
+            TimeoutError: If request times out
+            GenerationError: If generation fails
+        """
+
+    @abstractmethod
+    def generate_vision(self, request: VisionRequest) -> VisionResponse:
+        """Generate completion from LLM with image input.
+
+        Args:
+            request: Vision request with prompt and image data
+
+        Returns:
+            Vision response with generated content
 
         Raises:
             ConnectionError: If service is unreachable

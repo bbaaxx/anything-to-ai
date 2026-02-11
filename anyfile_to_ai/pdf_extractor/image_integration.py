@@ -32,10 +32,19 @@ class PDFImageProcessor:
     def validate_config(self, config: EnhancedExtractionConfig) -> None:
         """Validate enhanced extraction configuration."""
         if config.include_images:
+            provider = (os.getenv("PROVIDER") or "mlx").strip().lower()
+            if provider not in {"mlx", "lmstudio", "ollama"}:
+                msg = f"Unsupported provider for vision (PROVIDER={provider})"
+                raise VLMConfigurationError(msg, config_key="PROVIDER")
+
             vision_model = os.getenv("VISION_MODEL")
             if not vision_model:
                 msg = "VISION_MODEL environment variable required for image processing"
                 raise VLMConfigurationError(msg, config_key="VISION_MODEL")
+
+            if provider in {"lmstudio", "ollama"} and not os.getenv("BASE_URL"):
+                msg = f"BASE_URL environment variable required for provider '{provider}'"
+                raise VLMConfigurationError(msg, config_key="BASE_URL")
 
         # Validate batch size
         if not (1 <= config.image_batch_size <= 10):

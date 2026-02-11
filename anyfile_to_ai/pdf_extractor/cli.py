@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+from anyfile_to_ai.cli_config import resolve_provider_config
 from .reader import extract_text, get_pdf_info
 from .streaming import extract_text_streaming
 from .models import ExtractionConfig
@@ -260,6 +261,9 @@ def main():
         default=4,
         help="Batch size for image processing (1-10, default: 4)",
     )
+    extract_parser.add_argument("--provider", help="LLM provider (overrides PROVIDER env)")
+    extract_parser.add_argument("--base-url", dest="base_url", help="Provider base URL (overrides BASE_URL env)")
+    extract_parser.add_argument("--vision-model", help="Override VISION_MODEL for this run")
 
     # Info command
     info_parser = subparsers.add_parser("info", help="Show PDF information")
@@ -272,6 +276,8 @@ def main():
         return 1
 
     if args.command == "extract":
+        if args.include_images:
+            resolve_provider_config(args)
         return CLICommands.extract(
             args.file_path,
             stream=args.stream,

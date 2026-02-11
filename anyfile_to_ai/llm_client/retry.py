@@ -68,7 +68,9 @@ class RetryHandler:
         """
         last_exception = None
 
-        for attempt in range(self.max_attempts):
+        attempts = max(1, self.max_attempts)
+
+        for attempt in range(attempts):
             try:
                 result = func()
                 return {"result": result, "success": True, "attempts": attempt + 1, "error": None}
@@ -76,7 +78,7 @@ class RetryHandler:
                 last_exception = e
 
                 # If this was the last attempt, don't sleep
-                if attempt < self.max_attempts - 1:
+                if attempt < attempts - 1:
                     delay = self.calculate_delay(attempt)
 
                     # Call retry callback if provided
@@ -86,4 +88,4 @@ class RetryHandler:
                     time.sleep(delay)
 
         # All attempts failed
-        return {"result": None, "success": False, "attempts": self.max_attempts, "error": last_exception}
+        return {"result": None, "success": False, "attempts": attempts, "error": last_exception}

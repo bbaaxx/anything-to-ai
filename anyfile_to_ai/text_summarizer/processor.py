@@ -24,6 +24,7 @@ class TextSummarizer:
         chunk_overlap: int | None = None,
         model: str = "llama3.2:latest",
         provider: str = "ollama",
+        base_url: str | None = None,
     ):
         """
         Initialize TextSummarizer.
@@ -34,11 +35,12 @@ class TextSummarizer:
             chunk_overlap: Overlap words between chunks (auto-detected if None)
             model: Model name to use (default: "llama3.2:latest")
             provider: Provider to use - "ollama", "lmstudio", or "mlx" (default: "ollama")
+            base_url: Optional provider base URL override
 
         Raises:
             ValueError: If invalid parameters
         """
-        client = llm_client or get_default_llm_client(model, provider)
+        client = llm_client or get_default_llm_client(model=model, provider=provider, base_url=base_url)
         self.adapter = LLMAdapter(client, model)
 
         # Auto-detect appropriate chunk sizes based on model
@@ -229,6 +231,7 @@ def create_summarizer(
     chunk_overlap: int | None = None,
     model: str = "llama3.2:latest",
     provider: str = "ollama",
+    base_url: str | None = None,
 ) -> TextSummarizer:
     """
     Create a text summarizer instance.
@@ -239,6 +242,7 @@ def create_summarizer(
         chunk_overlap: Overlap words between chunks (auto-detected if None)
         model: Model name to use (default: "llama3.2:latest")
         provider: Provider to use - "ollama", "lmstudio", or "mlx" (default: "ollama")
+        base_url: Optional provider base URL override
 
     Returns:
         TextSummarizer instance
@@ -252,6 +256,7 @@ def create_summarizer(
         chunk_overlap=chunk_overlap,
         model=model,
         provider=provider,
+        base_url=base_url,
     )
 
 
@@ -261,6 +266,7 @@ def summarize_text(
     include_metadata: bool = True,
     model: str = "llama3.2:latest",
     provider: str = "ollama",
+    base_url: str | None = None,
 ) -> SummaryResult:
     """
     Summarize input text and generate categorization tags.
@@ -270,6 +276,7 @@ def summarize_text(
         include_metadata: Whether to include processing metadata
         model: Model name to use (default: "llama3.2:latest")
         provider: Provider to use - "ollama", "lmstudio", or "mlx" (default: "ollama")
+        base_url: Optional provider base URL override
 
     Returns:
         SummaryResult with summary, tags (≥3), and optional metadata
@@ -279,5 +286,5 @@ def summarize_text(
         LLMError: If LLM client fails
         ValidationError: If output doesn't meet requirements (e.g., <3 tags)
     """
-    summarizer = create_summarizer(model=model, provider=provider)
+    summarizer = create_summarizer(model=model, provider=provider, base_url=base_url)
     return summarizer.summarize(text, include_metadata=include_metadata)
