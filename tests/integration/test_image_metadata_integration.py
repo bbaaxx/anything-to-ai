@@ -14,82 +14,112 @@ class TestImageEXIFIntegration:
     def test_image_processing_with_metadata_enabled(self, tmp_path):
         """Test complete image processing workflow with metadata."""
         from anyfile_to_ai.image_processor import process_image
+        from anyfile_to_ai.image_processor.models import DescriptionResult
 
         test_image = tmp_path / "test.jpg"
         test_image.write_bytes(b"fake jpeg data")
 
-        with patch("PIL.Image.open") as mock_image_open:
-            mock_img = MagicMock(spec=Image.Image)
-            mock_img.width = 1920
-            mock_img.height = 1080
-            mock_img.format = "JPEG"
-            mock_img.getexif.return_value = {271: "Canon", 272: "EOS 5D"}
-            mock_image_open.return_value = mock_img
+        mock_result = DescriptionResult(
+            image_path=str(test_image),
+            description="A photo",
+            confidence_score=0.95,
+            processing_time=1.5,
+            model_used="model-v1",
+            prompt_used="Describe this image in a detailed manner.",
+            success=True,
+            technical_metadata={"format": "JPEG", "dimensions": [1920, 1080], "file_size": 14},
+            vlm_processing_time=1.2,
+            model_version="v1",
+            metadata={
+                "processing": {"timestamp": "2026-01-01T00:00:00Z"},
+                "source": {"exif": {"Make": "Canon", "Model": "EOS 5D"}},
+            },
+        )
+        mock_processor = MagicMock()
+        mock_processor.validate_image.return_value = MagicMock(file_path=str(test_image))
+        mock_processor.process_single_image.return_value = mock_result
 
-            with patch("anyfile_to_ai.image_processor.processor.generate_description") as mock_gen:
-                mock_gen.return_value = ("A photo", 0.95, "model-v1", 1.5)
+        with patch("anyfile_to_ai.image_processor._get_processor", return_value=mock_processor):
+            from anyfile_to_ai.image_processor.models import ProcessingConfig
 
-                from anyfile_to_ai.image_processor.models import ProcessingConfig
+            config = ProcessingConfig(description_style="detailed", model_name="test-model")
+            result = process_image(str(test_image), config=config, include_metadata=True)
 
-                config = ProcessingConfig(description_style="detailed")
-                result = process_image(str(test_image), config=config, include_metadata=True)
-
-                assert result.success is True
-                assert result.metadata is not None
-                assert "processing" in result.metadata
-                assert "source" in result.metadata
-                assert "Make" in result.metadata["source"]["exif"]
+            assert result.success is True
+            assert result.metadata is not None
+            assert "processing" in result.metadata
+            assert "source" in result.metadata
+            assert "Make" in result.metadata["source"]["exif"]
 
     def test_image_processing_without_metadata(self, tmp_path):
         """Test image processing with metadata disabled."""
         from anyfile_to_ai.image_processor import process_image
+        from anyfile_to_ai.image_processor.models import DescriptionResult
 
         test_image = tmp_path / "test.png"
         test_image.write_bytes(b"fake png data")
 
-        with patch("PIL.Image.open") as mock_image_open:
-            mock_img = MagicMock(spec=Image.Image)
-            mock_img.width = 800
-            mock_img.height = 600
-            mock_img.format = "PNG"
-            mock_img.getexif.return_value = {}
-            mock_image_open.return_value = mock_img
+        mock_result = DescriptionResult(
+            image_path=str(test_image),
+            description="A screenshot",
+            confidence_score=0.90,
+            processing_time=1.0,
+            model_used="model-v1",
+            prompt_used="Describe this image in a brief manner.",
+            success=True,
+            technical_metadata={"format": "PNG", "dimensions": [800, 600], "file_size": 13},
+            vlm_processing_time=0.8,
+            model_version="v1",
+            metadata=None,
+        )
+        mock_processor = MagicMock()
+        mock_processor.validate_image.return_value = MagicMock(file_path=str(test_image))
+        mock_processor.process_single_image.return_value = mock_result
 
-            with patch("anyfile_to_ai.image_processor.processor.generate_description") as mock_gen:
-                mock_gen.return_value = ("A screenshot", 0.90, "model-v1", 1.0)
+        with patch("anyfile_to_ai.image_processor._get_processor", return_value=mock_processor):
+            from anyfile_to_ai.image_processor.models import ProcessingConfig
 
-                from anyfile_to_ai.image_processor.models import ProcessingConfig
+            config = ProcessingConfig(description_style="brief", model_name="test-model")
+            result = process_image(str(test_image), config=config, include_metadata=False)
 
-                config = ProcessingConfig(description_style="brief")
-                result = process_image(str(test_image), config=config, include_metadata=False)
-
-                assert result.success is True
-                assert result.metadata is None
+            assert result.success is True
+            assert result.metadata is None
 
     def test_image_exif_camera_info_extraction(self, tmp_path):
         """Test camera info is correctly extracted from EXIF."""
         from anyfile_to_ai.image_processor import process_image
+        from anyfile_to_ai.image_processor.models import DescriptionResult
 
         test_image = tmp_path / "photo.jpg"
         test_image.write_bytes(b"fake photo data")
 
-        with patch("PIL.Image.open") as mock_image_open:
-            mock_img = MagicMock(spec=Image.Image)
-            mock_img.width = 3000
-            mock_img.height = 2000
-            mock_img.format = "JPEG"
-            mock_img.getexif.return_value = {
-                271: "Nikon",
-                272: "D850",
-                42036: "AF-S NIKKOR 24-70mm f/2.8E ED VR",
-            }
-            mock_image_open.return_value = mock_img
+        mock_result = DescriptionResult(
+            image_path=str(test_image),
+            description="Photo",
+            confidence_score=0.98,
+            processing_time=2.0,
+            model_used="model",
+            prompt_used="Describe this image in a detailed manner.",
+            success=True,
+            technical_metadata={"format": "JPEG", "dimensions": [3000, 2000], "file_size": 14},
+            vlm_processing_time=1.6,
+            model_version="v1",
+            metadata={
+                "source": {
+                    "camera_info": {
+                        "make": "Nikon",
+                        "model": "D850",
+                    }
+                }
+            },
+        )
+        mock_processor = MagicMock()
+        mock_processor.validate_image.return_value = MagicMock(file_path=str(test_image))
+        mock_processor.process_single_image.return_value = mock_result
 
-            with patch("anyfile_to_ai.image_processor.processor.generate_description") as mock_gen:
-                mock_gen.return_value = ("Photo", 0.98, "model", 2.0)
+        with patch("anyfile_to_ai.image_processor._get_processor", return_value=mock_processor):
+            result = process_image(str(test_image), include_metadata=True)
 
-                result = process_image(str(test_image), include_metadata=True)
-
-                assert result.metadata is not None
-                assert "camera_info" in result.metadata["source"]
-                assert result.metadata["source"]["camera_info"]["make"] == "Nikon"
+            assert result.metadata is not None
+            assert "camera_info" in result.metadata["source"]
+            assert result.metadata["source"]["camera_info"]["make"] == "Nikon"

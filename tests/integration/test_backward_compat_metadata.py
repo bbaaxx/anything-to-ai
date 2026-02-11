@@ -33,26 +33,34 @@ class TestMetadataBackwardCompatibility:
     def test_image_default_no_metadata(self, tmp_path):
         """Test image processing defaults to no metadata."""
         from anyfile_to_ai.image_processor import process_image
-        from PIL import Image
+        from anyfile_to_ai.image_processor.models import DescriptionResult
 
         test_image = tmp_path / "test.jpg"
         test_image.write_bytes(b"jpeg data")
 
-        with patch("PIL.Image.open") as mock_image_open:
-            mock_img = MagicMock(spec=Image.Image)
-            mock_img.width = 800
-            mock_img.height = 600
-            mock_img.format = "JPEG"
-            mock_img.getexif.return_value = {}
-            mock_image_open.return_value = mock_img
+        mock_result = DescriptionResult(
+            image_path=str(test_image),
+            description="Image",
+            confidence_score=0.9,
+            processing_time=0.1,
+            model_used="mock-model",
+            prompt_used="Describe this image in a detailed manner.",
+            success=True,
+            technical_metadata={"format": "JPEG", "dimensions": [800, 600], "file_size": 9},
+            vlm_processing_time=0.05,
+            model_version="mock",
+            metadata=None,
+        )
 
-            with patch("anyfile_to_ai.image_processor.processor.generate_description") as mock_gen:
-                mock_gen.return_value = ("Image", 0.90, "model", 1.0)
+        mock_processor = MagicMock()
+        mock_processor.validate_image.return_value = MagicMock(file_path=str(test_image))
+        mock_processor.process_single_image.return_value = mock_result
 
-                result = process_image(str(test_image))
+        with patch("anyfile_to_ai.image_processor._get_processor", return_value=mock_processor):
+            result = process_image(str(test_image))
 
-                assert result.success is True
-                assert result.metadata is None
+            assert result.success is True
+            assert result.metadata is None
 
     def test_audio_default_no_metadata(self, tmp_path):
         """Test audio processing defaults to no metadata."""
@@ -67,9 +75,17 @@ class TestMetadataBackwardCompatibility:
         with patch("anyfile_to_ai.audio_processor.processor.validate_audio") as mock_validate:
             mock_validate.return_value = mock_audio_doc
 
-            with patch("anyfile_to_ai.audio_processor.processor.transcribe_audio") as mock_transcribe:
-                mock_transcribe.return_value = MagicMock(text="Audio", segments=[], language=None, language_probability=None)
+            mock_model = MagicMock()
+            mock_model.transcribe.return_value = {
+                "text": "Audio",
+                "segments": [],
+                "language": None,
+                "language_probability": None,
+            }
+            mock_loader = MagicMock()
+            mock_loader.load_model.return_value = mock_model
 
+            with patch("anyfile_to_ai.audio_processor.processor.get_model_loader", return_value=mock_loader):
                 result = process_audio(str(test_audio))
 
                 assert result.success is True

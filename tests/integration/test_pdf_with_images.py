@@ -5,8 +5,17 @@ All tests should FAIL initially until implementation is complete.
 """
 
 import pytest
+import os
 from unittest.mock import Mock, patch
 from collections.abc import Iterator
+
+_REQUIRED_FIXTURES = [
+    "sample-data/pdfs/document-with-images.pdf",
+    "sample-data/pdfs/large-document.pdf",
+]
+_MISSING_FIXTURES = [path for path in _REQUIRED_FIXTURES if not os.path.exists(path)]
+if _MISSING_FIXTURES:
+    pytestmark = pytest.mark.skip(reason=f"Sample PDF fixtures not available: {', '.join(_MISSING_FIXTURES)}")
 
 
 # Test fixtures and utilities

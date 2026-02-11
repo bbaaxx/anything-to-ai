@@ -30,9 +30,17 @@ class TestAudioMetadataIntegration:
         with patch("anyfile_to_ai.audio_processor.processor.validate_audio") as mock_validate:
             mock_validate.return_value = mock_audio_doc
 
-            with patch("anyfile_to_ai.audio_processor.processor.transcribe_audio") as mock_transcribe:
-                mock_transcribe.return_value = MagicMock(text="Sample transcription", segments=[], language="en", language_probability=0.95)
+            mock_model = MagicMock()
+            mock_model.transcribe.return_value = {
+                "text": "Sample transcription",
+                "segments": [],
+                "language": "en",
+                "language_probability": 0.95,
+            }
+            mock_loader = MagicMock()
+            mock_loader.load_model.return_value = mock_model
 
+            with patch("anyfile_to_ai.audio_processor.processor.get_model_loader", return_value=mock_loader):
                 from anyfile_to_ai.audio_processor.models import TranscriptionConfig
 
                 config = TranscriptionConfig(model="medium", language="en")
@@ -56,9 +64,17 @@ class TestAudioMetadataIntegration:
         with patch("anyfile_to_ai.audio_processor.processor.validate_audio") as mock_validate:
             mock_validate.return_value = mock_audio_doc
 
-            with patch("anyfile_to_ai.audio_processor.processor.transcribe_audio") as mock_transcribe:
-                mock_transcribe.return_value = MagicMock(text="Transcription", segments=[], language=None, language_probability=None)
+            mock_model = MagicMock()
+            mock_model.transcribe.return_value = {
+                "text": "Transcription",
+                "segments": [],
+                "language": None,
+                "language_probability": None,
+            }
+            mock_loader = MagicMock()
+            mock_loader.load_model.return_value = mock_model
 
+            with patch("anyfile_to_ai.audio_processor.processor.get_model_loader", return_value=mock_loader):
                 result = process_audio(str(test_audio), include_metadata=False)
 
                 assert result.success is True
@@ -77,9 +93,17 @@ class TestAudioMetadataIntegration:
         with patch("anyfile_to_ai.audio_processor.processor.validate_audio") as mock_validate:
             mock_validate.return_value = mock_audio_doc
 
-            with patch("anyfile_to_ai.audio_processor.processor.transcribe_audio") as mock_transcribe:
-                mock_transcribe.return_value = MagicMock(text="Text", segments=[], language=None, language_probability=None)
+            mock_model = MagicMock()
+            mock_model.transcribe.return_value = {
+                "text": "Sample text",
+                "segments": [],
+                "language": None,
+                "language_probability": None,
+            }
+            mock_loader = MagicMock()
+            mock_loader.load_model.return_value = mock_model
 
+            with patch("anyfile_to_ai.audio_processor.processor.get_model_loader", return_value=mock_loader):
                 result = process_audio(str(test_audio), include_metadata=True)
 
                 assert result.metadata is not None

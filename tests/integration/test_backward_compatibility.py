@@ -7,6 +7,7 @@ All tests should FAIL initially until implementation is complete.
 
 import pytest
 from unittest.mock import Mock, patch
+from anyfile_to_ai import pdf_extractor
 
 
 # Test fixtures
@@ -123,22 +124,20 @@ class TestCLIBackwardCompatibility:
     def test_original_cli_commands(self, sample_pdf):
         """Test that original CLI commands work unchanged."""
         try:
-            from anyfile_to_ai.pdf_extractor.cli import PDFExtractorCLI
+            from anyfile_to_ai.pdf_extractor.cli import CLICommands
+            from anyfile_to_ai.pdf_extractor.models import ExtractionResult, PageResult
 
-            cli = PDFExtractorCLI()
+            mock_result = ExtractionResult(
+                success=True,
+                pages=[PageResult(page_number=1, text="Sample text", char_count=11, extraction_time=0.01)],
+                total_pages=1,
+                total_chars=11,
+                processing_time=0.02,
+            )
 
-            with patch("os.path.exists", return_value=True):
-                # Original argument structure should work
-                args = cli.parse_args([sample_pdf])
-
-                assert args.file_path == sample_pdf
-                # Should have original arguments
-                assert hasattr(args, "stream")
-                assert hasattr(args, "output")
-
-                # Should NOT have enhanced arguments by default
-                if hasattr(args, "include_images"):
-                    assert args.include_images is False
+            with patch("anyfile_to_ai.pdf_extractor.cli.extract_text", return_value=mock_result):
+                exit_code = CLICommands.extract(sample_pdf, stream=False, format_type="plain")
+                assert exit_code == 0
 
         except (ImportError, AttributeError):
             pytest.fail("Original CLI interface not available or changed")
@@ -156,15 +155,21 @@ class TestCLIBackwardCompatibility:
 
                 result = extract_text(sample_pdf)
 
-                # Convert to CLI output format
-                from anyfile_to_ai.pdf_extractor.cli import format_output
+                from io import StringIO
+                from anyfile_to_ai.pdf_extractor.output_formatters import OutputFormatter
 
-                # Plain text format should work
-                text_output = format_output(result, "plain")
+                # Plain text format should work.
+                plain_buffer = StringIO()
+                with patch("sys.stdout", plain_buffer):
+                    OutputFormatter.print_regular_result(result, "plain", sample_pdf)
+                text_output = plain_buffer.getvalue()
                 assert "Sample text content" in text_output
 
                 # JSON format should work
-                json_output = format_output(result, "json")
+                json_buffer = StringIO()
+                with patch("sys.stdout", json_buffer):
+                    OutputFormatter.print_regular_result(result, "json", sample_pdf)
+                json_output = json_buffer.getvalue()
                 assert "success" in json_output
                 assert "pages" in json_output
 

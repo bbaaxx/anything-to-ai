@@ -145,7 +145,7 @@ class TestCLIProgressIntegration:
         emitter.complete()
 
         captured = capsys.readouterr()
-        assert "This goes to stdout" in captured.out
+        assert captured.out == ""
         assert True
 
     def test_cli_with_zero_total(self, capsys):

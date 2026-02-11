@@ -8,7 +8,56 @@ batch processing, and graceful degradation.
 from anyfile_to_ai.audio_processor.config import create_config
 from anyfile_to_ai.audio_processor.processor import process_audio
 from anyfile_to_ai.audio_processor.streaming import process_audio_batch
-from anyfile_to_ai.audio_processor.models import TranscriptionSegment
+from anyfile_to_ai.audio_processor.models import TranscriptionSegment, AudioDocument
+from unittest.mock import MagicMock, patch
+
+
+def _mock_audio_doc(path: str) -> AudioDocument:
+    return AudioDocument(
+        file_path=path,
+        format="mp3" if path.endswith(".mp3") else "wav",
+        duration=60.0,
+        sample_rate=16000,
+        file_size=2048,
+        channels=1,
+    )
+
+
+def _run_process_audio(path: str, config, *, text: str = "hello world", segments: list[tuple] | None = None):
+    mock_model = MagicMock()
+    payload = {"text": text, "language": "en"}
+    if segments is not None:
+        payload["segments"] = segments
+    mock_model.transcribe.return_value = payload
+
+    mock_loader = MagicMock()
+    mock_loader.load_model.return_value = mock_model
+
+    with (
+        patch("anyfile_to_ai.audio_processor.processor.validate_audio", return_value=_mock_audio_doc(path)),
+        patch("anyfile_to_ai.audio_processor.processor.get_model_loader", return_value=mock_loader),
+    ):
+        return process_audio(path, config)
+
+
+def _run_process_audio_batch(paths: list[str], config):
+    def _validate(path: str):
+        return _mock_audio_doc(path)
+
+    mock_model = MagicMock()
+    mock_model.transcribe.return_value = {
+        "text": "batch transcript",
+        "language": "en",
+        "segments": [(0, 40, "batch"), (40, 90, "transcript")],
+    }
+    mock_loader = MagicMock()
+    mock_loader.load_model.return_value = mock_model
+
+    with (
+        patch("anyfile_to_ai.audio_processor.processor.validate_audio", side_effect=_validate),
+        patch("anyfile_to_ai.audio_processor.processor.get_model_loader", return_value=mock_loader),
+    ):
+        return process_audio_batch(paths, config)
 
 
 class TestSingleAudioWithTimestamps:
@@ -24,7 +73,12 @@ class TestSingleAudioWithTimestamps:
         )
 
         # Process audio
-        result = process_audio("sample-data/audio/podcast.mp3", config)
+        result = _run_process_audio(
+            "sample-data/audio/podcast.mp3",
+            config,
+            text="hello world",
+            segments=[(0, 50, "hello"), (50, 100, "world")],
+        )
 
         # Validate result
         assert result.success is True
@@ -55,7 +109,12 @@ class TestSingleAudioWithTimestamps:
             output_format="markdown",
         )
 
-        result = process_audio("sample-data/audio/podcast.mp3", config)
+        result = _run_process_audio(
+            "sample-data/audio/podcast.mp3",
+            config,
+            text="hello world",
+            segments=[(0, 50, "hello"), (50, 100, "world")],
+        )
 
         assert result.success is True
         assert result.segments is not None
@@ -85,7 +144,7 @@ class TestBatchWithTimestamps:
             "sample-data/audio/silence.mp3",
         ]
 
-        result = process_audio_batch(audio_files, config)
+        result = _run_process_audio_batch(audio_files, config)
 
         # Validate batch result
         assert result.success is True
@@ -103,7 +162,7 @@ class TestBatchWithTimestamps:
         config = create_config(model="tiny", timestamps=True)
 
         audio_files = ["sample-data/audio/podcast.mp3"]
-        result = process_audio_batch(audio_files, config)
+        result = _run_process_audio_batch(audio_files, config)
 
         assert result.success is True
 
@@ -128,7 +187,7 @@ class TestGracefulDegradation:
         )
 
         # Process a file (even if segments are unavailable, should not fail)
-        result = process_audio("sample-data/audio/silence.mp3", config)
+        result = _run_process_audio("sample-data/audio/silence.mp3", config, text="silence", segments=[])
 
         # Must succeed even if no segments
         assert result.success is True
@@ -149,7 +208,12 @@ class TestGracefulDegradation:
             timestamps=False,  # Explicitly disabled
         )
 
-        result = process_audio("sample-data/audio/podcast.mp3", config)
+        result = _run_process_audio(
+            "sample-data/audio/podcast.mp3",
+            config,
+            text="hello world",
+            segments=[(0, 50, "hello"), (50, 100, "world")],
+        )
 
         assert result.success is True
         assert result.segments is None  # Must be None when disabled
@@ -159,7 +223,12 @@ class TestGracefulDegradation:
         # Config without timestamps parameter (uses default)
         config = create_config(model="tiny", output_format="plain")
 
-        result = process_audio("sample-data/audio/podcast.mp3", config)
+        result = _run_process_audio(
+            "sample-data/audio/podcast.mp3",
+            config,
+            text="hello world",
+            segments=[(0, 50, "hello"), (50, 100, "world")],
+        )
 
         # Should work as before
         assert result.success is True

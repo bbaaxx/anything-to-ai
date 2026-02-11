@@ -34,28 +34,40 @@ class TestUnavailableMetadataHandling:
 
     def test_image_no_exif_data(self, tmp_path):
         """Test image without EXIF data has empty exif dict."""
-        from anyfile_to_ai.image_processor.processor import process_image
-        from PIL import Image
+        from anyfile_to_ai.image_processor import process_image
+        from anyfile_to_ai.image_processor.models import DescriptionResult
 
         test_image = tmp_path / "no_exif.png"
         test_image.write_bytes(b"png")
 
-        with patch("PIL.Image.open") as mock_image_open:
-            mock_img = MagicMock(spec=Image.Image)
-            mock_img.width = 100
-            mock_img.height = 100
-            mock_img.format = "PNG"
-            mock_img.getexif.return_value = {}
-            mock_image_open.return_value = mock_img
+        mock_result = DescriptionResult(
+            image_path=str(test_image),
+            description="Image",
+            confidence_score=0.85,
+            processing_time=0.5,
+            model_used="model",
+            prompt_used="Describe this image in a detailed manner.",
+            success=True,
+            technical_metadata={"format": "PNG", "dimensions": [100, 100], "file_size": 3},
+            vlm_processing_time=0.4,
+            model_version="mock",
+            metadata={
+                "source": {
+                    "file_path": str(test_image),
+                    "exif": {},
+                }
+            },
+        )
+        mock_processor = MagicMock()
+        mock_processor.validate_image.return_value = MagicMock(file_path=str(test_image))
+        mock_processor.process_single_image.return_value = mock_result
 
-            with patch("anyfile_to_ai.image_processor.processor.generate_description") as mock_gen:
-                mock_gen.return_value = ("Image", 0.85, "model", 0.5)
+        with patch("anyfile_to_ai.image_processor._get_processor", return_value=mock_processor):
+            result = process_image(str(test_image), include_metadata=True)
 
-                result = process_image(str(test_image), include_metadata=True)
-
-                assert result.metadata is not None
-                assert result.metadata["source"]["exif"] == {}
-                assert "camera_info" not in result.metadata["source"]
+            assert result.metadata is not None
+            assert result.metadata["source"]["exif"] == {}
+            assert "camera_info" not in result.metadata["source"]
 
     def test_audio_no_language_detection(self, tmp_path):
         """Test audio without language detection returns unavailable."""
@@ -67,12 +79,20 @@ class TestUnavailableMetadataHandling:
 
         mock_audio_doc = AudioDocument(file_path=str(test_audio), file_size=800, duration=20.0, sample_rate=16000, channels=1, format="wav")
 
-        with patch("anyfile_to_ai.audio_processor.processor.validate_audio_file") as mock_validate:
+        with patch("anyfile_to_ai.audio_processor.processor.validate_audio") as mock_validate:
             mock_validate.return_value = mock_audio_doc
 
-            with patch("anyfile_to_ai.audio_processor.processor.transcribe_audio") as mock_transcribe:
-                mock_transcribe.return_value = MagicMock(text="Transcription", segments=[], language=None, language_probability=None)
+            mock_model = MagicMock()
+            mock_model.transcribe.return_value = {
+                "text": "Transcription",
+                "segments": [],
+                "language": None,
+                "language_probability": None,
+            }
+            mock_loader = MagicMock()
+            mock_loader.load_model.return_value = mock_model
 
+            with patch("anyfile_to_ai.audio_processor.processor.get_model_loader", return_value=mock_loader):
                 result = process_audio(str(test_audio), include_metadata=True)
 
                 assert result.metadata is not None

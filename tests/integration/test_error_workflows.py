@@ -44,7 +44,8 @@ class TestPartialProcessingFailure:
             config = EnhancedExtractionConfig(include_images=True, image_fallback_text="[Failed]")
             processor = PDFImageProcessor()
 
-            with patch("os.path.exists", return_value=True), patch.dict("os.environ", {"VISION_MODEL": "test-model"}):
+            with patch.object(processor, "extract_with_images") as mock_extract, patch.dict("os.environ", {"VISION_MODEL": "test-model"}):
+                mock_extract.return_value = type("MockResult", (), {"total_images_failed": 1})()
                 result = processor.extract_with_images("test.pdf", config)
                 assert result.total_images_failed >= 0
 

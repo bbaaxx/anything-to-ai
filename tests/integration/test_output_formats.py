@@ -5,6 +5,7 @@ Tests FR-004, FR-015: Plain and JSON output formats.
 
 import pytest
 import json
+from anyfile_to_ai import audio_processor
 
 
 class TestOutputFormats:

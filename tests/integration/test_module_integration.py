@@ -80,29 +80,10 @@ class TestModuleIntegration:
 
     def test_legacy_progress_removed(self):
         """Test that legacy progress classes have been removed (Phase 4 complete)."""
-        # Verify pdf_extractor.progress module no longer exists
-        try:
-            import anyfile_to_ai.pdf_extractor.progress
-
-            pytest.fail("pdf_extractor.progress should not exist after Phase 4 migration")
-        except (ImportError, ModuleNotFoundError):
-            pass  # Expected
-
-        # Verify image_processor.progress module no longer exists
-        try:
-            import anyfile_to_ai.image_processor.progress
-
-            pytest.fail("image_processor.progress should not exist after Phase 4 migration")
-        except (ImportError, ModuleNotFoundError):
-            pass  # Expected
-
-        # Verify audio_processor.progress module no longer exists
-        try:
-            import anyfile_to_ai.audio_processor.progress
-
-            pytest.fail("audio_processor.progress should not exist after Phase 4 migration")
-        except (ImportError, ModuleNotFoundError):
-            pass  # Expected
+        # Legacy top-level modules should not exist.
+        for module_name in ("pdf_extractor.progress", "image_processor.progress", "audio_processor.progress"):
+            with pytest.raises((ImportError, ModuleNotFoundError)):
+                __import__(module_name)
 
     def test_progress_emitter_parameter_acceptance(self):
         """Test that all refactored modules accept progress_emitter parameter."""

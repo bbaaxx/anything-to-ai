@@ -10,6 +10,27 @@ from unittest.mock import patch
 from PIL import Image
 
 from anyfile_to_ai.image_processor import create_config, process_image, process_images
+from anyfile_to_ai.image_processor.exceptions import ProcessingError
+from anyfile_to_ai import image_processor
+from provider_env import generation_skip_reason
+
+
+def _vision_model_or_skip() -> str:
+    model = os.environ.get("VISION_MODEL")
+    if not model:
+        pytest.skip("VISION_MODEL not set for runtime-dependent image integration tests")
+    return model
+
+
+def _process_image_or_skip(image_path: str, config):
+    provider = (os.environ.get("PROVIDER") or "mlx").strip().lower()
+    try:
+        return process_image(image_path, config)
+    except ProcessingError as exc:
+        skip_reason = generation_skip_reason(exc, provider)
+        if skip_reason:
+            pytest.skip(skip_reason)
+        raise
 
 
 class TestBackwardCompatibility:
@@ -26,8 +47,8 @@ class TestBackwardCompatibility:
 
     def test_existing_create_config_signature(self):
         """Test that existing create_config signature still works."""
-        # This should FAIL initially - enhanced config not backward compatible
-        with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}):
+        # All existing parameter combinations should work with the active model.
+        with patch.dict(os.environ, {"VISION_MODEL": _vision_model_or_skip()}):
             # All existing parameter combinations should work
             config1 = create_config()
             config2 = create_config(description_style="brief")
@@ -42,12 +63,11 @@ class TestBackwardCompatibility:
 
     def test_existing_process_image_signature(self, sample_image):
         """Test that existing process_image signature still works."""
-        # This should FAIL initially - enhanced processing not backward compatible
-        with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}):
+        with patch.dict(os.environ, {"VISION_MODEL": _vision_model_or_skip()}):
             config = create_config()
 
             # Existing signature should work
-            result = process_image(sample_image, config)
+            result = _process_image_or_skip(sample_image, config)
 
             # Should have all existing fields
             assert hasattr(result, "image_path")
@@ -57,8 +77,7 @@ class TestBackwardCompatibility:
 
     def test_existing_process_images_signature(self, sample_image):
         """Test that existing process_images signature still works."""
-        # This should FAIL initially - enhanced batch processing not backward compatible
-        with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}):
+        with patch.dict(os.environ, {"VISION_MODEL": _vision_model_or_skip()}):
             config = create_config(batch_size=1)
 
             # Existing signature should work
@@ -91,11 +110,10 @@ class TestBackwardCompatibility:
 
     def test_existing_output_format_compatibility(self, sample_image):
         """Test that output formats remain compatible."""
-        # This should FAIL initially - enhanced output not backward compatible
-        with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}):
+        with patch.dict(os.environ, {"VISION_MODEL": _vision_model_or_skip()}):
             config = create_config()
 
-            result = process_image(sample_image, config)
+            result = _process_image_or_skip(sample_image, config)
 
             # Result should have all existing fields with correct types
             assert isinstance(result.image_path, str)
@@ -122,8 +140,7 @@ class TestBackwardCompatibility:
 
     def test_existing_streaming_interface_preserved(self, sample_image):
         """Test that streaming interface remains compatible."""
-        # This should FAIL initially - streaming enhancement not backward compatible
-        with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}):
+        with patch.dict(os.environ, {"VISION_MODEL": _vision_model_or_skip()}):
             from anyfile_to_ai.image_processor import process_images_streaming
 
             config = create_config()
@@ -135,11 +152,10 @@ class TestBackwardCompatibility:
 
     def test_enhanced_fields_added_not_replaced(self, sample_image):
         """Test that enhanced fields are added, not replacing existing ones."""
-        # This should FAIL initially - enhanced result structure not implemented
-        with patch.dict(os.environ, {"VISION_MODEL": "google/gemma-3-4b"}):
+        with patch.dict(os.environ, {"VISION_MODEL": _vision_model_or_skip()}):
             config = create_config()
 
-            result = process_image(sample_image, config)
+            result = _process_image_or_skip(sample_image, config)
 
             # All existing fields should be present
             existing_fields = [

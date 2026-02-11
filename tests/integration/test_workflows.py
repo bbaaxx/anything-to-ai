@@ -1,6 +1,7 @@
 """Integration tests for PDF processing workflows."""
 
 import pytest
+import os
 from anyfile_to_ai.pdf_extractor import (
     extract_text,
     extract_text_streaming,
@@ -13,6 +14,17 @@ from anyfile_to_ai.pdf_extractor.exceptions import (
     PDFPasswordProtectedError,
     PDFNoTextError,
 )
+
+_REQUIRED_FIXTURES = [
+    "small_sample.pdf",
+    "large_sample.pdf",
+    "corrupted_file.pdf",
+    "protected_file.pdf",
+    "image_only.pdf",
+]
+_MISSING_FIXTURES = [path for path in _REQUIRED_FIXTURES if not os.path.exists(path)]
+if _MISSING_FIXTURES:
+    pytestmark = pytest.mark.skip(reason=f"Workflow PDF fixtures not available: {', '.join(_MISSING_FIXTURES)}")
 
 
 class TestSmallPDFWorkflow:

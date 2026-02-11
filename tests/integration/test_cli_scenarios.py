@@ -132,12 +132,12 @@ class TestCliScenarios:
     def test_cli_error_handling_invalid_arguments(self):
         """Test CLI error handling for invalid arguments."""
         # Test invalid style
-        exit_code = main(["image.jpg", "--style", "invalid"])
-        assert exit_code != 0
+        with pytest.raises(SystemExit):
+            main(["image.jpg", "--style", "invalid"])
 
         # Test invalid format
-        exit_code = main(["image.jpg", "--format", "invalid"])
-        assert exit_code != 0
+        with pytest.raises(SystemExit):
+            main(["image.jpg", "--format", "invalid"])
 
     def test_cli_verbose_output_mode(self, sample_images_dir):
         """Test CLI verbose mode produces appropriate output."""

@@ -18,13 +18,21 @@ class TestAudioSummarizerPipeline:
 
         mock_audio_doc = AudioDocument(file_path=str(test_audio), file_size=5000, duration=120.0, sample_rate=44100, channels=2, format="mp3")
 
-        with patch("anyfile_to_ai.audio_processor.processor.validate_audio_file") as mock_validate:
+        with patch("anyfile_to_ai.audio_processor.processor.validate_audio") as mock_validate:
             mock_validate.return_value = mock_audio_doc
 
-            with patch("anyfile_to_ai.audio_processor.processor.transcribe_audio") as mock_transcribe:
-                transcription_text = "This is a sample podcast transcript for testing the pipeline."
-                mock_transcribe.return_value = MagicMock(text=transcription_text, segments=[], language="en", language_probability=0.92)
+            transcription_text = "This is a sample podcast transcript for testing the pipeline."
+            mock_model = MagicMock()
+            mock_model.transcribe.return_value = {
+                "text": transcription_text,
+                "segments": [],
+                "language": "en",
+                "language_probability": 0.92,
+            }
+            mock_loader = MagicMock()
+            mock_loader.load_model.return_value = mock_model
 
+            with patch("anyfile_to_ai.audio_processor.processor.get_model_loader", return_value=mock_loader):
                 result = process_audio(str(test_audio), include_metadata=True)
 
                 assert result.success is True
@@ -41,13 +49,21 @@ class TestAudioSummarizerPipeline:
 
         mock_audio_doc = AudioDocument(file_path=str(test_audio), file_size=2000, duration=45.0, sample_rate=16000, channels=1, format="wav")
 
-        with patch("anyfile_to_ai.audio_processor.processor.validate_audio_file") as mock_validate:
+        with patch("anyfile_to_ai.audio_processor.processor.validate_audio") as mock_validate:
             mock_validate.return_value = mock_audio_doc
 
-            with patch("anyfile_to_ai.audio_processor.processor.transcribe_audio") as mock_transcribe:
-                transcription = "Speech recognition test for pipeline"
-                mock_transcribe.return_value = MagicMock(text=transcription, segments=[], language="en", language_probability=0.88)
+            transcription = "Speech recognition test for pipeline"
+            mock_model = MagicMock()
+            mock_model.transcribe.return_value = {
+                "text": transcription,
+                "segments": [],
+                "language": "en",
+                "language_probability": 0.88,
+            }
+            mock_loader = MagicMock()
+            mock_loader.load_model.return_value = mock_model
 
+            with patch("anyfile_to_ai.audio_processor.processor.get_model_loader", return_value=mock_loader):
                 result = process_audio(str(test_audio), include_metadata=False)
 
                 assert result.success is True
