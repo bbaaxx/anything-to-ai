@@ -67,6 +67,7 @@ class ProcessingConfig:
     vlm_timeout_behavior: str = "error"  # "error", "fallback", "continue"
     auto_download_models: bool = True
     validate_model_before_load: bool = True
+    cache_dir: str | None = None
 
     def __post_init__(self):
         """Populate model_name from environment if not set."""

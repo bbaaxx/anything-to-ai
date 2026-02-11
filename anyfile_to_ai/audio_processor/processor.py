@@ -220,7 +220,8 @@ def process_audio(file_path: str, config: TranscriptionConfig | None = None, inc
 
         # Extract metadata
         detected_language = result.get("language", config.language)
-        confidence_score = None  # lightning-whisper-mlx may not provide this
+        # Some backends expose language confidence/probability; keep None when unavailable.
+        confidence_score = result.get("language_probability", result.get("language_confidence"))
 
         # Extract timestamp segments if enabled
         segments = None

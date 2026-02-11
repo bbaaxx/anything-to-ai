@@ -129,7 +129,27 @@ def create_config(description_style: str = "detailed", max_length: int = 500, ba
         msg = "Must be between 1 and 10"
         raise ValidationError(msg, "batch_size")
 
-    return ProcessingConfig(description_style=description_style, max_description_length=max_length, batch_size=batch_size, progress_callback=progress_callback, **kwargs)
+    # Merge optional VLM environment configuration while allowing explicit kwargs
+    # to override environment defaults.
+    from .config import load_vlm_config_from_env
+
+    env_config = load_vlm_config_from_env()
+
+    config_kwargs = dict(kwargs)
+    config_kwargs.setdefault("model_name", env_config.model_name)
+    config_kwargs.setdefault("timeout_seconds", env_config.timeout_seconds)
+    config_kwargs.setdefault("vlm_timeout_behavior", env_config.timeout_behavior)
+    config_kwargs.setdefault("auto_download_models", env_config.auto_download)
+    config_kwargs.setdefault("validate_model_before_load", env_config.validate_before_load)
+    config_kwargs.setdefault("cache_dir", env_config.cache_dir)
+
+    return ProcessingConfig(
+        description_style=description_style,
+        max_description_length=max_length,
+        batch_size=batch_size,
+        progress_callback=progress_callback,
+        **config_kwargs,
+    )
 
 
 def get_image_info(file_path: str) -> dict:

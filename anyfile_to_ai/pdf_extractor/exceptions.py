@@ -201,3 +201,82 @@ class ConfigurationValidationError(Exception):
 
     def __str__(self) -> str:
         return f"Configuration Validation Error - {self.field_name}: {self.validation_error} (value: {self.field_value})"
+
+
+class ExceptionHierarchyInterface:
+    """Validation helpers for enhanced exception contracts."""
+
+    @staticmethod
+    def validate_base_exception_structure(exc: Exception) -> bool:
+        return isinstance(exc, Exception)
+
+    @staticmethod
+    def validate_image_extraction_error(exc: Exception) -> bool:
+        return isinstance(exc, ImageExtractionError) and hasattr(exc, "file_path") and hasattr(exc, "details")
+
+    @staticmethod
+    def validate_vlm_configuration_error(exc: Exception) -> bool:
+        return isinstance(exc, VLMConfigurationError) and hasattr(exc, "config_key") and hasattr(exc, "expected_value")
+
+    @staticmethod
+    def validate_vlm_service_error(exc: Exception) -> bool:
+        return isinstance(exc, VLMServiceError) and hasattr(exc, "model_name") and hasattr(exc, "retry_count")
+
+
+class ErrorRecoveryStrategy:
+    """Maps enhanced exceptions to recovery behaviors."""
+
+    _STRATEGIES = {
+        ImageNotFoundInPDFError: "skip_image",
+        ImageCroppingError: "use_fallback_text",
+        VLMTimeoutError: "use_fallback_text",
+        VLMMemoryError: "reduce_batch_size",
+        VLMCircuitBreakerError: "disable_image_processing",
+        VLMConfigurationError: "fail_fast",
+    }
+
+    @classmethod
+    def get_strategy(cls, error_type: type[Exception]) -> str:
+        for known_type, strategy in cls._STRATEGIES.items():
+            if issubclass(error_type, known_type):
+                return strategy
+        return "fail_fast"
+
+    @classmethod
+    def is_recoverable(cls, error_type: type[Exception]) -> bool:
+        return cls.get_strategy(error_type) != "fail_fast"
+
+
+def validate_exception_inheritance() -> bool:
+    """Validate enhanced exception inheritance relationships."""
+    checks = [
+        issubclass(ImageNotFoundInPDFError, ImageExtractionError),
+        issubclass(ImageCroppingError, ImageExtractionError),
+        issubclass(VLMTimeoutError, VLMServiceError),
+        issubclass(VLMMemoryError, VLMServiceError),
+        issubclass(VLMCircuitBreakerError, VLMServiceError),
+        issubclass(PartialExtractionError, EnhancedExtractionError),
+    ]
+    return all(checks)
+
+
+def validate_exception_attributes(exc: Exception) -> bool:
+    """Validate key attributes required by enhanced exception contracts."""
+    if isinstance(exc, ImageExtractionError):
+        return hasattr(exc, "file_path") and hasattr(exc, "details")
+    if isinstance(exc, VLMServiceError):
+        return hasattr(exc, "model_name") and hasattr(exc, "retry_count")
+    if isinstance(exc, ConfigurationValidationError):
+        return hasattr(exc, "field_name") and hasattr(exc, "field_value") and hasattr(exc, "validation_error")
+    return isinstance(exc, Exception)
+
+
+def validate_error_messages() -> bool:
+    """Validate that representative exceptions provide non-empty messages."""
+    samples = [
+        ImageExtractionError("image extraction failed"),
+        VLMServiceError("service error"),
+        VLMConfigurationError("bad config"),
+        ConfigurationValidationError("field", "value", "invalid"),
+    ]
+    return all(str(sample).strip() for sample in samples)
