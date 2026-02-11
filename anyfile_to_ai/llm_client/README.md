@@ -241,19 +241,16 @@ else:
 
 ## Environment Setup
 
-### Provider-Specific Environment Variables
+### Unified Environment Variables
 
 ```bash
-# Ollama configuration
-export OLLAMA_BASE_URL=http://localhost:11434
-export OLLAMA_TIMEOUT=60
+# Provider routing
+export PROVIDER=ollama
+export BASE_URL=http://127.0.0.1:11434
 
-# LM Studio configuration
-export LMSTUDIO_BASE_URL=http://localhost:1234
-export LMSTUDIO_API_KEY=your_key_here
-
-# MLX configuration
-export MLX_MODEL_PATH=/path/to/models
+# Model selection used by higher-level modules
+export TEXT_MODEL=qwen/qwen3-14b
+export VISION_MODEL=qwen/qwen3-vl-8b
 ```
 
 ### Performance Optimization
@@ -381,7 +378,7 @@ Provider.OLLAMA, Provider.LMSTUDIO, Provider.MLX
 
 ```python
 from llm_client import LLMClient, LLMConfig
-from audio_processor import process_audio
+from anyfile_to_ai.audio_processor import process_audio
 
 # Transcribe audio and summarize with LLM
 config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
@@ -405,7 +402,7 @@ if audio_result.success:
 
 ```python
 from llm_client import LLMClient, LLMConfig
-from image_processor import process_image
+from anyfile_to_ai.image_processor import process_image
 
 # Describe image and ask follow-up questions
 config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
@@ -428,7 +425,7 @@ if img_result.success:
 
 ```python
 from llm_client import LLMClient, LLMConfig
-from pdf_extractor import extract_text
+from anyfile_to_ai.pdf_extractor import extract_text
 
 # Extract PDF and generate podcast script
 config = LLMConfig(provider="ollama", base_url="http://localhost:11434")
@@ -506,9 +503,9 @@ PYTHONPATH=. uv run pytest tests/integration/test_llm_integration.py -v
 
 ```python
 from llm_client import LLMClient, LLMConfig
-from pdf_extractor import extract_text
-from image_processor import process_image
-from audio_processor import process_audio
+from anyfile_to_ai.pdf_extractor import extract_text
+from anyfile_to_ai.image_processor import process_image
+from anyfile_to_ai.audio_processor import process_audio
 
 # Unified processing pipeline
 def process_document_with_llm(file_path):

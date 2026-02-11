@@ -21,17 +21,19 @@ Using pip:
 pip install mlx-vlm>=0.3.3 pillow>=11.3.0 torch>=2.8.0
 ```
 
-### VLM Model Configuration
+### Provider and Model Configuration
 
-**Required**: Set the VISION_MODEL environment variable before using the module.
+**Required**: Set `VISION_MODEL` (or pass `--vision-model`) before using the module.
 
 ```bash
-# Set the VLM model to use
-export VISION_MODEL=google/gemma-3-4b
+# Default local MLX path
+export PROVIDER=mlx
+export VISION_MODEL=mlx-community/Qwen2-VL-2B-Instruct-4bit
 
-# Alternative models (examples)
-export VISION_MODEL=mlx-community/gemma-3-4b-it-4bit
-export VISION_MODEL=microsoft/DialoGPT-small
+# Remote provider example
+export PROVIDER=lmstudio
+export BASE_URL=http://127.0.0.1:1234/v1
+export VISION_MODEL=qwen/qwen3-vl-8b
 ```
 
 ### Optional Environment Variables
@@ -46,7 +48,7 @@ export VLM_AUTO_DOWNLOAD=true  # options: true, false
 
 ### Verify Installation
 ```bash
-python -m image_processor --help
+python -m anyfile_to_ai.image_processor --help
 ```
 
 ## CLI Usage
@@ -54,42 +56,48 @@ python -m image_processor --help
 ### Basic Image Processing
 ```bash
 # Process single image
-python -m image_processor image.jpg
+python -m anyfile_to_ai.image_processor image.jpg
 
 # Process multiple images
-python -m image_processor *.jpg *.png
+python -m anyfile_to_ai.image_processor *.jpg *.png
 
 # Process with different description styles
-python -m image_processor image.jpg --style brief
-python -m image_processor image.jpg --style detailed
-python -m image_processor image.jpg --style technical
+python -m anyfile_to_ai.image_processor image.jpg --style brief
+python -m anyfile_to_ai.image_processor image.jpg --style detailed
+python -m anyfile_to_ai.image_processor image.jpg --style technical
 ```
 
 ### Output Formats
 ```bash
 # JSON output
-python -m image_processor image.jpg --format json
+python -m anyfile_to_ai.image_processor image.jpg --format json
 
 # CSV output
-python -m image_processor *.jpg --format csv
+python -m anyfile_to_ai.image_processor *.jpg --format csv
 
 # Plain text (default)
-python -m image_processor image.jpg --format plain
+python -m anyfile_to_ai.image_processor image.jpg --format plain
 ```
 
 ### Advanced Options
 ```bash
 # Batch processing with custom settings
-python -m image_processor *.jpg --batch-size 2 --max-length 300
+python -m anyfile_to_ai.image_processor *.jpg --batch-size 2 --max-length 300
 
 # Save output to file
-python -m image_processor *.jpg --format json --output results.json
+python -m anyfile_to_ai.image_processor *.jpg --format json --output results.json
 
 # Verbose progress tracking
-python -m image_processor *.jpg --verbose
+python -m anyfile_to_ai.image_processor *.jpg --verbose
 
 # Quiet mode (results only)
-python -m image_processor image.jpg --quiet
+python -m anyfile_to_ai.image_processor image.jpg --quiet
+
+# Override provider/model for one run
+python -m anyfile_to_ai.image_processor image.jpg \
+  --provider lmstudio \
+  --base-url http://127.0.0.1:1234/v1 \
+  --vision-model qwen/qwen3-vl-8b
 ```
 
 ### CLI Options
@@ -99,6 +107,9 @@ python -m image_processor image.jpg --quiet
 - `--timeout`: Processing timeout per image in seconds
 - `--format`: Output format (`plain`, `json`, `csv`)
 - `--output`: Save results to file
+- `--provider`: Provider override (`mlx`, `lmstudio`, `ollama`)
+- `--base-url`: Base URL override for remote providers
+- `--vision-model`: Vision model override
 - `--verbose`: Enable progress output
 - `--quiet`: Suppress all output except results
 
@@ -107,7 +118,7 @@ python -m image_processor image.jpg --quiet
 ### Basic Image Processing
 
 ```python
-from image_processor import process_image, create_config
+from anyfile_to_ai.image_processor import process_image, create_config
 
 # Simple single image processing
 result = process_image('image.jpg')
@@ -118,7 +129,7 @@ if result.success:
 
 ### Batch Processing
 ```python
-from image_processor import process_images
+from anyfile_to_ai.image_processor import process_images
 
 # Process multiple images
 image_paths = ['img1.jpg', 'img2.png', 'img3.jpeg']
@@ -133,7 +144,7 @@ for result in results.results:
 ### Advanced Configuration
 
 ```python
-from image_processor import process_images, create_config
+from anyfile_to_ai.image_processor import process_images, create_config
 
 # Custom configuration
 config = create_config(
@@ -150,8 +161,8 @@ results = process_images(image_paths, config)
 The image_processor now supports the unified progress tracking system:
 
 ```python
-from image_processor import process_images
-from progress_tracker import ProgressEmitter, CLIProgressConsumer
+from anyfile_to_ai.image_processor import process_images
+from anyfile_to_ai.progress_tracker import ProgressEmitter, CLIProgressConsumer
 
 # Create progress emitter
 emitter = ProgressEmitter(total=len(image_paths), label="Processing images")
@@ -167,8 +178,8 @@ results = process_images(image_paths, progress_emitter=emitter)
 #### Streaming with Progress
 
 ```python
-from image_processor import process_images_streaming, create_config
-from progress_tracker import ProgressEmitter, CLIProgressConsumer
+from anyfile_to_ai.image_processor import process_images_streaming, create_config
+from anyfile_to_ai.progress_tracker import ProgressEmitter, CLIProgressConsumer
 
 # Create progress emitter for streaming
 emitter = ProgressEmitter(total=len(image_paths), label="Streaming images")
@@ -187,7 +198,7 @@ emitter.complete()
 The old callback-based progress is still supported but deprecated:
 
 ```python
-from image_processor import process_images_streaming, create_config
+from anyfile_to_ai.image_processor import process_images_streaming, create_config
 
 def progress_handler(current, total):
     print(f"Processing {current}/{total} images...")
@@ -203,7 +214,7 @@ for result in process_images_streaming(image_paths, config):
 
 ### Image Validation
 ```python
-from image_processor import validate_image, get_supported_formats
+from anyfile_to_ai.image_processor import validate_image, get_supported_formats
 
 # Validate image before processing
 try:
@@ -244,11 +255,13 @@ print(f"Supported formats: {formats}")
 ### Model Configuration
 ```python
 import os
-from image_processor import validate_model_availability
+from anyfile_to_ai.image_processor import validate_model_availability
 
 # Check if model is available
-model_name = "google/gemma-3-4b"
-os.environ['VISION_MODEL'] = model_name
+model_name = "qwen/qwen3-vl-8b"
+os.environ["PROVIDER"] = "lmstudio"
+os.environ["BASE_URL"] = "http://127.0.0.1:1234/v1"
+os.environ["VISION_MODEL"] = model_name
 
 is_available = validate_model_availability(model_name)
 if not is_available:
@@ -260,6 +273,10 @@ if not is_available:
 # For faster processing on Apple Silicon
 export VISION_MODEL=mlx-community/gemma-3-4b-it-4bit
 
+# For remote providers
+export PROVIDER=lmstudio
+export BASE_URL=http://127.0.0.1:1234/v1
+
 # For memory-constrained environments
 export VLM_AUTO_DOWNLOAD=false
 ```
@@ -269,13 +286,13 @@ export VLM_AUTO_DOWNLOAD=false
 ### Exception Types
 
 ```python
-from image_processor.exceptions import (
+from anyfile_to_ai.image_processor.exceptions import (
     ImageProcessingError,
     ImageNotFoundError,
     UnsupportedFormatError,
     CorruptedImageError
 )
-from image_processor.vlm_exceptions import (
+from anyfile_to_ai.image_processor.vlm_exceptions import (
     VLMConfigurationError,
     VLMModelLoadError,
     VLMProcessingError,
@@ -304,12 +321,16 @@ except VLMTimeoutError:
 ```bash
 # Error: VISION_MODEL not set
 export VISION_MODEL=google/gemma-3-4b
+
+# Error: BASE_URL required for remote providers
+export PROVIDER=lmstudio
+export BASE_URL=http://127.0.0.1:1234/v1
 ```
 
 **Model Loading Issues**:
 ```python
 # Check available models
-from image_processor import get_available_models
+from anyfile_to_ai.image_processor import get_available_models
 print(get_available_models())
 ```
 
@@ -371,6 +392,6 @@ print(f"Technical analysis: {tech_result.description}")
 
 Check programmatically:
 ```python
-from image_processor import get_supported_formats
+from anyfile_to_ai.image_processor import get_supported_formats
 print(get_supported_formats())  # ['bmp', 'gif', 'jpeg', 'png', 'webp']
 ```

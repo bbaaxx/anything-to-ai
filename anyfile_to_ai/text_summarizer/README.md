@@ -52,7 +52,7 @@ This module requires an LLM backend. The default configuration uses Ollama:
 ### Verify Installation
 
 ```bash
-python -m text_summarizer --help
+python -m anyfile_to_ai.text_summarizer --help
 ```
 
 ## CLI Usage
@@ -61,16 +61,16 @@ python -m text_summarizer --help
 
 ```bash
 # Summarize a text file (JSON output)
-python -m text_summarizer document.txt
+python -m anyfile_to_ai.text_summarizer document.txt
 
 # Summarize with plain text output
-python -m text_summarizer document.txt --format plain
+python -m anyfile_to_ai.text_summarizer document.txt --format plain
 
 # Summarize from stdin
-echo "Your text here..." | python -m text_summarizer --stdin
+echo "Your text here..." | python -m anyfile_to_ai.text_summarizer --stdin
 
 # Save to file
-python -m text_summarizer document.txt --output summary.json
+python -m anyfile_to_ai.text_summarizer document.txt --output summary.json
 ```
 
 ### Output Formats
@@ -78,7 +78,7 @@ python -m text_summarizer document.txt --output summary.json
 **JSON Output (default)**:
 
 ```bash
-python -m text_summarizer article.txt
+python -m anyfile_to_ai.text_summarizer article.txt
 ```
 
 Returns:
@@ -100,7 +100,7 @@ Returns:
 **Plain Text Output**:
 
 ```bash
-python -m text_summarizer article.txt --format plain
+python -m anyfile_to_ai.text_summarizer article.txt --format plain
 ```
 
 Returns:
@@ -124,42 +124,45 @@ Processing time: 2.34s
 
 ```bash
 # Use a specific model
-python -m text_summarizer document.txt --model llama2
+python -m anyfile_to_ai.text_summarizer document.txt --text-model llama2
 
 # Use Mistral model
-python -m text_summarizer document.txt --model mistral:latest
+python -m anyfile_to_ai.text_summarizer document.txt --text-model mistral:latest
 
 # Use a larger model for better quality
-python -m text_summarizer document.txt --model llama3:70b
+python -m anyfile_to_ai.text_summarizer document.txt --text-model llama3:70b
+
+# Deprecated alias still supported
+python -m anyfile_to_ai.text_summarizer document.txt --model llama2
 ```
 
 ### Provider Selection
 
 ```bash
 # Use Ollama (default)
-python -m text_summarizer document.txt --provider ollama
+python -m anyfile_to_ai.text_summarizer document.txt --provider ollama
 
 # Use LM Studio
-python -m text_summarizer document.txt --provider lmstudio --model mistral
+python -m anyfile_to_ai.text_summarizer document.txt --provider lmstudio --base-url http://127.0.0.1:1234/v1 --text-model qwen/qwen3-14b
 
 # Use MLX (local models on Apple Silicon)
-python -m text_summarizer document.txt --provider mlx --model mlx-community/llama-3
+python -m anyfile_to_ai.text_summarizer document.txt --provider mlx --text-model llama3.2:latest
 
 # Combine provider and model
-python -m text_summarizer document.txt --provider lmstudio --model llama2 --format plain
+python -m anyfile_to_ai.text_summarizer document.txt --provider lmstudio --base-url http://127.0.0.1:1234/v1 --text-model qwen/qwen3-14b --format plain
 ```
 
 ### Advanced Options
 
 ```bash
 # Exclude metadata from output
-python -m text_summarizer document.txt --no-metadata
+python -m anyfile_to_ai.text_summarizer document.txt --no-metadata
 
 # Verbose mode with progress information
-python -m text_summarizer document.txt --verbose
+python -m anyfile_to_ai.text_summarizer document.txt --verbose
 
 # Combine options with custom model
-python -m text_summarizer document.txt --format plain --model mistral --output summary.txt --verbose
+python -m anyfile_to_ai.text_summarizer document.txt --format plain --text-model mistral --output summary.txt --verbose
 ```
 
 ## Pipeline Integration
@@ -170,28 +173,28 @@ The text_summarizer integrates seamlessly with other modules:
 
 ```bash
 # Extract text from PDF and summarize
-python -m pdf_extractor document.pdf | python -m text_summarizer --stdin
+python -m anyfile_to_ai.pdf_extractor document.pdf | python -m anyfile_to_ai.text_summarizer --stdin
 ```
 
 ### Audio → Summarizer Pipeline
 
 ```bash
 # Transcribe audio and summarize the transcript
-python -m audio_processor podcast.mp3 --format plain | python -m text_summarizer --stdin
+python -m anyfile_to_ai.audio_processor podcast.mp3 --format plain | python -m anyfile_to_ai.text_summarizer --stdin
 ```
 
 ### Image → Summarizer Pipeline
 
 ```bash
 # Extract text from image and summarize
-python -m image_processor screenshot.png --format plain | python -m text_summarizer --stdin
+python -m anyfile_to_ai.image_processor screenshot.png --format plain | python -m anyfile_to_ai.text_summarizer --stdin
 ```
 
 ### Multi-stage Pipeline
 
 ```bash
 # Process PDF with images, then summarize
-python -m pdf_extractor document.pdf --format plain | python -m text_summarizer --stdin --format plain > summary.txt
+python -m anyfile_to_ai.pdf_extractor document.pdf --format plain | python -m anyfile_to_ai.text_summarizer --stdin --format plain > summary.txt
 ```
 
 ## Python API
@@ -199,7 +202,7 @@ python -m pdf_extractor document.pdf --format plain | python -m text_summarizer 
 ### Basic Usage
 
 ```python
-from text_summarizer import summarize_text
+from anyfile_to_ai.text_summarizer import summarize_text
 
 # Simple summarization
 text = "Your long text here..."
@@ -215,8 +218,8 @@ print(f"Language: {result.metadata.detected_language}")
 The text_summarizer now supports the unified progress tracking system:
 
 ```python
-from text_summarizer import create_summarizer
-from progress_tracker import ProgressEmitter, CLIProgressConsumer
+from anyfile_to_ai.text_summarizer import create_summarizer
+from anyfile_to_ai.progress_tracker import ProgressEmitter, CLIProgressConsumer
 
 # Create progress emitter
 emitter = ProgressEmitter(total=None, label="Summarizing text")
@@ -233,9 +236,9 @@ result = summarizer.summarize(text, progress_emitter=emitter)
 ### Advanced Usage
 
 ```python
-from text_summarizer import create_summarizer, summarize_text, SummaryResult
+from anyfile_to_ai.text_summarizer import create_summarizer, summarize_text, SummaryResult
 from llm_client import LLMClient, LLMConfig, Provider
-from progress_tracker import ProgressEmitter, CLIProgressConsumer
+from anyfile_to_ai.progress_tracker import ProgressEmitter, CLIProgressConsumer
 
 # Use a different model and provider
 result = summarize_text(text, model="mistral:latest", provider="ollama")
@@ -279,7 +282,7 @@ if result.metadata:
 ### Text Chunking
 
 ```python
-from text_summarizer import chunk_text
+from anyfile_to_ai.text_summarizer import chunk_text
 
 # Split large text into chunks
 text = "Very long text..." * 10000
@@ -398,12 +401,20 @@ Utility function to split text into overlapping chunks.
 
 ## Configuration
 
+### Unified Environment Variables
+
+```bash
+export PROVIDER=ollama
+export BASE_URL=http://127.0.0.1:11434
+export TEXT_MODEL=qwen/qwen3-14b
+```
+
 ### Custom LLM Backend
 
 To use a different LLM backend:
 
 ```python
-from text_summarizer import create_summarizer, summarize_text
+from anyfile_to_ai.text_summarizer import create_summarizer, summarize_text
 from llm_client import LLMClient, LLMConfig, Provider
 
 # Simple way: use provider parameter
@@ -426,13 +437,13 @@ summarizer = create_summarizer(llm_client=client, model="mistral")
 
 ### Custom Prompt Template
 
-The summarization prompt can be customized by editing `text_summarizer/prompt_template.txt`:
+The summarization prompt can be customized by editing `anyfile_to_ai/text_summarizer/prompt_template.txt`:
 
 ```bash
 # Edit the prompt template
-vim text_summarizer/prompt_template.txt
+vim anyfile_to_ai/text_summarizer/prompt_template.txt
 # or
-nano text_summarizer/prompt_template.txt
+nano anyfile_to_ai/text_summarizer/prompt_template.txt
 ```
 
 The template uses two placeholders:
@@ -496,7 +507,7 @@ summarizer = create_summarizer(chunk_size=20000, chunk_overlap=1000)
 ollama pull llama3.2
 
 # Or use a different model that's already available
-python -m text_summarizer document.txt --model llama2
+python -m anyfile_to_ai.text_summarizer document.txt --text-model llama2
 
 # Check which models are available
 ollama list
@@ -514,7 +525,7 @@ curl http://localhost:11434/api/tags
 curl http://localhost:1234/v1/models
 
 # Switch provider if one isn't working
-python -m text_summarizer document.txt --provider lmstudio
+python -m anyfile_to_ai.text_summarizer document.txt --provider lmstudio --base-url http://127.0.0.1:1234/v1
 ```
 
 ### Insufficient tags error
@@ -537,10 +548,10 @@ The LLM must generate at least 3 tags. If this fails:
 
 ```bash
 # Use default model
-python -m text_summarizer research_paper.txt --format plain --verbose
+python -m anyfile_to_ai.text_summarizer research_paper.txt --format plain --verbose
 
 # Use a larger, more capable model for better quality
-python -m text_summarizer research_paper.txt --model llama3:70b --format plain
+python -m anyfile_to_ai.text_summarizer research_paper.txt --text-model llama3:70b --format plain
 ```
 
 ### Example 2: Batch Processing
@@ -549,14 +560,14 @@ python -m text_summarizer research_paper.txt --model llama3:70b --format plain
 # Summarize all text files in a directory
 for file in documents/*.txt; do
     echo "Processing $file..."
-    python -m text_summarizer "$file" --output "summaries/$(basename "$file" .txt)_summary.json"
+    python -m anyfile_to_ai.text_summarizer "$file" --output "summaries/$(basename "$file" .txt)_summary.json"
 done
 ```
 
 ### Example 3: API Integration
 
 ```python
-from text_summarizer import summarize_text
+from anyfile_to_ai.text_summarizer import summarize_text
 import sys
 
 def process_document(filepath):
@@ -606,7 +617,7 @@ uv run pytest tests/integration/test_summarizer_workflow.py -v
 
 ```bash
 # Linting
-uv run ruff check text_summarizer/
+uv run ruff check anyfile_to_ai/text_summarizer/
 
 # Check file lengths (must be <250 lines per constitution)
 uv run python check_file_lengths.py
@@ -617,7 +628,7 @@ uv run python check_file_lengths.py
 The module follows a composition-first design:
 
 ```
-text_summarizer/
+anyfile_to_ai/text_summarizer/
 ├── __init__.py          # Public API exports
 ├── __main__.py          # CLI entry point
 ├── models.py            # Pydantic data models
@@ -635,4 +646,4 @@ See project root LICENSE file.
 
 ## Contributing
 
-This module is part of the anything-to-ai project. See the main project README and `specs/009-summarizer-module-this/` for development guidelines.
+This module is part of the anyfile-to-ai project. See the main project README and `specs/009-summarizer-module-this/` for development guidelines.

@@ -1,4 +1,4 @@
-# anything_to_ai
+# anyfile_to_ai
 
 > **Universal File Processor with AI-Powered Capabilities**
 
@@ -10,28 +10,28 @@ A Python package that provides unified access to PDF text extraction, image proc
 
 Extract text from PDF documents with streaming support for large files.
 
-- **Documentation**: [`pdf_extractor/README.md`](pdf_extractor/README.md)
+- **Documentation**: [`anyfile_to_ai/pdf_extractor/README.md`](anyfile_to_ai/pdf_extractor/README.md)
 - **Usage**: CLI and Python API for text extraction
 
 ### 🖼️ Image VLM Processor
 
 Process images with Vision Language Models to generate descriptive text.
 
-- **Documentation**: [`image_processor/README.md`](image_processor/README.md)
+- **Documentation**: [`anyfile_to_ai/image_processor/README.md`](anyfile_to_ai/image_processor/README.md)
 - **Usage**: CLI and Python API for AI-powered image description
 
 ### 🎙️ Audio Transcription Module
 
 Transcribe audio files using MLX-optimized Whisper models for Apple Silicon.
 
-- **Documentation**: [`audio_processor/README.md`](audio_processor/README.md)
+- **Documentation**: [`anyfile_to_ai/audio_processor/README.md`](anyfile_to_ai/audio_processor/README.md)
 - **Usage**: CLI and Python API for audio-to-text transcription with multilingual support
 
 ### 📝 Text Summarizer Module
 
 Summarize text using LLM models with automatic language detection and intelligent chunking.
 
-- **Documentation**: [`text_summarizer/README.md`](text_summarizer/README.md)
+- **Documentation**: [`anyfile_to_ai/text_summarizer/README.md`](anyfile_to_ai/text_summarizer/README.md)
 - **Usage**: CLI and Python API for AI-powered text summarization with pipeline support
 
 ## Installation
@@ -39,32 +39,32 @@ Summarize text using LLM models with automatic language detection and intelligen
 ### Install Core Package
 
 ```bash
-pip install anything_to_ai
+pip install anyfile_to_ai
 ```
 
 ### Install with Specific Modules
 
 ```bash
 # PDF processing only
-pip install anything_to_ai[pdf]
+pip install anyfile_to_ai[pdf]
 
 # Image processing only
-pip install anything_to_ai[image]
+pip install anyfile_to_ai[image]
 
 # Audio transcription only
-pip install anything_to_ai[audio]
+pip install anyfile_to_ai[audio]
 
 # Text summarization only
-pip install anything_to_ai[text]
+pip install anyfile_to_ai[text]
 
 # All modules
-pip install anything_to_ai[all]
+pip install anyfile_to_ai[all]
 ```
 
 ### Install for Development
 
 ```bash
-pip install anything_to_ai[dev]
+pip install anyfile_to_ai[dev]
 ```
 
 ## Quick Usage Examples
@@ -119,6 +119,12 @@ text-summarizer --stdin --format markdown > summary.md
 # PDF to Summary Pipeline
 pdf-extractor extract document.pdf --format plain | \
 text-summarizer --stdin --format json > summary.json
+
+# PDF with image descriptions (provider-aware vision backend)
+pdf-extractor extract document.pdf --include-images \
+  --provider lmstudio \
+  --base-url http://127.0.0.1:1234/v1 \
+  --vision-model qwen/qwen3-vl-8b
 ```
 
 ## Python API Usage
@@ -126,10 +132,10 @@ text-summarizer --stdin --format json > summary.json
 ### Import Modules
 
 ```python
-from anything_to_ai.pdf_extractor import extract_text
-from anything_to_ai.image_processor import process_image
-from anything_to_ai.audio_processor import transcribe_audio
-from anything_to_ai.text_summarizer import summarize_text
+from anyfile_to_ai.pdf_extractor import extract_text
+from anyfile_to_ai.image_processor import process_image
+from anyfile_to_ai.audio_processor import transcribe_audio
+from anyfile_to_ai.text_summarizer import summarize_text
 ```
 
 ### PDF Processing Example
@@ -180,12 +186,20 @@ pip install httpx
 ### Model Configuration
 
 ```bash
-# Set vision model for image processing
-export VISION_MODEL=google/gemma-3-4b
+# Unified provider configuration
+export PROVIDER=ollama
+export BASE_URL=http://127.0.0.1:11434
 
-# Configure LLM provider for text summarization
-export LLM_PROVIDER=ollama
-export LLM_MODEL=mistral
+# Text and vision model selection
+export TEXT_MODEL=qwen/qwen3-14b
+export VISION_MODEL=qwen/qwen3-vl-8b
+```
+
+```bash
+# Per-command overrides (highest priority)
+text-summarizer article.txt --provider lmstudio --base-url http://127.0.0.1:1234/v1 --text-model qwen/qwen3-14b
+image-processor photo.jpg --provider lmstudio --base-url http://127.0.0.1:1234/v1 --vision-model qwen/qwen3-vl-8b
+pdf-extractor extract paper.pdf --include-images --provider lmstudio --base-url http://127.0.0.1:1234/v1 --vision-model qwen/qwen3-vl-8b
 ```
 
 ## Development
@@ -201,30 +215,13 @@ export LLM_MODEL=mistral
 ```bash
 # Clone and enter directory
 git clone <repo-url>
-cd anything-to-ai
+cd anyfile-to-ai
 
 # Install development dependencies
 uv sync
 
 # Install pre-commit hooks
 uv run pre-commit install
-```
-
-### Development Commands
-
-```bash
-# Run tests
-uv run pytest
-
-# Run comprehensive human review test suite
-./tests/human_review_quick_test
-
-# Code formatting and linting
-uv run ruff check .
-uv run ruff format .
-
-# Check file length compliance
-uv run python check_file_lengths.py
 ```
 
 ## Development Commands
@@ -312,5 +309,3 @@ Each module is documented independently. Check their individual READMEs for deta
 ## Contributing
 
 This is an experimental project exploring modular design patterns. Feel free to explore the code and documentation in the `specs/` directory to understand the development process.
-
-Added this line to the README

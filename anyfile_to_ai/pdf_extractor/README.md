@@ -22,7 +22,7 @@ pip install pdfplumber>=0.11.7
 
 ### Verify Installation
 ```bash
-python -m pdf_extractor --version
+python -m anyfile_to_ai.pdf_extractor --version
 ```
 
 ## CLI Usage
@@ -30,29 +30,43 @@ python -m pdf_extractor --version
 ### Basic Text Extraction
 ```bash
 # Extract text in plain format
-python -m pdf_extractor extract document.pdf
+python -m anyfile_to_ai.pdf_extractor extract document.pdf
 
 # Extract with JSON output
-python -m pdf_extractor extract document.pdf --format json
+python -m anyfile_to_ai.pdf_extractor extract document.pdf --format json
 
 # Extract with progress tracking
-python -m pdf_extractor extract document.pdf --progress
+python -m anyfile_to_ai.pdf_extractor extract document.pdf --progress
 
 # Extract large files with streaming
-python -m pdf_extractor extract large_document.pdf --stream --progress
+python -m anyfile_to_ai.pdf_extractor extract large_document.pdf --stream --progress
+
+# Extract text with AI image descriptions (provider-aware vision backend)
+python -m anyfile_to_ai.pdf_extractor extract document.pdf --include-images \
+  --provider lmstudio \
+  --base-url http://127.0.0.1:1234/v1 \
+  --vision-model qwen/qwen3-vl-8b
 ```
 
 ### Get PDF Information
 ```bash
 # Get basic PDF metadata
-python -m pdf_extractor info document.pdf
+python -m anyfile_to_ai.pdf_extractor info document.pdf
 ```
 
 ### CLI Options
 - `extract`: Extract text from PDF file
   - `--stream`: Enable streaming mode for large files (>20 pages)
-  - `--format`: Output format (`plain` or `json`)
+  - `--format`: Output format (`plain`, `json`, `csv`, `markdown`)
   - `--progress`: Show extraction progress
+  - `--include-images`: Include AI-generated image descriptions from embedded images
+  - `--image-style`: Image description style (`brief`, `detailed`, `technical`)
+  - `--image-fallback`: Fallback marker when image processing fails
+  - `--max-images`: Maximum images to process per page
+  - `--batch-size`: Image processing batch size (1-10)
+  - `--provider`: Provider override for image processing (`mlx`, `lmstudio`, `ollama`)
+  - `--base-url`: Provider base URL override for remote providers
+  - `--vision-model`: Vision model override for image processing
 - `info`: Display PDF metadata (pages, file size, etc.)
 
 ## Python API Usage
@@ -60,7 +74,7 @@ python -m pdf_extractor info document.pdf
 ### Basic Text Extraction
 
 ```python
-from pdf_extractor import extract_text, get_pdf_info
+from anyfile_to_ai.pdf_extractor import extract_text, get_pdf_info
 
 # Simple text extraction
 result = extract_text('document.pdf')
@@ -76,7 +90,7 @@ print(f"Pages: {info['page_count']}, Size: {info['file_size']} bytes")
 ### Streaming Extraction for Large Files
 
 ```python
-from pdf_extractor import extract_text_streaming, ExtractionConfig
+from anyfile_to_ai.pdf_extractor import extract_text_streaming, ExtractionConfig
 
 # Configure with progress tracking
 def progress_handler(current, total):
@@ -98,8 +112,8 @@ for page_result in extract_text_streaming('large_document.pdf', config):
 The pdf_extractor now supports the unified progress tracking system:
 
 ```python
-from pdf_extractor import extract_text
-from progress_tracker import ProgressEmitter, CLIProgressConsumer
+from anyfile_to_ai.pdf_extractor import extract_text
+from anyfile_to_ai.progress_tracker import ProgressEmitter, CLIProgressConsumer
 
 # Create progress emitter
 emitter = ProgressEmitter(total=None, label="Extracting PDF")
@@ -117,7 +131,7 @@ result = extract_text('document.pdf', progress_emitter=emitter)
 The old callback-based progress is still supported but deprecated:
 
 ```python
-from pdf_extractor import extract_text, ExtractionConfig
+from anyfile_to_ai.pdf_extractor import extract_text, ExtractionConfig
 
 def progress_callback(current, total):
     print(f"Processing page {current}/{total}")
@@ -132,7 +146,7 @@ result = extract_text('document.pdf', config)
 ### Advanced Configuration
 
 ```python
-from pdf_extractor import extract_text, ExtractionConfig
+from anyfile_to_ai.pdf_extractor import extract_text, ExtractionConfig
 
 # Custom configuration
 config = ExtractionConfig(
@@ -166,7 +180,7 @@ print(f"Extracted {result.total_chars} characters in {result.processing_time:.2f
 ### Exception Types
 
 ```python
-from pdf_extractor.exceptions import (
+from anyfile_to_ai.pdf_extractor.exceptions import (
     PDFNotFoundError,
     PDFCorruptedError,
     PDFPasswordProtectedError,

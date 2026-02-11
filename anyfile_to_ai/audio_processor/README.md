@@ -23,7 +23,7 @@ pip install lightning-whisper-mlx
 
 ### Verify Installation
 ```bash
-python -m audio_processor --help
+python -m anyfile_to_ai.audio_processor --help
 ```
 
 ## CLI Usage
@@ -31,25 +31,25 @@ python -m audio_processor --help
 ### Basic Audio Transcription
 ```bash
 # Transcribe single audio file
-python -m audio_processor audio.mp3
+python -m anyfile_to_ai.audio_processor audio.mp3
 
 # Transcribe with JSON output
-python -m audio_processor audio.mp3 --format json
+python -m anyfile_to_ai.audio_processor audio.mp3 --format json
 
 # Transcribe with progress tracking
-python -m audio_processor audio.mp3 --verbose
+python -m anyfile_to_ai.audio_processor audio.mp3 --verbose
 
 # Transcribe multiple files
-python -m audio_processor audio1.mp3 audio2.wav audio3.m4a
+python -m anyfile_to_ai.audio_processor audio1.mp3 audio2.wav audio3.m4a
 ```
 
 ### Model Selection
 ```bash
 # Use tiny model for speed
-python -m audio_processor audio.mp3 --model tiny
+python -m anyfile_to_ai.audio_processor audio.mp3 --model tiny
 
 # Use large model for accuracy
-python -m audio_processor audio.mp3 --model large-v3
+python -m anyfile_to_ai.audio_processor audio.mp3 --model large-v3
 
 # List of available models:
 # tiny, small, distil-small.en, base, medium, distil-medium.en,
@@ -59,39 +59,39 @@ python -m audio_processor audio.mp3 --model large-v3
 ### Language Options
 ```bash
 # Auto-detect language (default)
-python -m audio_processor audio.mp3
+python -m anyfile_to_ai.audio_processor audio.mp3
 
 # Specify language hint for better accuracy
-python -m audio_processor audio.mp3 --language es  # Spanish
-python -m audio_processor audio.mp3 --language fr  # French
-python -m audio_processor audio.mp3 --language en  # English
+python -m anyfile_to_ai.audio_processor audio.mp3 --language es  # Spanish
+python -m anyfile_to_ai.audio_processor audio.mp3 --language fr  # French
+python -m anyfile_to_ai.audio_processor audio.mp3 --language en  # English
 ```
 
 ### Output Formats
 ```bash
 # JSON output (structured)
-python -m audio_processor audio.mp3 --format json
+python -m anyfile_to_ai.audio_processor audio.mp3 --format json
 
 # Plain text output (default)
-python -m audio_processor audio.mp3 --format plain
+python -m anyfile_to_ai.audio_processor audio.mp3 --format plain
 
 # Save output to file
-python -m audio_processor audio.mp3 --format json --output transcript.json
+python -m anyfile_to_ai.audio_processor audio.mp3 --format json --output transcript.json
 ```
 
 ### Advanced Options
 ```bash
 # Batch processing with progress
-python -m audio_processor *.mp3 --verbose
+python -m anyfile_to_ai.audio_processor *.mp3 --verbose
 
 # Custom batch size (decoder parameter)
-python -m audio_processor audio.mp3 --batch-size 24
+python -m anyfile_to_ai.audio_processor audio.mp3 --batch-size 24
 
 # With timeout
-python -m audio_processor audio.mp3 --timeout 300
+python -m anyfile_to_ai.audio_processor audio.mp3 --timeout 300
 
 # Quiet mode (results only)
-python -m audio_processor audio.mp3 --quiet
+python -m anyfile_to_ai.audio_processor audio.mp3 --quiet
 ```
 
 ### CLI Options
@@ -110,7 +110,7 @@ python -m audio_processor audio.mp3 --quiet
 ### Basic Transcription
 
 ```python
-from audio_processor import process_audio, create_config
+from anyfile_to_ai.audio_processor import process_audio, create_config
 
 # Simple single audio transcription
 result = process_audio('audio.mp3')
@@ -122,7 +122,7 @@ if result.success:
 
 ### Batch Processing
 ```python
-from audio_processor import process_audio_batch
+from anyfile_to_ai.audio_processor import process_audio_batch
 
 # Process multiple audio files
 audio_files = ['audio1.mp3', 'audio2.wav', 'audio3.m4a']
@@ -137,7 +137,7 @@ for result in results.results:
 ### Advanced Configuration
 
 ```python
-from audio_processor import process_audio_batch, create_config
+from anyfile_to_ai.audio_processor import process_audio_batch, create_config
 
 # Custom configuration
 config = create_config(
@@ -156,8 +156,8 @@ results = process_audio_batch(audio_files, config)
 The audio_processor now supports the unified progress tracking system:
 
 ```python
-from audio_processor import process_audio_batch
-from progress_tracker import ProgressEmitter, CLIProgressConsumer
+from anyfile_to_ai.audio_processor import process_audio_batch
+from anyfile_to_ai.progress_tracker import ProgressEmitter, CLIProgressConsumer
 
 # Create progress emitter
 emitter = ProgressEmitter(total=len(audio_files), label="Transcribing audio")
@@ -173,8 +173,8 @@ results = process_audio_batch(audio_files, progress_emitter=emitter)
 #### Streaming with Progress
 
 ```python
-from audio_processor import process_audio_streaming
-from progress_tracker import ProgressEmitter, CLIProgressConsumer
+from anyfile_to_ai.audio_processor import process_audio_streaming
+from anyfile_to_ai.progress_tracker import ProgressEmitter, CLIProgressConsumer
 
 # Create progress emitter for streaming
 emitter = ProgressEmitter(total=len(audio_files), label="Processing audio")
@@ -194,7 +194,7 @@ emitter.complete()
 The old callback-based progress is still supported but deprecated:
 
 ```python
-from audio_processor import process_audio_batch, create_config
+from anyfile_to_ai.audio_processor import process_audio_batch, create_config
 
 def progress_handler(current, total):
     print(f"Processing {current}/{total} audio files...")
@@ -214,7 +214,7 @@ results = process_audio_batch(audio_files, config)
 ### Audio Validation
 
 ```python
-from audio_processor import validate_audio, get_audio_info, get_supported_formats
+from anyfile_to_ai.audio_processor import validate_audio, get_audio_info, get_supported_formats
 
 # Validate audio before processing
 try:
@@ -277,7 +277,7 @@ config = create_config(model="medium", quantization="none")  # Default
 # No additional environment setup needed
 
 # For memory-constrained environments, use smaller models
-python -m audio_processor audio.mp3 --model tiny
+python -m anyfile_to_ai.audio_processor audio.mp3 --model tiny
 ```
 
 ### Model Downloads
@@ -290,7 +290,7 @@ python -m audio_processor audio.mp3 --model tiny
 ### Exception Types
 
 ```python
-from audio_processor import (
+from anyfile_to_ai.audio_processor import (
     AudioProcessingError,
     AudioNotFoundError,
     UnsupportedFormatError,
@@ -396,7 +396,7 @@ print(f"English transcription: {result.text}")
 
 Check programmatically:
 ```python
-from audio_processor import get_supported_formats
+from anyfile_to_ai.audio_processor import get_supported_formats
 print(get_supported_formats())  # ['m4a', 'mp3', 'wav']
 ```
 
@@ -420,8 +420,8 @@ print(get_supported_formats())  # ['m4a', 'mp3', 'wav']
 
 ### With PDF Extractor
 ```python
-from pdf_extractor import extract_text
-from audio_processor import process_audio
+from anyfile_to_ai.pdf_extractor import extract_text
+from anyfile_to_ai.audio_processor import process_audio
 
 # Extract PDF and transcribe related audio
 pdf_text = extract_text('document.pdf')
@@ -432,8 +432,8 @@ combined = f"Document: {pdf_text.pages[0].text}\n\nAudio: {audio_text.text}"
 
 ### With Image Processor
 ```python
-from image_processor import process_image
-from audio_processor import process_audio
+from anyfile_to_ai.image_processor import process_image
+from anyfile_to_ai.audio_processor import process_audio
 
 # Describe image and transcribe audio
 img_result = process_image('slide.jpg')
@@ -450,7 +450,7 @@ print(f"Narration: {audio_result.text}")
 PYTHONPATH=. uv run pytest tests/contract/test_audio*.py -v
 
 # Test with sample audio
-python -m audio_processor sample-data/audio/silence.mp3 --verbose
+python -m anyfile_to_ai.audio_processor sample-data/audio/silence.mp3 --verbose
 ```
 
 ## Version

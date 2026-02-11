@@ -5,7 +5,7 @@ Unified progress tracking system for processing modules with async-first composa
 ## Quick Start
 
 ```python
-from progress_tracker import ProgressEmitter, CLIProgressConsumer
+from anyfile_to_ai.progress_tracker import ProgressEmitter, CLIProgressConsumer
 
 # Create emitter with total items
 emitter = ProgressEmitter(total=100, label="Processing files")
@@ -85,7 +85,7 @@ Three built-in consumer implementations:
 Renders progress bars to stderr using alive-progress:
 
 ```python
-from progress_tracker import CLIProgressConsumer
+from anyfile_to_ai.progress_tracker import CLIProgressConsumer
 
 # Basic usage
 consumer = CLIProgressConsumer()
@@ -103,7 +103,7 @@ consumer = CLIProgressConsumer(
 Wraps legacy callback(current, total) signatures:
 
 ```python
-from progress_tracker import CallbackProgressConsumer
+from anyfile_to_ai.progress_tracker import CallbackProgressConsumer
 
 def my_callback(current: int, total: int):
     print(f"Progress: {current}/{total}")
@@ -116,7 +116,7 @@ consumer = CallbackProgressConsumer(my_callback)
 Logs progress at configurable intervals:
 
 ```python
-from progress_tracker import LoggingProgressConsumer
+from anyfile_to_ai.progress_tracker import LoggingProgressConsumer
 import logging
 
 logger = logging.getLogger(__name__)
@@ -131,7 +131,7 @@ consumer = LoggingProgressConsumer(
 ### Basic Progress Bar
 
 ```python
-from progress_tracker import ProgressEmitter, CLIProgressConsumer
+from anyfile_to_ai.progress_tracker import ProgressEmitter, CLIProgressConsumer
 
 emitter = ProgressEmitter(total=100, label="Processing")
 emitter.add_consumer(CLIProgressConsumer())
@@ -146,7 +146,7 @@ emitter.complete()
 ### Indeterminate Progress
 
 ```python
-from progress_tracker import ProgressEmitter, CLIProgressConsumer
+from anyfile_to_ai.progress_tracker import ProgressEmitter, CLIProgressConsumer
 
 # Unknown total - shows spinner + count
 emitter = ProgressEmitter(total=None, label="Streaming")
@@ -164,7 +164,7 @@ emitter.complete()
 ### Hierarchical Progress
 
 ```python
-from progress_tracker import ProgressEmitter, CLIProgressConsumer
+from anyfile_to_ai.progress_tracker import ProgressEmitter, CLIProgressConsumer
 
 parent = ProgressEmitter(total=100, label="Overall")
 parent.add_consumer(CLIProgressConsumer())
@@ -189,7 +189,7 @@ parent.complete()
 ### Multiple Consumers
 
 ```python
-from progress_tracker import (
+from anyfile_to_ai.progress_tracker import (
     ProgressEmitter,
     CLIProgressConsumer,
     LoggingProgressConsumer
@@ -216,7 +216,7 @@ emitter.complete()
 
 ```python
 import asyncio
-from progress_tracker import ProgressEmitter, UpdateType
+from anyfile_to_ai.progress_tracker import ProgressEmitter, UpdateType
 
 async def monitor_progress(emitter: ProgressEmitter):
     async for update in emitter.stream():
@@ -244,10 +244,10 @@ async def process_with_monitoring(items: list):
 All processing modules support the unified progress system:
 
 ```python
-from progress_tracker import ProgressEmitter, CLIProgressConsumer
+from anyfile_to_ai.progress_tracker import ProgressEmitter, CLIProgressConsumer
 
 # Example: PDF extraction
-from pdf_extractor.reader import extract_text
+from anyfile_to_ai.pdf_extractor.reader import extract_text
 
 emitter = ProgressEmitter(total=None, label="Extracting PDF")
 emitter.add_consumer(CLIProgressConsumer())
@@ -255,7 +255,7 @@ emitter.add_consumer(CLIProgressConsumer())
 result = extract_text("document.pdf", progress_emitter=emitter)
 
 # Example: Text summarization
-from text_summarizer.processor import TextSummarizer
+from anyfile_to_ai.text_summarizer.processor import TextSummarizer
 
 summarizer = TextSummarizer()
 emitter = ProgressEmitter(total=None, label="Summarizing")
@@ -281,11 +281,11 @@ uv run pytest tests/contract/test_progress_protocol.py tests/integration/test_cl
 
 ## Migration from Legacy APIs
 
-### From pdf_extractor.ProgressInfo
+### From anyfile_to_ai.pdf_extractor.ProgressInfo
 
 **Old**:
 ```python
-from pdf_extractor.progress import ProgressInfo
+from anyfile_to_ai.pdf_extractor.progress import ProgressInfo
 
 info = ProgressInfo.create_started(total_pages)
 # ... (deprecated)
@@ -293,17 +293,17 @@ info = ProgressInfo.create_started(total_pages)
 
 **New**:
 ```python
-from progress_tracker import ProgressEmitter, CLIProgressConsumer
+from anyfile_to_ai.progress_tracker import ProgressEmitter, CLIProgressConsumer
 
 emitter = ProgressEmitter(total=total_pages, label="Extracting PDF")
 emitter.add_consumer(CLIProgressConsumer())
 ```
 
-### From image_processor/audio_processor.ProgressTracker
+### From anyfile_to_ai.image_processor.ProgressTracker / anyfile_to_ai.audio_processor.ProgressTracker
 
 **Old**:
 ```python
-from image_processor.progress import ProgressTracker
+from anyfile_to_ai.image_processor.progress import ProgressTracker
 
 tracker = ProgressTracker(
     total_items=100,
@@ -315,7 +315,7 @@ tracker.update(1)
 
 **New**:
 ```python
-from progress_tracker import ProgressEmitter, CallbackProgressConsumer
+from anyfile_to_ai.progress_tracker import ProgressEmitter, CallbackProgressConsumer
 
 emitter = ProgressEmitter(total=100, label="Processing")
 emitter.add_consumer(CallbackProgressConsumer(lambda c, t: print(f"{c}/{t}")))
