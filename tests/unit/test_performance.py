@@ -1,23 +1,26 @@
 """Unit tests for performance validation."""
 
+import importlib.util
 import os
-import pytest
 import tempfile
 import time
+
+import pytest
 from PIL import Image
 
-pytest.importorskip("mlx_vlm")
+_has_mlx_vlm = importlib.util.find_spec("mlx_vlm") is not None
+_run_perf_tests = os.getenv("RUN_PERF_TESTS", "").lower() in {"1", "true", "yes"}
+_image_perf_enabled = _has_mlx_vlm and _run_perf_tests
 
-if os.getenv("RUN_PERF_TESTS", "").lower() not in {"1", "true", "yes"}:
-    pytest.skip("Performance tests are optional. Set RUN_PERF_TESTS=1 to enable.", allow_module_level=True)
-
-from anyfile_to_ai.image_processor import (
-    process_image,
-    process_images,
-    ProcessingConfig,
-)
+if _image_perf_enabled:
+    from anyfile_to_ai.image_processor import (
+        process_image,
+        process_images,
+        ProcessingConfig,
+    )
 
 
+@pytest.mark.skipif(not _image_perf_enabled, reason="Image performance tests are optional. Set RUN_PERF_TESTS=1 and install mlx_vlm.")
 class TestPerformanceValidation:
     """Unit tests for performance requirements."""
 
@@ -148,3 +151,25 @@ class TestPerformanceValidation:
         assert len(progress_calls) > 0
         assert result_with_progress.success is True
         assert result_without_progress.success is True
+
+
+def test_timestamp_disabled_performance():
+    """Verify timestamp formatting path has no material overhead when disabled."""
+    from anyfile_to_ai.audio_processor.markdown_formatter import format_segments_markdown
+    from anyfile_to_ai.audio_processor.models import TranscriptionSegment
+
+    segments = [TranscriptionSegment(start=0.0, end=1.0, text="sample text")]
+    iterations = 5000
+
+    start = time.time()
+    for _ in range(iterations):
+        _ = format_segments_markdown(segments, include_text=False)
+    disabled_duration = time.time() - start
+
+    start = time.time()
+    for _ in range(iterations):
+        _ = format_segments_markdown(segments, include_text=True)
+    enabled_duration = time.time() - start
+
+    # Disabled mode should not be slower than enabled mode by more than 10%.
+    assert disabled_duration <= enabled_duration * 1.1

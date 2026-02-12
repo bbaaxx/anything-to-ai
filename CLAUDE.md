@@ -61,6 +61,8 @@ uv run python -m image_processor <image_files> [--style brief|detailed|technical
 # Audio Transcription CLI
 
 uv run python -m audio_processor <audio_files> [--format plain|json|markdown] [--model tiny|small|base|medium|large|large-v3] [--quantization none|4bit|8bit] [--language LANG] [--output FILE] [--verbose]
+uv run python -m audio_processor <audio_files> --timestamps --format markdown
+uv run python -m audio_processor <audio_files> --timestamps --format json
 
 # Note: Default quantization is 'none' due to MLX compatibility. Use --quantization 4bit/8bit only if your MLX version supports it.
 

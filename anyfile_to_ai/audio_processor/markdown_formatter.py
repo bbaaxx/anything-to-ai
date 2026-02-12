@@ -1,5 +1,7 @@
 """Markdown formatting for audio transcription results."""
 
+import csv
+import io
 from typing import Any
 from anyfile_to_ai.audio_processor.models import TranscriptionSegment
 
@@ -127,10 +129,14 @@ def format_timestamp(seconds: float) -> str:
         msg = f"Timestamp exceeds maximum duration (2 hours): {seconds}"
         raise ValueError(msg)
 
-    hours = int(seconds // 3600)
-    minutes = int((seconds % 3600) // 60)
-    secs = int(seconds % 60)
-    centiseconds = round((seconds % 1.0) * 100)
+    # Convert once to centiseconds to handle rounding rollover correctly
+    total_centiseconds = round(seconds * 100)
+    hours = total_centiseconds // 360000
+    remaining = total_centiseconds % 360000
+    minutes = remaining // 6000
+    remaining = remaining % 6000
+    secs = remaining // 100
+    centiseconds = remaining % 100
 
     return f"{hours:02d}:{minutes:02d}:{secs:02d}.{centiseconds:02d}"
 
@@ -158,3 +164,23 @@ def format_segments_markdown(segments: list[TranscriptionSegment], include_text:
             lines.append(f"[{timestamp}]")
 
     return "\n".join(lines)
+
+
+def format_segments_csv(segments: list[TranscriptionSegment]) -> str:
+    """
+    Format timestamped segments as CSV.
+
+    Args:
+        segments: List of TranscriptionSegment objects
+
+    Returns:
+        str: CSV string with header row: start,end,text
+    """
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["start", "end", "text"])
+
+    for segment in segments:
+        writer.writerow([f"{segment.start:.2f}", f"{segment.end:.2f}", segment.text])
+
+    return output.getvalue()

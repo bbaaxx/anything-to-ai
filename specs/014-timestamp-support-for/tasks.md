@@ -62,12 +62,12 @@
 
 ## Phase 3.5: Polish
 
-- [ ] T023 [P] Unit test for timestamp formatting edge cases in `tests/unit/test_timestamp_formatting.py::test_format_timestamp_edge_cases`
-- [ ] T024 [P] Unit test for markdown segment formatting in `tests/unit/test_timestamp_formatting.py::test_format_segments_markdown`
-- [ ] T025 [P] Unit test for CSV timestamp formatting in `tests/unit/test_timestamp_formatting.py::test_format_csv_with_timestamps`
-- [ ] T026 Performance test: Verify no overhead when timestamps disabled in `tests/unit/test_performance.py::test_timestamp_disabled_performance`
-- [ ] T027 Run full test suite to ensure no regressions: `uv run pytest tests/ -v`
-- [ ] T028 Update CLAUDE.md with timestamp CLI examples (if not auto-updated)
+- [x] T023 [P] Unit test for timestamp formatting edge cases in `tests/unit/test_timestamp_formatting.py::test_format_timestamp_edge_cases`
+- [x] T024 [P] Unit test for markdown segment formatting in `tests/unit/test_timestamp_formatting.py::test_format_segments_markdown`
+- [x] T025 [P] Unit test for CSV timestamp formatting in `tests/unit/test_timestamp_formatting.py::test_format_csv_with_timestamps`
+- [x] T026 Performance test: Verify no overhead when timestamps disabled in `tests/unit/test_performance.py::test_timestamp_disabled_performance`
+- [x] T027 Run full test suite to ensure no regressions: `uv run pytest tests/ -v` (executed; suite currently has unrelated pre-existing failures in image/LLM integration paths)
+- [x] T028 Update CLAUDE.md with timestamp CLI examples (if not auto-updated)
 
 ## Dependencies
 

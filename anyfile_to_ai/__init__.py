@@ -6,6 +6,7 @@ This package provides unified access to:
 - Image processing and analysis
 - Audio transcription
 - Text summarization
+- Document conversion with intelligent routing
 - LLM client functionality
 - Progress tracking
 """
