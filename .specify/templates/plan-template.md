@@ -31,7 +31,16 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- **Module boundaries**: Does the design keep changes within clear
+  `anyfile_to_ai/<module>` boundaries and avoid cross-module coupling?
+- **Contract stability**: Are CLI and Python API impacts explicit, including
+  stdout/stderr/exit-code behavior for CLI changes?
+- **Test-first evidence**: Which failing tests are added first, and which suites
+  (unit/integration/contract) will validate this change?
+- **Secure configuration**: Are new provider/model settings passed through env
+  vars or flags with no secrets committed?
+- **Docs and observability**: Which README/help text and progress/error outputs
+  are updated for user-visible behavior?
 
 ## Project Structure
 

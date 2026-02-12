@@ -10,6 +10,21 @@ from unittest.mock import patch
 from PIL import Image
 
 from anyfile_to_ai.image_processor import create_config, process_image
+from provider_env import generation_skip_reason
+
+
+def _process_image_or_skip(image_path: str, config):
+    provider = (os.environ.get("PROVIDER") or "mlx").strip().lower()
+    try:
+        return process_image(image_path, config)
+    except Exception as exc:
+        error_text = str(exc).lower()
+        skip_reason = generation_skip_reason(exc, provider)
+        if skip_reason:
+            pytest.skip(skip_reason)
+        if "failed to load" in error_text:
+            pytest.skip("Model runtime unavailable for timeout assertions")
+        raise
 
 
 class TestTimeoutBehavior:
@@ -37,7 +52,7 @@ class TestTimeoutBehavior:
             config = create_config()
 
             try:
-                result = process_image(sample_image, config)
+                result = _process_image_or_skip(sample_image, config)
                 # Some runtimes may still complete quickly despite short timeout.
                 assert result.success is True
             except Exception as exc:
@@ -58,16 +73,13 @@ class TestTimeoutBehavior:
             config = create_config()
 
             try:
-                result = process_image(sample_image, config)
+                result = _process_image_or_skip(sample_image, config)
                 # Provider/runtime may still complete successfully.
                 assert result.success is True
                 assert result.description is not None
                 assert len(result.description) > 0
             except Exception as exc:
-                error_text = str(exc).lower()
-                if "failed to load" in error_text:
-                    pytest.skip("Model runtime unavailable for timeout fallback assertion")
-                assert "timeout" in error_text
+                assert "timeout" in str(exc).lower()
 
     def test_timeout_behavior_continue(self, sample_image):
         """Test timeout behavior set to 'continue' continues processing."""
@@ -82,17 +94,14 @@ class TestTimeoutBehavior:
             config = create_config()
 
             try:
-                result = process_image(sample_image, config)
+                result = _process_image_or_skip(sample_image, config)
                 # Should succeed, possibly with partial or timeout-interrupted result
                 assert result.success is True
                 assert result.description is not None
             except Exception as exc:
-                error_text = str(exc).lower()
-                if "failed to load" in error_text:
-                    pytest.skip("Model runtime unavailable for timeout continue assertion")
                 # Some runtimes surface timeout as an exception even with
                 # timeout_behavior=continue.
-                assert "timeout" in error_text
+                assert "timeout" in str(exc).lower()
 
     def test_reasonable_timeout_succeeds(self, sample_image):
         """Test that reasonable timeout allows successful processing."""
@@ -102,15 +111,10 @@ class TestTimeoutBehavior:
         with patch.dict(os.environ, env_vars):
             config = create_config()
 
-            try:
-                result = process_image(sample_image, config)
-                # With reasonable timeout, should succeed
-                assert result.success is True
-                assert result.processing_time <= 60
-            except Exception as exc:
-                if "failed to load" in str(exc).lower():
-                    pytest.skip("Model runtime unavailable for reasonable-timeout assertion")
-                raise
+            result = _process_image_or_skip(sample_image, config)
+            # With reasonable timeout, should succeed
+            assert result.success is True
+            assert result.processing_time <= 60
 
     def test_timeout_configuration_validation(self):
         """Test timeout configuration parameter validation."""
@@ -139,12 +143,9 @@ class TestTimeoutBehavior:
             config = create_config()
 
             try:
-                result = process_image(sample_image, config)
+                result = _process_image_or_skip(sample_image, config)
                 assert result.success is True
                 assert hasattr(result, "technical_metadata")
                 assert result.technical_metadata is not None
             except Exception as exc:
-                error_text = str(exc).lower()
-                if "failed to load" in error_text:
-                    pytest.skip("Model runtime unavailable for timeout metadata assertion")
-                assert "timeout" in error_text
+                assert "timeout" in str(exc).lower()

@@ -1,35 +1,168 @@
-# Repository Guidelines
+# Repository Guidelines For Coding Agents
 
-## Project Structure & Module Organization
-- Core code lives in `anyfile_to_ai/` with module-focused packages: `pdf_extractor`, `image_processor`, `audio_processor`, `text_summarizer`, plus shared helpers (`llm_client`, `progress_tracker`, `test_quality`).
-- Tests sit in `tests/` with suites split into `unit/`, `integration/`, `contract/`, and the bash-based `human_review_quick_test`; sample fixtures are in `sample-data/`.
-- Specs and supporting docs are in `specs/`, release artifacts in `dist/` and `build/`, and scripts/utilities such as `check_file_lengths.py` are at repo root.
+This guide is for autonomous coding agents working in this repository.
 
-## Build, Test, and Development Commands
-- Install dev deps: `uv sync`.
-- Run all tests with coverage: `uv run pytest` (adds `--cov` and enforces 80% threshold).
-- Targeted suites: `uv run pytest tests/unit`, `uv run pytest tests/integration`, `uv run pytest tests/contract`, or mark-based `uv run pytest -m "not slow"`.
-- Human sanity check: `./tests/human_review_quick_test` (uses `sample-data/` and writes logs to `./tmp`).
-- Lint/format: `uv run ruff check .` and `uv run ruff format .`; file length check: `uv run python check_file_lengths.py`.
-- Build distribution (optional): `uv run python -m build`.
+## Agent Quickstart Checklist
 
-## Coding Style & Naming Conventions
-- Python 3.11+, spaces for indent, max line length 250; formatter prefers double quotes.
-- Follow Ruff defaults with configured ignores; keep CLI-friendly prints allowed in entrypoints.
-- Module names are lowercase with underscores; tests follow `test_*.py` and `Test*` classes.
-- Prefer type hints for public functions; keep side effects confined to CLI entrypoints or explicit runners.
+- Read `.specify/memory/constitution.md` before planning changes.
+- Identify affected module(s) under `anyfile_to_ai/` and keep boundaries tight.
+- Write or update failing tests first (unit/integration/contract as needed).
+- Implement the smallest safe change that satisfies tests and contracts.
+- Run `uv run ruff check .`, `uv run ruff format .`, and targeted pytest runs.
+- Run `uv run pytest` (or `./run_coverage.sh` for explicit coverage gate) before handoff.
+- Update `README.md` / module README / CLI help for user-visible changes.
 
-## Testing Guidelines
-- Framework: `pytest` with reruns enabled; markers available: `slow`, `integration`, `contract`, `flaky`.
-- Coverage: threshold enforced at 80% (`--cov-report=html` outputs to `htmlcov/`).
-- Add tests alongside code changes in the matching suite; use `sample-data/` for fixtures and avoid network calls.
-- Name tests descriptively (`test_<behavior>`) and keep setup lightweight; mark long/model-heavy cases as `slow`.
+## Rule Priority
 
-## Commit & Pull Request Guidelines
-- Git history uses conventional prefixes (`feat:`, `fix:`, `chore:`) and concise subjects; follow that style (e.g., `feat: add streaming pdf extraction`).
-- For PRs: include a short problem/solution summary, linked issue or task ID, notes on model/config requirements (env vars like `VISION_MODEL`, `LLM_PROVIDER`, `LLM_MODEL`), and test evidence (`uv run pytest`, `./tests/human_review_quick_test` when relevant).
-- Keep diffs small and focused; mention coverage impacts and new sample data additions.
+1. `.specify/memory/constitution.md` (authoritative)
+2. `AGENTS.md` (agent execution rules)
+3. `CLAUDE.md` (tooling and project command reference)
+4. Module docs in `anyfile_to_ai/*/README.md`
 
-## Security & Configuration Tips
-- Do not commit model binaries or credentials; keep provider tokens and model selections in environment variables.
-- When adding new processors, document required env vars and default fallbacks in module READMEs and CLI help.
+## Repository Snapshot
+
+- Python: 3.11+
+- Package root: `anyfile_to_ai/`
+- Main modules: `pdf_extractor`, `image_processor`, `audio_processor`,
+  `text_summarizer`, `llm_client`, `progress_tracker`, `document_converter`
+- Tests: `tests/unit`, `tests/integration`, `tests/contract`
+- Tooling: `uv`, `pytest`, `ruff`, `pre-commit`
+- Coverage gate: 80%
+
+## Constitution-Aligned Delivery Rules
+
+- Keep features module-first; avoid unnecessary cross-module coupling.
+- Preserve CLI and Python API parity for user-facing features.
+- Implement tests first (or update failing tests before implementation).
+- Keep output contracts stable: stdout for results, stderr for diagnostics,
+  non-zero exit codes on failures.
+- Never commit secrets; use env vars/flags for provider/model settings.
+- Update docs for user-visible behavior/config changes in the same PR.
+
+## Setup And Common Commands
+
+### Environment Setup
+
+```bash
+uv sync
+uv run pre-commit install
+```
+
+### Lint / Format
+
+```bash
+uv run ruff check .
+uv run ruff format .
+uv run pre-commit run --all-files
+```
+
+### Full Test Runs
+
+```bash
+uv run pytest
+./run_tests_fast.sh
+./run_coverage.sh
+```
+
+## Single-Test Execution (Use Often)
+
+Run one file:
+
+```bash
+uv run pytest tests/unit/test_chunker.py
+./run_tests_fast.sh tests/unit/test_chunker.py
+```
+
+Run one test function:
+
+```bash
+uv run pytest tests/unit/test_chunker.py::TestChunkText::test_empty_text_raises_value_error
+./run_tests_fast.sh tests/unit/test_chunker.py::TestChunkText::test_empty_text_raises_value_error
+```
+
+Run by expression/marker:
+
+```bash
+uv run pytest -k "timestamp and not integration"
+uv run pytest -m "integration"
+uv run pytest -m "contract"
+uv run pytest -m "slow"
+```
+
+Run a suite directory:
+
+```bash
+uv run pytest tests/unit
+uv run pytest tests/integration
+uv run pytest tests/contract
+```
+
+## Code Style Standards
+
+## Formatting And Linting
+
+- Use Ruff for both lint and format.
+- Line length: 250.
+- Prefer double quotes.
+- Do not add new lint ignores unless unavoidable and justified.
+
+## Imports
+
+- Group imports as: stdlib, third-party, local.
+- Prefer absolute imports for cross-module references (`anyfile_to_ai...`).
+- Use relative imports within a module package when it improves clarity.
+- Remove unused imports unless intentionally used for public API/type-checking.
+
+## Types And Interfaces
+
+- Add type hints for public functions/methods and important internal helpers.
+- Prefer modern syntax (`list[str]`, `dict[str, Any]`, `X | None`).
+- Keep return types explicit.
+- Avoid broad `Any` when a concrete protocol/type is available.
+
+## Naming
+
+- Files/modules: `snake_case.py`
+- Functions/variables: `snake_case`
+- Classes/exceptions: `PascalCase`
+- Constants: `UPPER_SNAKE_CASE`
+- Tests: files `test_*.py`, classes `Test*`, functions `test_*`
+
+## Error Handling
+
+- Raise explicit exceptions with clear, actionable messages.
+- Keep library layers exception-based; avoid process exits in non-CLI code.
+- In CLI entry points, map failures to stable exit codes.
+- Maintain backward-compatible error and output contracts where feasible.
+- Do not silently swallow exceptions.
+
+## Testing Standards
+
+- Every behavior change requires tests.
+- Start with unit tests; add integration/contract tests when interfaces change.
+- For CLI/API contract changes, include contract tests.
+- Mark slow or external-dependency tests (`slow`, `integration`, `contract`,
+  `flaky`) appropriately.
+- Keep tests deterministic and isolated.
+
+## Security And Configuration
+
+- Never commit credentials or tokens.
+- Configure providers/models via env vars or flags (for example
+  `PROVIDER`, `BASE_URL`, `TEXT_MODEL`, `VISION_MODEL`).
+- Document new config keys/defaults in the affected module README.
+
+## Documentation Update Rules
+
+When behavior changes, update as needed in the same change:
+
+- `README.md` (project-level user impact)
+- `anyfile_to_ai/*/README.md` (module usage and options)
+- CLI help text and examples
+
+## Cursor / Copilot Rules Check
+
+- No Cursor rules found: `.cursor/rules/` and `.cursorrules` are absent.
+- No Copilot instructions found: `.github/copilot-instructions.md` is absent.
+
+If these files are added later, merge their requirements into this guide.

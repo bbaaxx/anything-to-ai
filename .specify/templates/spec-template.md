@@ -100,6 +100,19 @@
 - **[Entity 1]**: [What it represents, key attributes without implementation]
 - **[Entity 2]**: [What it represents, relationships to other entities]
 
+## Constitution Alignment *(mandatory)*
+
+- **Module Impact**: [Identify impacted module(s) under `anyfile_to_ai/` and any
+  new module boundaries]
+- **Contract Impact**: [Describe CLI and Python API changes, including output,
+  errors, and compatibility expectations]
+- **Test Plan**: [List required failing-first tests by suite: unit,
+  integration, contract]
+- **Configuration & Security**: [List env vars/flags added or changed; confirm
+  no secrets are stored in repo]
+- **Documentation Impact**: [List README/CLI help/usage examples requiring
+  updates]
+
 ## Success Criteria *(mandatory)*
 
 <!--
