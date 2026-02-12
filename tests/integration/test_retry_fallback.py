@@ -176,7 +176,8 @@ class TestRetryMetadata:
     def test_metadata_on_success_without_retry(self):
         """Test metadata when request succeeds on first try."""
         provider, base_url, text_model = _get_text_provider()
-        config = LLMConfig(provider=provider, base_url=base_url, max_retries=3)
+        # Force a single attempt so metadata is deterministic for "no retry".
+        config = LLMConfig(provider=provider, base_url=base_url, max_retries=1)
         client = LLMClient(config)
 
         model = get_test_model(provider, base_url, text_model)
