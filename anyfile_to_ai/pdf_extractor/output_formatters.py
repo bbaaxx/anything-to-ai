@@ -1,36 +1,53 @@
 """Output formatting utilities for CLI."""
 
-from .markdown_formatter import format_extraction_result
+import os
+import warnings
 
 
 class OutputFormatter:
     """Handles formatting of extraction results for different output types."""
 
     @staticmethod
+    def _warn_deprecated_internal_formatter() -> None:
+        warnings.warn(
+            "pdf_extractor internal formatter paths are deprecated; shared output_formatter is preferred.",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+
+    @staticmethod
     def print_regular_result(result, format_type: str, file_path: str):
         """Print regular extraction result."""
-        import json
         import sys
 
-        if format_type == "json":
-            data = {
+        if format_type in {"plain", "markdown", "json"}:
+            from anyfile_to_ai.output_formatter import format_output as format_with_shared
+
+            OutputFormatter._warn_deprecated_internal_formatter()
+            payload = {
+                "_json_passthrough": True,
+                "content": "\n".join(page.text for page in result.pages),
                 "success": result.success,
                 "file_path": file_path,
                 "total_pages": result.total_pages,
                 "total_chars": result.total_chars,
                 "processing_time": result.processing_time,
-                "pages": [{"page_number": p.page_number, "text": p.text, "char_count": p.char_count, "extraction_time": p.extraction_time} for p in result.pages],
+                "pages": [
+                    {
+                        "page_number": p.page_number,
+                        "text": p.text,
+                        "char_count": p.char_count,
+                        "extraction_time": p.extraction_time,
+                    }
+                    for p in result.pages
+                ],
+                "filename": os.path.basename(file_path),
+                "metadata": result.metadata,
             }
-            if result.metadata is not None:
-                data["metadata"] = result.metadata
-            print(json.dumps(data, indent=2), file=sys.stdout)
-        elif format_type == "markdown":
-            import os
+            print(format_with_shared("pdf", payload, format_type, include_metadata=result.metadata is not None), file=sys.stdout)
+            return
 
-            filename = os.path.basename(file_path)
-            markdown_output = format_extraction_result(result, filename)
-            print(markdown_output, file=sys.stdout)
-        elif format_type == "csv":
+        if format_type == "csv":
             import csv
             import sys
 
@@ -70,29 +87,36 @@ class OutputFormatter:
     @staticmethod
     def print_regular_output(pages, format_type: str, file_path: str, streaming: bool = False):
         """Print regular streaming output."""
-        import json
         import sys
 
-        if format_type == "json":
-            data = {
+        if format_type in {"plain", "markdown", "json"}:
+            from anyfile_to_ai.output_formatter import format_output as format_with_shared
+
+            OutputFormatter._warn_deprecated_internal_formatter()
+            metadata = pages[0].metadata if pages and hasattr(pages[0], "metadata") else None
+            payload = {
+                "_json_passthrough": True,
+                "content": "\n".join(page.text for page in pages),
                 "success": True,
                 "file_path": file_path,
                 "total_pages": len(pages),
                 "total_chars": sum(p.char_count for p in pages),
-                "pages": [{"page_number": p.page_number, "text": p.text, "char_count": p.char_count, "extraction_time": p.extraction_time} for p in pages],
+                "pages": [
+                    {
+                        "page_number": p.page_number,
+                        "text": p.text,
+                        "char_count": p.char_count,
+                        "extraction_time": p.extraction_time,
+                    }
+                    for p in pages
+                ],
+                "filename": os.path.basename(file_path),
+                "metadata": metadata,
             }
-            if pages and hasattr(pages[0], "metadata") and pages[0].metadata is not None:
-                data["metadata"] = pages[0].metadata
-            print(json.dumps(data, indent=2), file=sys.stdout)
-        elif format_type == "markdown":
-            import os
-            from .markdown_formatter import format_markdown
+            print(format_with_shared("pdf", payload, format_type, include_metadata=metadata is not None), file=sys.stdout)
+            return
 
-            filename = os.path.basename(file_path)
-            result_dict = {"filename": filename, "pages": [{"number": p.page_number, "text": p.text} for p in pages]}
-            markdown_output = format_markdown(result_dict)
-            print(markdown_output, file=sys.stdout)
-        elif format_type == "csv":
+        if format_type == "csv":
             import csv
 
             writer = csv.writer(sys.stdout)

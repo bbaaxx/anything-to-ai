@@ -9,6 +9,7 @@ from anyfile_to_ai.audio_processor.markdown_formatter import (
     format_segments_markdown,
     format_timestamp,
 )
+from anyfile_to_ai.output_formatter.markdown import format_audio_timestamp
 from anyfile_to_ai.audio_processor.models import TranscriptionSegment
 
 
@@ -59,3 +60,8 @@ def test_format_csv_with_timestamps():
     assert lines[0] == "start,end,text"
     assert lines[1] == '0.00,5.23,"First ""quoted"" segment"'
     assert lines[2] == "5.23,12.45,Second segment"
+
+
+def test_shared_timestamp_formatter_parity():
+    assert format_audio_timestamp(0.0) == format_timestamp(0.0)
+    assert format_audio_timestamp(65.45) == format_timestamp(65.45)

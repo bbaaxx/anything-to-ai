@@ -361,6 +361,13 @@ ProcessingResult(
 )
 ```
 
+## Shared Formatter Migration
+
+Markdown output now routes through `anyfile_to_ai.output_formatter` by default for contract alignment.
+
+- Roll back with `ANYFILE_OUTPUT_FORMATTER_IMAGE_SHARED=0`.
+- `--include-metadata` now maps to normalized metadata groups in shared formatter output.
+
 ## Examples with Sample Data
 
 ```python

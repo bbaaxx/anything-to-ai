@@ -241,3 +241,10 @@ if info['is_large_file']:
     print("Using streaming mode for large file")
     # Use streaming for large files
 ```
+
+## Shared Formatter Migration
+
+`pdf_extractor` now routes `plain`, `markdown`, and `json` rendering through `anyfile_to_ai.output_formatter` by default.
+
+- Roll back locally with `ANYFILE_OUTPUT_FORMATTER_PDF_SHARED=0`.
+- Legacy formatter internals are deprecated and will be removed after migration gates.

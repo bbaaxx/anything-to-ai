@@ -257,3 +257,10 @@ class TestFormatTimestampContract:
 
         with pytest.raises(ValueError):
             format_timestamp(7201.0)  # Exceeds max duration
+
+    def test_shared_timestamp_contract_parity(self):
+        from anyfile_to_ai.output_formatter.markdown import format_audio_timestamp
+
+        assert format_audio_timestamp(5.23) == "00:00:05.23"
+        with pytest.raises(Exception):
+            format_audio_timestamp(-1.0)

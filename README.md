@@ -333,3 +333,10 @@ Each module is documented independently. Check their individual READMEs for deta
 ## Contributing
 
 This is an experimental project exploring modular design patterns. Feel free to explore the code and documentation in the `specs/` directory to understand the development process.
+## Shared Output Formatter (Spec 017)
+
+The repository now includes `anyfile_to_ai/output_formatter/` as the canonical formatter package for `plain`, `markdown`, and `json` output assembly.
+
+- Use profile values: `pdf`, `image`, `audio`, `text`, `document_converter`.
+- JSON serialization is deterministic and can include normalized metadata when requested.
+- Module-local formatter paths remain available with rollback toggles (`ANYFILE_OUTPUT_FORMATTER_*_SHARED=0`) during migration.

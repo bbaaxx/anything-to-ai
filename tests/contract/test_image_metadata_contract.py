@@ -104,6 +104,8 @@ class TestDescriptionResultMetadata:
             metadata=metadata,
         )
 
+        assert result.metadata is not None
+
         assert "exif" in result.metadata["source"]
         assert result.metadata["source"]["exif"]["Make"] == "Canon"
         assert result.metadata["source"]["dimensions"]["width"] == 1920
@@ -144,3 +146,30 @@ class TestProcessingResultMetadataPerImage:
         assert len(batch_result.results) == 1
         assert batch_result.results[0].metadata is not None
         assert batch_result.results[0].metadata["source"]["file_path"] == "img1.jpg"
+
+
+def test_shared_image_markdown_contract_shape(monkeypatch):
+    from anyfile_to_ai.image_processor.cli import format_output
+    from anyfile_to_ai.image_processor.models import DescriptionResult, ProcessingResult
+
+    monkeypatch.setenv("ANYFILE_OUTPUT_FORMATTER_IMAGE_SHARED", "1")
+    result = ProcessingResult(
+        success=True,
+        results=[
+            DescriptionResult(
+                image_path="img1.jpg",
+                description="test1",
+                confidence_score=None,
+                processing_time=1.0,
+                model_used="test",
+                prompt_used="test",
+                success=True,
+            )
+        ],
+        total_images=1,
+        successful_count=1,
+        failed_count=0,
+        total_processing_time=1.0,
+    )
+    output = format_output(result, "markdown")
+    assert output.startswith("# Image Descriptions")

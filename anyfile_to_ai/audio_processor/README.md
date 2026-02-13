@@ -367,6 +367,13 @@ ProcessingResult(
 )
 ```
 
+## Shared Formatter Migration
+
+Audio markdown rendering supports an opt-in shared formatter path via `anyfile_to_ai.output_formatter`.
+
+- Enable with `ANYFILE_OUTPUT_FORMATTER_AUDIO_SHARED=1`.
+- Timestamp formatting is aligned to `HH:MM:SS.CC` with shared boundary validation.
+
 ## Examples with Sample Data
 
 ```python

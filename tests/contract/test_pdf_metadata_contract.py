@@ -75,6 +75,8 @@ class TestPDFExtractionResultMetadata:
             metadata=metadata,
         )
 
+        assert result.metadata is not None
+
         assert "processing" in result.metadata
         assert "configuration" in result.metadata
         assert "source" in result.metadata
@@ -89,3 +91,19 @@ class TestPDFExtractionResultMetadata:
         assert result.metadata["source"]["file_path"] == "/path/to/document.pdf"
         assert result.metadata["source"]["page_count"] == 10
         assert result.metadata["source"]["file_size_bytes"] == 1234567
+
+    def test_shared_formatter_preserves_metadata_when_requested(self):
+        from anyfile_to_ai.output_formatter.interfaces import format_json
+        import json
+
+        payload = {
+            "_json_passthrough": True,
+            "content": "pdf content",
+            "metadata": {
+                "processing": {"timestamp": "2025-10-25T14:30:00+00:00", "model_version": "pdfplumber-0.11.7", "processing_time_seconds": 0.1},
+                "configuration": {"user_provided": {}, "effective": {}},
+                "source": {"file_path": "test.pdf"},
+            },
+        }
+        parsed = json.loads(format_json("pdf", payload, include_metadata=True))
+        assert "metadata" in parsed

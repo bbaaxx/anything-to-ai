@@ -378,6 +378,13 @@ Utility function to split text into overlapping chunks.
 
 ### Data Models
 
+## Shared Formatter Migration
+
+CLI formatting now defaults to the shared output formatter profile (`text`) for `plain`, `markdown`, and `json`.
+
+- Roll back with `ANYFILE_OUTPUT_FORMATTER_TEXT_SHARED=0`.
+- `--no-metadata` toggles inclusion of normalized metadata in shared formatter outputs.
+
 #### `SummaryResult`
 
 - `summary` (str): Generated summary text

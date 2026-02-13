@@ -32,67 +32,21 @@ def format_markdown(result: dict[str, Any]) -> str:
         Special characters are NOT escaped per research.md decision (2025-10-02).
         Fallback: If no speakers/timestamps, output as plain paragraphs.
     """
-    filename = result.get("filename", "audio.mp3")
-    duration = result.get("duration", 0.0)
-    model = result.get("model", "unknown")
-    language = result.get("language", "en")
-    segments = result.get("segments", [])
-    metadata = result.get("metadata")
+    from anyfile_to_ai.output_formatter import format_markdown as format_markdown_shared
 
-    lines = []
-
-    if metadata is not None:
-        lines.append("---")
-        lines.append(f"processing_timestamp: {metadata['processing']['timestamp']}")
-        lines.append(f"model_version: {metadata['processing']['model_version']}")
-        lines.append(f"detected_language: {metadata['source'].get('detected_language', 'unknown')}")
-        lines.append("---")
-        lines.append("")
-
-    # Build markdown document
-    lines.extend([f"# Transcription: {filename}", ""])
-
-    # Add metadata section
-    duration_formatted = _format_duration(duration)
-    lines.append(f"- Duration: {duration_formatted}")
-    lines.append(f"- Model: {model}")
-    lines.append(f"- Language: {language}")
-    lines.append("")
-
-    # Add transcript segments
-    for segment in segments:
-        text = segment.get("text", "")
-        start = segment.get("start", 0.0)
-        speaker = segment.get("speaker")
-
-        # Format with timestamp and speaker (always show for segments)
-        timestamp = _format_timestamp(start)
-        speaker_label = speaker if speaker else "Speaker"
-        lines.append(f"## [{timestamp}] {speaker_label}")
-        lines.append("")
-
-        # Add segment text (no escaping)
-        if text.strip():
-            lines.append(text.strip())
-            lines.append("")
-
-    # Fallback: If no segments, output plain text
-    if not segments and "text" in result:
-        lines.append(result["text"])
-        lines.append("")
-
-    if metadata is not None:
-        lines.append("## Processing Metadata")
-        lines.append("")
-        lines.append(f"- Processing Time: {metadata['processing']['processing_time_seconds']:.2f}s")
-        lines.append(f"- Sample Rate: {metadata['source'].get('sample_rate_hz', 'unknown')} Hz")
-        lines.append(f"- Channels: {metadata['source'].get('channels', 'unknown')}")
-        if metadata["source"].get("language_confidence") != "unavailable":
-            conf = metadata["source"].get("language_confidence", 0)
-            lines.append(f"- Language Confidence: {conf:.2%}")
-        lines.append("")
-
-    return "\n".join(lines)
+    payload = {
+        "content": result.get("text", ""),
+        "filename": result.get("filename", "audio.mp3"),
+        "duration": result.get("duration", 0.0),
+        "model": result.get("model", "unknown"),
+        "language": result.get("language", "en"),
+        "segments": result.get("segments", []),
+        "metadata": result.get("metadata"),
+        "legacy_audio_heading": True,
+        "legacy_audio_document": True,
+        "legacy_audio_timestamp_no_centiseconds": True,
+    }
+    return format_markdown_shared("audio", payload, include_metadata=result.get("metadata") is not None)
 
 
 def _format_duration(seconds: float) -> str:

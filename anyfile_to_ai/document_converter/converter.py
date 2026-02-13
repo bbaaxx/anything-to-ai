@@ -34,6 +34,15 @@ def _extract_markitdown_metadata(result: Any) -> dict[str, Any] | None:
 def _normalize_conversion_result(result: ConversionResult, source: str, route: ConversionRoute) -> ConversionResult:
     content = result.content if isinstance(result.content, str) else str(result.content or "")
 
+    if route in {ConversionRoute.PDF, ConversionRoute.IMAGE, ConversionRoute.AUDIO}:
+        from anyfile_to_ai.output_formatter import format_plain
+
+        payload = {
+            "content": content,
+            "metadata": result.metadata,
+        }
+        content = format_plain("document_converter", payload, include_metadata=False)
+
     return ConversionResult(
         source=source,
         route=route,

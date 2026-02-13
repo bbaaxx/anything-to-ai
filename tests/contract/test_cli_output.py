@@ -109,3 +109,26 @@ class TestCliOutputFormattingContract:
         assert isinstance(output, str)
         # Should contain CSV-appropriate format
         assert "," in output  # CSV delimiter present
+
+    def test_markdown_output_shape_with_shared_formatter_enabled(self, monkeypatch):
+        monkeypatch.setenv("ANYFILE_OUTPUT_FORMATTER_IMAGE_SHARED", "1")
+        result = ProcessingResult(
+            success=True,
+            results=[
+                DescriptionResult(
+                    image_path="test.jpg",
+                    description="A test image",
+                    confidence_score=0.95,
+                    processing_time=1.2,
+                    model_used="test-model",
+                    prompt_used="test prompt",
+                    success=True,
+                )
+            ],
+            total_images=1,
+            successful_count=1,
+            failed_count=0,
+            total_processing_time=1.5,
+        )
+        output = format_output(result, "markdown")
+        assert output.startswith("# Image Descriptions")

@@ -1,6 +1,7 @@
 """Command-line interface for image processing module."""
 
 import argparse
+import os
 from .models import ProcessingResult, DescriptionResult
 from anyfile_to_ai.cli_config import resolve_provider_config, ProviderConfigError
 
@@ -24,8 +25,8 @@ Examples:
     parser.add_argument("--batch-size", type=int, default=4, metavar="N", help="Number of images to process simultaneously")
     parser.add_argument("--timeout", type=int, default=60, metavar="SECONDS", help="Processing timeout per image")
     parser.add_argument("--output", "-o", help="Output file path")
-    parser.add_argument("--format", choices=["plain", "json", "csv", "markdown"], default="plain", help="Output format")
-    parser.add_argument("--include-metadata", action="store_true", help="Include source file and processing metadata in output")
+    parser.add_argument("--format", choices=["plain", "json", "csv", "markdown"], default="plain", help="Output format (shared formatter used for markdown)")
+    parser.add_argument("--include-metadata", action="store_true", help="Include normalized source and processing metadata in output")
     parser.add_argument("--vision-model", help="Override VISION_MODEL for this run")
     parser.add_argument("--provider", help="LLM provider (overrides PROVIDER env)")
     parser.add_argument("--base-url", dest="base_url", help="Provider base URL (overrides BASE_URL env)")
@@ -118,8 +119,9 @@ def main(args: list[str] | None = None) -> int:
 def format_output(result: ProcessingResult, format_type: str) -> str:
     """Format processing results for CLI output."""
     if format_type == "markdown":
-        import os
         from .markdown_formatter import format_markdown
+
+        use_shared = os.getenv("ANYFILE_OUTPUT_FORMATTER_IMAGE_SHARED", "1") != "0"
 
         # Convert ProcessingResult to list of dicts for formatter
         results_list = [
@@ -132,6 +134,18 @@ def format_output(result: ProcessingResult, format_type: str) -> str:
             }
             for r in result.results
         ]
+
+        if use_shared:
+            from anyfile_to_ai.output_formatter import format_output as format_with_shared
+
+            payload = {
+                "content": "",
+                "results": results_list,
+                "metadata": next((item["metadata"] for item in results_list if item.get("metadata") is not None), None),
+            }
+            include_metadata = payload["metadata"] is not None
+            return format_with_shared("image", payload, "markdown", include_metadata=include_metadata)
+
         return format_markdown(results_list)
 
     if format_type == "json":

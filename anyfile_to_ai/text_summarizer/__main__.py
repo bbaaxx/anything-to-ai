@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -28,6 +29,31 @@ def read_input(file_path: str | None, use_stdin: bool) -> str:
 
 def format_output(result, output_format: str, include_metadata: bool) -> str:
     """Format output based on requested format."""
+    use_shared = os.getenv("ANYFILE_OUTPUT_FORMATTER_TEXT_SHARED", "1") != "0"
+    if use_shared:
+        from anyfile_to_ai.output_formatter import format_output as format_with_shared
+
+        payload = {
+            "content": result.summary,
+            "tags": result.tags,
+        }
+        if result.metadata:
+            payload["metadata"] = {
+                "processing": {
+                    "timestamp": result.metadata.processing_timestamp,
+                    "model_version": result.metadata.model_version,
+                    "processing_time_seconds": result.metadata.processing_time,
+                },
+                "configuration": result.metadata.configuration or {},
+                "source": result.metadata.source or {"file_path": "unavailable"},
+            }
+        return format_with_shared("text", payload, output_format, include_metadata=include_metadata)
+
+    return _format_output_legacy(result, output_format, include_metadata)
+
+
+def _format_output_legacy(result, output_format: str, include_metadata: bool) -> str:
+    """Legacy formatter path retained for rollback safety."""
     if output_format == "markdown":
         # Return markdown format
         from .markdown_formatter import format_markdown
@@ -117,7 +143,7 @@ def main():
         "--format",
         choices=["json", "plain", "markdown"],
         default="json",
-        help="Output format (default: json)",
+        help="Output format via shared formatter profiles (default: json)",
     )
     parser.add_argument(
         "--output",
@@ -126,7 +152,7 @@ def main():
     parser.add_argument(
         "--no-metadata",
         action="store_true",
-        help="Exclude processing metadata from output",
+        help="Exclude normalized processing metadata from output",
     )
     parser.add_argument(
         "--verbose",

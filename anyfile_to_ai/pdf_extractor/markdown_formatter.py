@@ -23,29 +23,14 @@ def format_markdown(result: dict[str, Any]) -> str:
         Special characters are NOT escaped per research.md decision (2025-10-02).
         Structure detection not implemented initially - output as plain paragraphs.
     """
-    filename = result.get("filename", "document.pdf")
-    pages = result.get("pages", [])
+    from anyfile_to_ai.output_formatter import format_markdown as format_markdown_shared
 
-    # Build markdown document
-    lines = [f"# PDF Document: {filename}", ""]
-
-    for page in pages:
-        page_num = page.get("number", 1)
-        text = page.get("text", "")
-
-        # Add page heading
-        lines.append(f"## Page {page_num}")
-        lines.append("")
-
-        # Add page content as plain text (no escaping)
-        if text.strip():
-            lines.append(text.strip())
-        else:
-            lines.append("(empty page)")
-
-        lines.append("")  # Blank line between pages
-
-    return "\n".join(lines)
+    payload = {
+        "content": "",
+        "filename": result.get("filename", "document.pdf"),
+        "pages": result.get("pages", []),
+    }
+    return format_markdown_shared("pdf", payload)
 
 
 def format_extraction_result(extraction_result: ExtractionResult, filename: str) -> str:
