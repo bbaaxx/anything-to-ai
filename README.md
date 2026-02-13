@@ -34,6 +34,12 @@ Summarize text using LLM models with automatic language detection and intelligen
 - **Documentation**: [`anyfile_to_ai/text_summarizer/README.md`](anyfile_to_ai/text_summarizer/README.md)
 - **Usage**: CLI and Python API for AI-powered text summarization with pipeline support
 
+### 🔀 Document Converter Bridge
+
+Convert a local file path or HTTP/HTTPS URL with deterministic backend routing across PDF, image, audio, and MarkItDown-backed document formats.
+
+- **Usage**: CLI and Python API with stable `source`/`route`/`content` output contract
+
 ## Installation
 
 ### Install Core Package
@@ -109,6 +115,16 @@ text-summarizer article.txt --format markdown
 cat document.txt | text-summarizer --stdin --format json
 ```
 
+### Document Conversion
+
+```bash
+# Convert a local Office file via MarkItDown route
+document-converter /tmp/report.docx
+
+# Convert with metadata enabled for specialized routes
+document-converter /tmp/file.pdf --include-metadata
+```
+
 ### Pipeline Examples
 
 ```bash
@@ -136,6 +152,7 @@ from anyfile_to_ai.pdf_extractor import extract_text
 from anyfile_to_ai.image_processor import process_image
 from anyfile_to_ai.audio_processor import transcribe_audio
 from anyfile_to_ai.text_summarizer import summarize_text
+from anyfile_to_ai.document_converter import convert_document
 ```
 
 ### PDF Processing Example
@@ -164,6 +181,13 @@ print(result.text)
 ```python
 result = summarize_text("long_text.txt", format="markdown")
 print(result.summary)
+```
+
+### Document Converter Example
+
+```python
+result = convert_document("/tmp/report.docx")
+print(result.route, result.content)
 ```
 
 ## Model Setup

@@ -204,3 +204,10 @@ temp/
 mlx_models/
 
 tmp/
+
+# Additional universal ignores
+.idea/
+Thumbs.db
+*.tmp
+*.swp
+.env*

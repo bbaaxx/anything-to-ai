@@ -1,7 +1,8 @@
 """Unified document conversion API with backend routing."""
 
 from typing import Any
-from .exceptions import DocumentConversionError, MissingDependencyError
+
+from .exceptions import DocumentConversionError, MARKITDOWN_INSTALL_GUIDANCE, MissingDependencyError
 from .models import ConversionResult, ConversionRoute
 from .routing import determine_route
 
@@ -28,6 +29,18 @@ def _extract_markitdown_metadata(result: Any) -> dict[str, Any] | None:
     if not metadata:
         return None
     return metadata
+
+
+def _normalize_conversion_result(result: ConversionResult, source: str, route: ConversionRoute) -> ConversionResult:
+    content = result.content if isinstance(result.content, str) else str(result.content or "")
+
+    return ConversionResult(
+        source=source,
+        route=route,
+        content=content,
+        metadata=result.metadata,
+        raw_result=result.raw_result,
+    )
 
 
 def _convert_with_pdf_extractor(source: str, include_metadata: bool) -> ConversionResult:
@@ -68,7 +81,7 @@ def _convert_with_markitdown(source: str) -> ConversionResult:
     try:
         from markitdown import MarkItDown
     except ImportError as exc:
-        msg = "markitdown is required for this input route. Install with: pip install 'markitdown[all]'"
+        msg = MARKITDOWN_INSTALL_GUIDANCE
         raise MissingDependencyError(msg) from exc
 
     converter = MarkItDown()
@@ -89,12 +102,16 @@ def convert_document(source: str, include_metadata: bool = False) -> ConversionR
 
     try:
         if route == ConversionRoute.PDF:
-            return _convert_with_pdf_extractor(source, include_metadata)
+            result = _convert_with_pdf_extractor(source, include_metadata)
+            return _normalize_conversion_result(result, source, route)
         if route == ConversionRoute.IMAGE:
-            return _convert_with_image_processor(source, include_metadata)
+            result = _convert_with_image_processor(source, include_metadata)
+            return _normalize_conversion_result(result, source, route)
         if route == ConversionRoute.AUDIO:
-            return _convert_with_audio_processor(source, include_metadata)
-        return _convert_with_markitdown(source)
+            result = _convert_with_audio_processor(source, include_metadata)
+            return _normalize_conversion_result(result, source, route)
+        result = _convert_with_markitdown(source)
+        return _normalize_conversion_result(result, source, route)
     except DocumentConversionError:
         raise
     except Exception as exc:

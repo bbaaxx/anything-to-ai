@@ -166,3 +166,10 @@ When behavior changes, update as needed in the same change:
 - No Copilot instructions found: `.github/copilot-instructions.md` is absent.
 
 If these files are added later, merge their requirements into this guide.
+
+## Active Technologies
+- Python 3.11+ + standard library (`pathlib`, `urllib.parse`), `markitdown[all]` (optional route dependency), existing backend modules (`pdf_extractor`, `image_processor`, `audio_processor`) (016-markitdown-bridge)
+- N/A (stateless conversion routing/normalization) (016-markitdown-bridge)
+
+## Recent Changes
+- 016-markitdown-bridge: Added Python 3.11+ + standard library (`pathlib`, `urllib.parse`), `markitdown[all]` (optional route dependency), existing backend modules (`pdf_extractor`, `image_processor`, `audio_processor`)

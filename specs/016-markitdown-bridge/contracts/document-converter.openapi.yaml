@@ -1,0 +1,112 @@
+openapi: 3.0.3
+info:
+  title: Document Converter Contract
+  version: 0.1.0
+  description: |
+    Logical contract artifact for MarkItDown bridge behavior.
+    This does not require introducing a network service in this phase.
+paths:
+  /convert:
+    post:
+      summary: Convert a source into normalized text content
+      operationId: convertDocument
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConvertRequest'
+      responses:
+        '200':
+          description: Conversion completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversionResult'
+        '400':
+          description: Unsupported input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unsupported:
+                  value:
+                    error_type: UnsupportedInputError
+                    message: Input source cannot be empty
+        '424':
+          description: Missing optional dependency
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missingDependency:
+                  value:
+                    error_type: MissingDependencyError
+                    message: "markitdown is required for this input route. Install with: pip install 'markitdown[all]'"
+        '500':
+          description: Unexpected conversion failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    ConvertRequest:
+      type: object
+      required:
+        - source
+      properties:
+        source:
+          type: string
+          minLength: 1
+          description: Local path or HTTP/HTTPS URL to convert
+        include_metadata:
+          type: boolean
+          default: false
+          description: |
+            Stable toggle for specialized routes (PDF/image/audio).
+            MarkItDown metadata remains best-effort.
+    ConversionRoute:
+      type: string
+      enum:
+        - pdf_extractor
+        - image_processor
+        - audio_processor
+        - markitdown
+    ConversionResult:
+      type: object
+      required:
+        - source
+        - route
+        - content
+      properties:
+        source:
+          type: string
+        route:
+          $ref: '#/components/schemas/ConversionRoute'
+        content:
+          type: string
+        metadata:
+          type: object
+          nullable: true
+          additionalProperties: true
+          description: Backend-specific best-effort metadata
+        raw_result:
+          nullable: true
+          description: Backend-native object; intentionally unspecified
+    ErrorResponse:
+      type: object
+      required:
+        - error_type
+        - message
+      properties:
+        error_type:
+          type: string
+          enum:
+            - UnsupportedInputError
+            - MissingDependencyError
+            - DocumentConversionError
+        message:
+          type: string
