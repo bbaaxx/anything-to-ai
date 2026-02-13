@@ -170,6 +170,8 @@ If these files are added later, merge their requirements into this guide.
 ## Active Technologies
 - Python 3.11+ + standard library (`pathlib`, `urllib.parse`), `markitdown[all]` (optional route dependency), existing backend modules (`pdf_extractor`, `image_processor`, `audio_processor`) (016-markitdown-bridge)
 - N/A (stateless conversion routing/normalization) (016-markitdown-bridge)
+- Python 3.11+ + Python standard library (`json`, `typing`, `dataclasses`/typed models), existing module formatter inputs from `pdf_extractor`, `image_processor`, `audio_processor`, `text_summarizer`, `document_converter` (017-output-formatter-unification)
+- N/A (in-memory formatting transforms) (017-output-formatter-unification)
 
 ## Recent Changes
 - 016-markitdown-bridge: Added Python 3.11+ + standard library (`pathlib`, `urllib.parse`), `markitdown[all]` (optional route dependency), existing backend modules (`pdf_extractor`, `image_processor`, `audio_processor`)
