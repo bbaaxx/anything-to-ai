@@ -44,9 +44,11 @@ def determine_route(source: str) -> ConversionRoute:
         msg = "Input source cannot be empty"
         raise UnsupportedInputError(msg)
 
-    if is_url(source):
-        host = (urlparse(source).netloc or "").lower()
-        suffix = _normalized_suffix(source)
+    normalized_source = source.strip()
+
+    if is_url(normalized_source):
+        host = (urlparse(normalized_source).netloc or "").lower()
+        suffix = _normalized_suffix(normalized_source)
 
         if host in YOUTUBE_HOSTS:
             return ConversionRoute.MARKITDOWN
@@ -57,7 +59,7 @@ def determine_route(source: str) -> ConversionRoute:
         # Remote non-YouTube URLs are routed to MarkItDown by default.
         return ConversionRoute.MARKITDOWN
 
-    suffix = _normalized_suffix(source)
+    suffix = _normalized_suffix(normalized_source)
     if suffix in PDF_EXTENSIONS:
         return ConversionRoute.PDF
     if suffix in IMAGE_EXTENSIONS:

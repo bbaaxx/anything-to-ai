@@ -78,6 +78,7 @@ pdf-extractor = "anyfile_to_ai.pdf_extractor.__main__:main"
 image-processor = "anyfile_to_ai.image_processor.__main__:main"
 audio-processor = "anyfile_to_ai.audio_processor.__main__:main"
 text-summarizer = "anyfile_to_ai.text_summarizer.__main__:main"
+document-converter = "anyfile_to_ai.document_converter.__main__:main"
 
 [project.urls]
 Repository = "https://github.com/yourusername/anyfile-to-ai"

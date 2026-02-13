@@ -16,14 +16,13 @@ Purpose: Track work explicitly deferred from the MarkItDown bridge contract form
 | ID | Action | Priority | Why Deferred | Trigger / When to Revisit | Status | Notes |
 |----|--------|----------|--------------|----------------------------|--------|-------|
 | DA-001 | Build shared cross-backend formatter strategy | Required (next phase) | Explicitly out of scope for spec 016 to avoid scope creep and preserve backward compatibility | Revisit after two consecutive release cycles with stable bridge contract tests, or earlier if inconsistency support load rises | Deferred | ADR in `specs/016-markitdown-bridge/spec.md` defers unification intentionally |
-| DA-002 | Add contract tests to guard output drift | Required | Spec formalized stable vs best-effort fields, but tests are not yet fully implemented | Before completing implementation tied to spec 016 | Deferred | Target file: `tests/contract/test_document_converter_contracts.py` |
-| DA-003 | Add integration routing coverage for bridge | Required | Integration suite does not yet enforce deterministic route-to-backend behavior end to end | Before merge of bridge contract implementation work | Deferred | Target file: `tests/integration/test_document_converter_routing.py` |
-| DA-004 | Expand unit tests for error boundaries and precedence | Required | Gaps remain for URL precedence, unknown extension fallback, wrapping/no-rewrap semantics | During implementation tasks for spec 016 | Deferred | Extend `tests/unit/test_document_converter.py`; add `tests/unit/test_document_converter_errors.py` |
+| DA-002 | Add contract tests to guard output drift | Required | Spec formalized stable vs best-effort fields, but tests are not yet fully implemented | Before completing implementation tied to spec 016 | Completed | Implemented in `tests/contract/test_document_converter_contracts.py` and `tests/contract/test_document_converter_cli_contracts.py` |
+| DA-003 | Add integration routing coverage for bridge | Required | Integration suite does not yet enforce deterministic route-to-backend behavior end to end | Before merge of bridge contract implementation work | Completed | Implemented in `tests/integration/test_document_converter_routing.py` |
+| DA-004 | Expand unit tests for error boundaries and precedence | Required | Gaps remain for URL precedence, unknown extension fallback, wrapping/no-rewrap semantics | During implementation tasks for spec 016 | Completed | Implemented in `tests/unit/test_document_converter.py` and `tests/unit/test_document_converter_errors.py` |
 | DA-005 | Define stricter non-functional targets (latency/reliability/observability) for converter operations | Recommended | Current spec focuses on functional contract stability first; NFRs intentionally light | During planning or prior to production-hardening milestone | Deferred | Can be added in plan/tasks without changing core routing contract |
-| DA-006 | Evaluate and decide on future `document_converter` CLI entry point | Recommended | Clarification locked this phase to API-first only | Revisit only if product workflow requires direct converter CLI usage | Deferred | If adopted later, enforce stdout/stderr/exit-code contract parity |
+| DA-006 | Evaluate and decide on future `document_converter` CLI entry point | Recommended | Clarification locked this phase to API-first only | Revisit only if product workflow requires direct converter CLI usage | Completed | Minimal CLI parity now implemented with stdout/stderr/exit-code contract tests |
 
 ## Immediate Next Step Before Continuing
 
-1. Proceed with `/speckit.plan` for `016-markitdown-bridge`.
-2. In planning, convert DA-002, DA-003, and DA-004 into concrete tasks with failing-first test order.
-3. Keep DA-001 and DA-006 as explicit out-of-scope items unless a new spec is opened.
+1. Keep DA-001 as the only required deferred item for the next formatter-focused phase.
+2. Revisit DA-005 when production-hardening non-functional requirements are prioritized.

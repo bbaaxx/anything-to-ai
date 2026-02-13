@@ -143,12 +143,24 @@ As an architect, I need a formal decision record that defers cross-backend forma
 
 ### Test Requirements and Gap Mapping
 
-- **Existing coverage (`tests/unit/test_document_converter.py`)**: routing matrix for key extensions and URLs, empty-source rejection, and backend delegation.
-- **Required additions in `tests/unit/test_document_converter.py`**: URL precedence over suffix-specialized routing, unknown-extension fallback behavior, whitespace-only input case, `DocumentConversionError` wrapping behavior, and no-rewrap behavior for typed conversion errors.
-- **Required new unit file (`tests/unit/test_document_converter_errors.py`)**: `MissingDependencyError` guidance text assertion, lazy import behavior expectations, and MarkItDown metadata/content extraction edge cases.
-- **Required integration file (`tests/integration/test_document_converter_routing.py`)**: deterministic end-to-end route-to-backend contract with lightweight doubles for optional heavy backends.
-- **Required contract file (`tests/contract/test_document_converter_contracts.py`)**: stable-field assertions (`source`, `route`, `content`), allowed-variance checks for metadata/raw backend output, and backward-compatibility assertions for existing consumers.
-- **Required CLI contract file (`tests/contract/test_document_converter_cli_contracts.py`)**: stdout/stderr separation, metadata flag parity checks, and non-zero exit code behavior for failure scenarios.
+- **Pre-implementation baseline**:
+
+  | FR | Test Target | Status Before | Notes |
+  |---|---|---|---|
+  | FR-023 | `tests/unit/test_document_converter.py` | Partial | Matrix + delegation existed; precedence/error-boundary cases missing |
+  | FR-024 | `tests/integration/test_document_converter_routing.py` | Missing | No dedicated deterministic routing integration suite |
+  | FR-025 | `tests/contract/test_document_converter_contracts.py` | Missing | No stable-field/variance contract checks |
+  | FR-008 + FR-025 | `tests/contract/test_document_converter_cli_contracts.py` | Missing | No converter CLI stdout/stderr/exit-code contract checks |
+
+- **Post-implementation target**:
+
+  | FR | Test Target | Status After | Cases |
+  |---|---|---|---|
+  | FR-023 | `tests/unit/test_document_converter.py` + `tests/unit/test_document_converter_errors.py` | Complete | Precedence, fallback, whitespace, wrapping/no-rewrap, missing-dependency guidance, lazy import |
+  | FR-024 | `tests/integration/test_document_converter_routing.py` | Complete | Route matrix wiring + local non-network dispatch assertions |
+  | FR-025 | `tests/contract/test_document_converter_contracts.py` | Complete | Stable required fields + allowed variance + typed errors |
+  | FR-008 + FR-025 | `tests/contract/test_document_converter_cli_contracts.py` | Complete | Stdout payloads, stderr diagnostics, and exit-code semantics |
+
 - **Isolation requirement**: Tests MUST avoid mandatory heavy optional runtime dependencies by using monkeypatch/stubs unless the test explicitly targets dependency-availability behavior.
 
 ### Decision Record (ADR): Formatter Unification Is Deferred

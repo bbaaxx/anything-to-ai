@@ -1,5 +1,7 @@
 """Exception hierarchy for document conversion."""
 
+MARKITDOWN_INSTALL_GUIDANCE = "markitdown is required for this input route. Install with: pip install 'markitdown[all]'"
+
 
 class DocumentConversionError(Exception):
     """Base exception for document conversion failures."""
