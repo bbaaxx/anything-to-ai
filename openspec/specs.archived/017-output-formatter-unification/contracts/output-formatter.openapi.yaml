@@ -1,0 +1,208 @@
+openapi: 3.1.0
+info:
+  title: Shared Output Formatter Contract
+  version: 0.1.0
+  description: |
+    Design-time contract for shared formatter unification across module profiles
+    while preserving backward-compatible output behavior.
+servers:
+  - url: https://internal.anyfile-to-ai.local
+    description: Design-time placeholder
+paths:
+  /format:
+    post:
+      summary: Render output by requested format
+      operationId: formatByType
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/FormatRequest'
+                - type: object
+                  required: [output_format]
+                  properties:
+                    output_format:
+                      type: string
+                      enum: [plain, markdown, json]
+      responses:
+        '200':
+          description: Rendered output
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    required: [output]
+                    properties:
+                      output:
+                        type: string
+                  - $ref: '#/components/schemas/FormatJsonResponse'
+        '400':
+          $ref: '#/components/responses/FormatterError'
+  /format/plain:
+    post:
+      summary: Render plain text output
+      operationId: formatPlain
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FormatRequest'
+      responses:
+        '200':
+          description: Plain output
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [output]
+                properties:
+                  output:
+                    type: string
+        '400':
+          $ref: '#/components/responses/FormatterError'
+  /format/markdown:
+    post:
+      summary: Render markdown output
+      description: Preserves profile-specific headings, including legacy audio markdown heading compatibility during migration.
+      operationId: formatMarkdown
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FormatRequest'
+      responses:
+        '200':
+          description: Markdown output
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [output]
+                properties:
+                  output:
+                    type: string
+        '400':
+          $ref: '#/components/responses/FormatterError'
+  /format/json:
+    post:
+      summary: Render JSON output
+      operationId: formatJson
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FormatRequest'
+      responses:
+        '200':
+          description: JSON output object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormatJsonResponse'
+        '400':
+          $ref: '#/components/responses/FormatterError'
+components:
+  schemas:
+    ModuleProfile:
+      type: string
+      enum: [pdf, image, audio, text, document_converter]
+    AudioSegment:
+      type: object
+      required: [start_seconds, end_seconds, text]
+      properties:
+        start_seconds:
+          type: number
+          minimum: 0
+          maximum: 7200
+        end_seconds:
+          type: number
+          minimum: 0
+          maximum: 7200
+        text:
+          type: string
+    NormalizedMetadata:
+      type: object
+      properties:
+        processing:
+          type: object
+          required: [timestamp, model_version]
+          properties:
+            timestamp:
+              type: string
+            model_version:
+              type: string
+            processing_time_seconds:
+              type: number
+        configuration:
+          type: object
+          additionalProperties: true
+        source:
+          type: object
+          required: [file_path]
+          properties:
+            file_path:
+              type: string
+          additionalProperties: true
+        extensions:
+          type: object
+          additionalProperties: true
+      additionalProperties: true
+    FormatterPayload:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+        metadata:
+          oneOf:
+            - $ref: '#/components/schemas/NormalizedMetadata'
+            - type: 'null'
+        extensions:
+          type: object
+          additionalProperties: true
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AudioSegment'
+      additionalProperties: true
+    FormatRequest:
+      type: object
+      required: [profile, payload]
+      properties:
+        profile:
+          $ref: '#/components/schemas/ModuleProfile'
+        include_metadata:
+          type: boolean
+          default: false
+        payload:
+          $ref: '#/components/schemas/FormatterPayload'
+    FormatJsonResponse:
+      type: object
+      required: [output]
+      properties:
+        output:
+          type: object
+          additionalProperties: true
+      additionalProperties: false
+    FormatterError:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum: [unsupported_format, invalid_profile, invalid_payload]
+        message:
+          type: string
+  responses:
+    FormatterError:
+      description: Stable formatter-layer error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FormatterError'
