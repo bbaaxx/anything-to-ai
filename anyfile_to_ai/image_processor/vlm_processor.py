@@ -8,6 +8,7 @@ from .model_registry import get_global_registry, LoadedModel
 from .vlm_model_impl import create_vlm_model
 from .vlm_exceptions import VLMProcessingError, VLMTimeoutError
 from .config import VLMConfig
+from .subprocess_runner import SubprocessTimeoutRunner
 
 
 def _convert_config(config) -> ModelConfiguration:
@@ -146,29 +147,30 @@ class VLMProcessor:
         return self.registry.get_current_model()
 
     def _process_with_timeout(self, model, image_path: str, prompt: str, timeout_seconds: int) -> dict[str, Any]:
-        """Process image with timeout handling."""
-        import signal
+        """Process image with timeout handling via subprocess isolation.
 
-        def timeout_handler(signum, frame):
-            msg = f"Processing timed out after {timeout_seconds} seconds"
-            raise VLMTimeoutError(msg)
+        Delegates to ``SubprocessTimeoutRunner`` which spawns a child process,
+        enforces a wall-clock timeout, and escalates termination (SIGTERM →
+        SIGKILL) if the child does not exit in time.  This approach works
+        correctly from non-main threads and against native C-extension code
+        (MLX, CoreML) that cannot be interrupted by SIGALRM.
+        """
+        # Look up SubprocessTimeoutRunner from sys.modules at call time so that
+        # test patches applied to the current module are always visible, even
+        # when this method's __globals__ points to an earlier module instance
+        # (which can happen when the image_processor package is re-imported
+        # during test runs via __init__ → processor → vlm_processor chain).
+        import sys as _sys
 
-        # Set up timeout
-        old_handler = signal.signal(signal.SIGALRM, timeout_handler)
-        signal.alarm(timeout_seconds)
-
+        _mod = _sys.modules[__name__]
+        _runner_cls = _mod.SubprocessTimeoutRunner
+        runner = _runner_cls()
+        config_dict = {"model_name": model.model_name if hasattr(model, "model_name") else ""}
         try:
-            result = model.process_image(image_path, prompt)
-            signal.alarm(0)  # Cancel timeout
-            return result
-
-        except VLMTimeoutError:
-            raise
-        except Exception:
-            signal.alarm(0)  # Cancel timeout
-            raise
-        finally:
-            signal.signal(signal.SIGALRM, old_handler)
+            return runner.run(image_path, prompt, config_dict.get("model_name", ""), config_dict, timeout_seconds)
+        except TimeoutError as exc:
+            msg = f"Processing timed out after {timeout_seconds} seconds"
+            raise VLMTimeoutError(msg) from exc
 
     def _create_fallback_result(self, image_path: str, loaded_model: LoadedModel, processing_time: float) -> dict[str, Any]:
         """Create fallback result when VLM times out."""
