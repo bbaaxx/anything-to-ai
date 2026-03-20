@@ -40,6 +40,13 @@ Convert a local file path or HTTP/HTTPS URL with deterministic backend routing a
 
 - **Usage**: CLI and Python API with stable `source`/`route`/`content` output contract
 
+### 📋 Task Manager Module
+
+Persistent task state storage for long-running operations with checkpoint-based resume capability.
+
+- **Documentation**: [`anyfile_to_ai/task_manager/README.md`](anyfile_to_ai/task_manager/README.md)
+- **Usage**: Python API for task creation, checkpointing, and resume
+
 ## Installation
 
 ### Install Core Package
@@ -153,6 +160,7 @@ from anyfile_to_ai.image_processor import process_image
 from anyfile_to_ai.audio_processor import transcribe_audio
 from anyfile_to_ai.text_summarizer import summarize_text
 from anyfile_to_ai.document_converter import convert_document
+from anyfile_to_ai.task_manager import TaskManager, TaskState
 ```
 
 ### PDF Processing Example
@@ -188,6 +196,23 @@ print(result.summary)
 ```python
 result = convert_document("/tmp/report.docx")
 print(result.route, result.content)
+```
+
+### Task Manager Example
+
+```python
+# Create task with checkpoint-based resume
+manager = TaskManager()
+task = manager.create_task("job-001", "/data/file.pdf", total_pages=100)
+
+# Checkpoint after each page
+for page in range(1, 101):
+    process_page(page)
+    manager.checkpoint("job-001", page)
+
+# Resume from checkpoint on restart
+task = manager.load_task("job-001")
+remaining = [p for p in range(1, task.total_pages + 1) if p not in task.processed_pages]
 ```
 
 ## Model Setup
