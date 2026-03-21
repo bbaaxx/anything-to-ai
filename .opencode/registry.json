@@ -1,0 +1,565 @@
+{
+  "$schema": "https://opencode.ai/registry.json",
+  "version": "1.0.0",
+  "description": "OpenAgents registry - maps agents, subagents, commands, and their context dependencies",
+  "components": {
+    "agents": [
+      {
+        "id": "opencoder",
+        "name": "OpenCoder",
+        "path": ".opencode/agent/core/opencoder.md",
+        "mode": "primary",
+        "description": "Orchestration agent for complex coding, architecture, and multi-file refactoring",
+        "dependencies": [
+          "context:core/standards/code-quality"
+        ]
+      },
+      {
+        "id": "openagent",
+        "name": "OpenAgent",
+        "path": ".opencode/agent/core/openagent.md",
+        "mode": "primary",
+        "description": "Universal agent for answering queries, executing tasks, and coordinating workflows across any domain",
+        "dependencies": [
+          "context:core/standards/code-quality",
+          "context:core/standards/documentation",
+          "context:core/standards/test-coverage",
+          "context:core/workflows/code-review",
+          "context:core/workflows/task-delegation-basics"
+        ]
+      }
+    ],
+    "subagents": [
+      {
+        "id": "coder-agent",
+        "name": "CoderAgent",
+        "path": ".opencode/agent/subagents/code/coder-agent.md",
+        "description": "Executes coding subtasks in sequence, ensuring completion as specified",
+        "dependencies": [
+          "subagent:contextscout",
+          "subagent:externalscout",
+          "subagent:TestEngineer"
+        ]
+      },
+      {
+        "id": "reviewer",
+        "name": "CodeReviewer",
+        "path": ".opencode/agent/subagents/code/reviewer.md",
+        "description": "Code review, security, and quality assurance agent",
+        "dependencies": [
+          "subagent:contextscout"
+        ]
+      },
+      {
+        "id": "test-engineer",
+        "name": "TestEngineer",
+        "path": ".opencode/agent/subagents/code/test-engineer.md",
+        "description": "Test authoring and TDD agent",
+        "dependencies": [
+          "subagent:contextscout",
+          "subagent:externalscout"
+        ]
+      },
+      {
+        "id": "build-agent",
+        "name": "BuildAgent",
+        "path": ".opencode/agent/subagents/code/build-agent.md",
+        "description": "Type check and build validation agent",
+        "dependencies": [
+          "subagent:contextscout"
+        ]
+      },
+      {
+        "id": "documentation",
+        "name": "DocWriter",
+        "path": ".opencode/agent/subagents/core/documentation.md",
+        "description": "Documentation authoring agent",
+        "dependencies": [
+          "subagent:contextscout"
+        ]
+      },
+      {
+        "id": "contextscout",
+        "name": "ContextScout",
+        "path": ".opencode/agent/subagents/core/contextscout.md",
+        "description": "Discovers and recommends context files from .opencode/context/ ranked by priority",
+        "dependencies": [
+          "context:core/navigation"
+        ]
+      },
+      {
+        "id": "externalscout",
+        "name": "ExternalScout",
+        "path": ".opencode/agent/subagents/core/externalscout.md",
+        "description": "Fetches live, version-specific documentation for external libraries and frameworks",
+        "dependencies": []
+      },
+      {
+        "id": "task-manager",
+        "name": "TaskManager",
+        "path": ".opencode/agent/subagents/core/task-manager.md",
+        "description": "JSON-driven task breakdown specialist transforming complex features into atomic, verifiable subtasks",
+        "dependencies": [
+          "context:core/task-management/navigation",
+          "context:core/task-management/standards/task-schema",
+          "context:core/task-management/guides/splitting-tasks",
+          "context:core/task-management/guides/managing-tasks"
+        ]
+      },
+      {
+        "id": "frontend-specialist",
+        "name": "OpenFrontendSpecialist",
+        "path": ".opencode/agent/subagents/development/frontend-specialist.md",
+        "description": "Frontend UI design specialist - subagent for design systems, themes, animations",
+        "dependencies": [
+          "subagent:contextscout",
+          "subagent:externalscout"
+        ]
+      },
+      {
+        "id": "devops-specialist",
+        "name": "OpenDevopsSpecialist",
+        "path": ".opencode/agent/subagents/development/devops-specialist.md",
+        "description": "DevOps specialist subagent - CI/CD, infrastructure as code, deployment automation",
+        "dependencies": [
+          "subagent:contextscout"
+        ]
+      },
+      {
+        "id": "context-organizer",
+        "name": "ContextOrganizer",
+        "path": ".opencode/agent/subagents/system-builder/context-organizer.md",
+        "description": "Organizes and generates context files for optimal knowledge management",
+        "dependencies": [
+          "subagent:contextscout",
+          "context:core/context-system/operations/harvest",
+          "context:core/context-system/operations/extract",
+          "context:core/context-system/operations/organize",
+          "context:core/context-system/operations/update",
+          "context:core/context-system/operations/error",
+          "context:core/context-system/guides/creation"
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "id": "context",
+        "path": ".opencode/command/context.md",
+        "description": "Context management commands for project intelligence",
+        "dependencies": [
+          "subagent:context-organizer",
+          "subagent:contextscout",
+          "context:core/context-system/navigation"
+        ]
+      },
+      {
+        "id": "add-context",
+        "path": ".opencode/command/add-context.md",
+        "description": "Add project intelligence context to the project",
+        "dependencies": [
+          "subagent:context-organizer",
+          "context:core/context-system/standards/mvi",
+          "context:core/context-system/standards/frontmatter",
+          "context:core/standards/project-intelligence"
+        ]
+      },
+      {
+        "id": "check-context-deps",
+        "path": ".opencode/command/openagents/check-context-deps.md",
+        "description": "Validate context file dependencies across agents and registry",
+        "dependencies": [
+          "command:analyze-patterns"
+        ]
+      },
+      {
+        "id": "validate-repo",
+        "path": ".opencode/command/validate-repo.md",
+        "description": "Validate repository structure and configuration",
+        "dependencies": []
+      },
+      {
+        "id": "opsx-propose",
+        "path": ".opencode/command/opsx-propose.md",
+        "description": "Propose a new change with all artifacts generated",
+        "dependencies": []
+      },
+      {
+        "id": "opsx-apply",
+        "path": ".opencode/command/opsx-apply.md",
+        "description": "Implement tasks from an OpenSpec change",
+        "dependencies": []
+      },
+      {
+        "id": "opsx-archive",
+        "path": ".opencode/command/opsx-archive.md",
+        "description": "Archive a completed change",
+        "dependencies": []
+      },
+      {
+        "id": "opsx-explore",
+        "path": ".opencode/command/opsx-explore.md",
+        "description": "Enter explore mode for thinking through ideas",
+        "dependencies": []
+      },
+      {
+        "id": "commit",
+        "path": ".opencode/command/commit.md",
+        "description": "Create commits with conventional commit format",
+        "dependencies": []
+      },
+      {
+        "id": "test",
+        "path": ".opencode/command/test.md",
+        "description": "Run tests with appropriate test framework",
+        "dependencies": []
+      },
+      {
+        "id": "clean",
+        "path": ".opencode/command/clean.md",
+        "description": "Clean temporary files and caches",
+        "dependencies": []
+      },
+      {
+        "id": "optimize",
+        "path": ".opencode/command/optimize.md",
+        "description": "Optimize context and performance",
+        "dependencies": []
+      },
+      {
+        "id": "analyze-patterns",
+        "path": ".opencode/command/analyze-patterns.md",
+        "description": "Analyze code patterns and structure",
+        "dependencies": []
+      }
+    ],
+    "contexts": {
+      "core": {
+        "standards": [
+          {
+            "id": "core/standards/code-quality",
+            "path": ".opencode/context/core/standards/code-quality.md",
+            "description": "Code quality standards and patterns"
+          },
+          {
+            "id": "core/standards/documentation",
+            "path": ".opencode/context/core/standards/documentation.md",
+            "description": "Documentation standards and format conventions"
+          },
+          {
+            "id": "core/standards/test-coverage",
+            "path": ".opencode/context/core/standards/test-coverage.md",
+            "description": "Testing requirements and TDD standards"
+          },
+          {
+            "id": "core/standards/security-patterns",
+            "path": ".opencode/context/core/standards/security-patterns.md",
+            "description": "Security patterns and error handling"
+          },
+          {
+            "id": "core/standards/code-analysis",
+            "path": ".opencode/context/core/standards/code-analysis.md",
+            "description": "Code analysis and review standards"
+          },
+          {
+            "id": "core/standards/project-intelligence",
+            "path": ".opencode/context/core/standards/project-intelligence.md",
+            "description": "Project intelligence standards"
+          },
+          {
+            "id": "core/standards/project-intelligence-management",
+            "path": ".opencode/context/core/standards/project-intelligence-management.md",
+            "description": "Project intelligence lifecycle management"
+          }
+        ],
+        "workflows": [
+          {
+            "id": "core/workflows/task-delegation-basics",
+            "path": ".opencode/context/core/workflows/task-delegation-basics.md",
+            "description": "Basic task delegation process"
+          },
+          {
+            "id": "core/workflows/code-review",
+            "path": ".opencode/context/core/workflows/code-review.md",
+            "description": "Code review workflow"
+          },
+          {
+            "id": "core/workflows/feature-breakdown",
+            "path": ".opencode/context/core/workflows/feature-breakdown.md",
+            "description": "Feature breakdown methodology"
+          },
+          {
+            "id": "core/workflows/session-management",
+            "path": ".opencode/context/core/workflows/session-management.md",
+            "description": "Session lifecycle management"
+          },
+          {
+            "id": "core/workflows/external-context-integration",
+            "path": ".opencode/context/core/workflows/external-context-integration.md",
+            "description": "External context integration workflow"
+          },
+          {
+            "id": "core/workflows/external-context-management",
+            "path": ".opencode/context/core/workflows/external-context-management.md",
+            "description": "External context management"
+          },
+          {
+            "id": "core/workflows/task-delegation-caching",
+            "path": ".opencode/context/core/workflows/task-delegation-caching.md",
+            "description": "Task delegation caching strategies"
+          },
+          {
+            "id": "core/workflows/task-delegation-specialists",
+            "path": ".opencode/context/core/workflows/task-delegation-specialists.md",
+            "description": "Specialist delegation workflow"
+          },
+          {
+            "id": "core/workflows/design-iteration-overview",
+            "path": ".opencode/context/core/workflows/design-iteration-overview.md",
+            "description": "Design iteration process overview"
+          }
+        ],
+        "task-management": [
+          {
+            "id": "core/task-management/navigation",
+            "path": ".opencode/context/core/task-management/navigation.md",
+            "description": "Task management system navigation"
+          },
+          {
+            "id": "core/task-management/standards/task-schema",
+            "path": ".opencode/context/core/task-management/standards/task-schema.md",
+            "description": "Task schema specification"
+          },
+          {
+            "id": "core/task-management/guides/splitting-tasks",
+            "path": ".opencode/context/core/task-management/guides/splitting-tasks.md",
+            "description": "Guide for splitting tasks"
+          },
+          {
+            "id": "core/task-management/guides/managing-tasks",
+            "path": ".opencode/context/core/task-management/guides/managing-tasks.md",
+            "description": "Guide for managing tasks"
+          },
+          {
+            "id": "core/task-management/lookup/task-commands",
+            "path": ".opencode/context/core/task-management/lookup/task-commands.md",
+            "description": "Task CLI commands reference"
+          }
+        ],
+        "context-system": [
+          {
+            "id": "core/context-system",
+            "path": ".opencode/context/core/context-system.md",
+            "description": "Context system overview"
+          },
+          {
+            "id": "core/context-system/navigation",
+            "path": ".opencode/context/core/context-system/navigation.md",
+            "description": "Context system navigation"
+          },
+          {
+            "id": "core/context-system/standards/mvi",
+            "path": ".opencode/context/core/context-system/standards/mvi.md",
+            "description": "MVI principles and standards"
+          },
+          {
+            "id": "core/context-system/standards/structure",
+            "path": ".opencode/context/core/context-system/standards/structure.md",
+            "description": "Context file structure standards"
+          },
+          {
+            "id": "core/context-system/standards/frontmatter",
+            "path": ".opencode/context/core/context-system/standards/frontmatter.md",
+            "description": "Frontmatter standards for context files"
+          },
+          {
+            "id": "core/context-system/operations/harvest",
+            "path": ".opencode/context/core/context-system/operations/harvest.md",
+            "description": "Context harvesting operation"
+          },
+          {
+            "id": "core/context-system/operations/extract",
+            "path": ".opencode/context/core/context-system/operations/extract.md",
+            "description": "Context extraction operation"
+          },
+          {
+            "id": "core/context-system/operations/organize",
+            "path": ".opencode/context/core/context-system/operations/organize.md",
+            "description": "Context organization operation"
+          },
+          {
+            "id": "core/context-system/operations/update",
+            "path": ".opencode/context/core/context-system/operations/update.md",
+            "description": "Context update operation"
+          },
+          {
+            "id": "core/context-system/operations/error",
+            "path": ".opencode/context/core/context-system/operations/error.md",
+            "description": "Error handling for context operations"
+          },
+          {
+            "id": "core/context-system/guides/creation",
+            "path": ".opencode/context/core/context-system/guides/creation.md",
+            "description": "Guide for creating context files"
+          }
+        ],
+        "system": [
+          {
+            "id": "core/system/context-guide",
+            "path": ".opencode/context/core/system/context-guide.md",
+            "description": "Context loading guide"
+          },
+          {
+            "id": "core/system/context-paths",
+            "path": ".opencode/context/core/system/context-paths.md",
+            "description": "Context path resolution"
+          }
+        ],
+        "navigation": [
+          {
+            "id": "core/navigation",
+            "path": ".opencode/context/core/navigation.md",
+            "description": "Core context navigation index"
+          },
+          {
+            "id": "core/essential-patterns",
+            "path": ".opencode/context/core/essential-patterns.md",
+            "description": "Essential patterns quick reference"
+          },
+          {
+            "id": "core/visual-development",
+            "path": ".opencode/context/core/visual-development.md",
+            "description": "Visual development patterns"
+          }
+        ]
+      },
+      "ui": {
+        "web": [
+          {
+            "id": "ui/web/design-systems",
+            "path": ".opencode/context/ui/web/design-systems.md",
+            "description": "Web design system patterns"
+          },
+          {
+            "id": "ui/web/ui-styling-standards",
+            "path": ".opencode/context/ui/web/ui-styling-standards.md",
+            "description": "UI styling standards"
+          },
+          {
+            "id": "ui/web/animation-basics",
+            "path": ".opencode/context/ui/web/animation-basics.md",
+            "description": "Basic animation patterns"
+          },
+          {
+            "id": "ui/web/animation-advanced",
+            "path": ".opencode/context/ui/web/animation-advanced.md",
+            "description": "Advanced animation patterns"
+          },
+          {
+            "id": "ui/web/react-patterns",
+            "path": ".opencode/context/ui/web/react-patterns.md",
+            "description": "React component patterns"
+          }
+        ]
+      },
+      "openagents-repo": {
+        "core-concepts": [
+          {
+            "id": "openagents-repo/quick-start",
+            "path": ".opencode/context/openagents-repo/quick-start.md",
+            "description": "Quick start guide for OpenAgents"
+          },
+          {
+            "id": "openagents-repo/core-concepts/agents",
+            "path": ".opencode/context/openagents-repo/core-concepts/agents.md",
+            "description": "How agents work"
+          },
+          {
+            "id": "openagents-repo/core-concepts/registry",
+            "path": ".opencode/context/openagents-repo/core-concepts/registry.md",
+            "description": "How the registry works"
+          },
+          {
+            "id": "openagents-repo/core-concepts/evals",
+            "path": ".opencode/context/openagents-repo/core-concepts/evals.md",
+            "description": "How testing works"
+          },
+          {
+            "id": "openagents-repo/core-concepts/categories",
+            "path": ".opencode/context/openagents-repo/core-concepts/categories.md",
+            "description": "How organization works"
+          }
+        ],
+        "guides": [
+          {
+            "id": "openagents-repo/guides/adding-agent-basics",
+            "path": ".opencode/context/openagents-repo/guides/adding-agent-basics.md",
+            "description": "Step-by-step agent creation"
+          },
+          {
+            "id": "openagents-repo/guides/testing-agent",
+            "path": ".opencode/context/openagents-repo/guides/testing-agent.md",
+            "description": "Testing workflow guide"
+          },
+          {
+            "id": "openagents-repo/guides/updating-registry",
+            "path": ".opencode/context/openagents-repo/guides/updating-registry.md",
+            "description": "Registry workflow guide"
+          },
+          {
+            "id": "openagents-repo/guides/debugging",
+            "path": ".opencode/context/openagents-repo/guides/debugging.md",
+            "description": "Troubleshooting guide"
+          },
+          {
+            "id": "openagents-repo/guides/subagent-invocation",
+            "path": ".opencode/context/openagents-repo/guides/subagent-invocation.md",
+            "description": "Subagent invocation guide"
+          }
+        ],
+        "quality": [
+          {
+            "id": "openagents-repo/quality/registry-dependencies",
+            "path": ".opencode/context/openagents-repo/quality/registry-dependencies.md",
+            "description": "Registry dependency management"
+          }
+        ]
+      },
+      "development": {
+        "frontend": [
+          {
+            "id": "development/frontend/navigation",
+            "path": ".opencode/context/development/frontend/navigation.md",
+            "description": "Frontend development navigation"
+          },
+          {
+            "id": "development/frontend/when-to-delegate",
+            "path": ".opencode/context/development/frontend/when-to-delegate.md",
+            "description": "Frontend delegation guide"
+          }
+        ]
+      },
+      "project-intelligence": [
+        {
+          "id": "project-intelligence/navigation",
+          "path": ".opencode/context/project-intelligence/navigation.md",
+          "description": "Project intelligence navigation"
+        },
+        {
+          "id": "project-intelligence/technical-domain",
+          "path": ".opencode/context/project-intelligence/technical-domain.md",
+          "description": "Technical domain knowledge"
+        },
+        {
+          "id": "project-intelligence/business-domain",
+          "path": ".opencode/context/project-intelligence/business-domain.md",
+          "description": "Business domain knowledge"
+        }
+      ]
+    }
+  },
+  "metadata": {
+    "lastUpdated": "2025-03-21",
+    "version": "1.0.0",
+    "maintainedBy": "opencode"
+  }
+}

@@ -5,6 +5,7 @@ from typing import Any
 from .exceptions import DocumentConversionError, MARKITDOWN_INSTALL_GUIDANCE, MissingDependencyError
 from .models import ConversionResult, ConversionRoute
 from .routing import determine_route
+from anyfile_to_ai.progress_tracker import CancellationToken, OperationCancelledError
 
 
 def _extract_markitdown_text(result: Any) -> str:
@@ -105,8 +106,25 @@ def _convert_with_markitdown(source: str) -> ConversionResult:
     )
 
 
-def convert_document(source: str, include_metadata: bool = False) -> ConversionResult:
-    """Convert a file path or URL into normalized text content."""
+def convert_document(source: str, include_metadata: bool = False, cancel_token: CancellationToken | None = None) -> ConversionResult:
+    """Convert a file path or URL into normalized text content.
+
+    Args:
+        source: File path or URL to convert
+        include_metadata: Whether to include metadata in the result
+        cancel_token: Optional cancellation token for graceful termination
+
+    Returns:
+        ConversionResult with normalized content
+
+    Raises:
+        DocumentConversionError: If conversion fails
+        OperationCancelledError: If cancellation is requested during conversion
+    """
+    # Check for cancellation before starting
+    if cancel_token and cancel_token.is_cancelled:
+        raise OperationCancelledError("Document conversion cancelled before starting")
+
     route = determine_route(source)
 
     try:
@@ -121,6 +139,9 @@ def convert_document(source: str, include_metadata: bool = False) -> ConversionR
             return _normalize_conversion_result(result, source, route)
         result = _convert_with_markitdown(source)
         return _normalize_conversion_result(result, source, route)
+    except OperationCancelledError:
+        # Re-raise cancellation without wrapping
+        raise
     except DocumentConversionError:
         raise
     except Exception as exc:

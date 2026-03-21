@@ -349,6 +349,76 @@ Note: CI will enforce all checks regardless of local bypass, making this a safe 
 - Pipeline integration with other modules
 - JSON and plain text output formats
 
+## Cancellation Support
+
+All processing modules support cooperative cancellation for long-running operations:
+
+### CancellationToken
+
+```python
+from anyfile_to_ai.progress_tracker import CancellationToken, OperationCancelledError
+
+# Create token
+token = CancellationToken()
+
+# Request cancellation
+token.cancel()
+
+# Check status
+if token.is_cancelled:
+    print("Operation cancelled")
+
+# Reset for reuse
+token.reset()
+```
+
+### Usage with Streaming Operations
+
+```python
+from anyfile_to_ai.pdf_extractor import extract_text_streaming
+from anyfile_to_ai.progress_tracker import CancellationToken, OperationCancelledError
+
+token = CancellationToken()
+
+try:
+    for page in extract_text_streaming("large.pdf", cancel_token=token):
+        print(f"Page {page.page_number}")
+        # Cancel after 10 pages
+        if page.page_number >= 10:
+            token.cancel()
+except OperationCancelledError:
+    print("Processing cancelled")
+```
+
+### Usage with Batch Processing
+
+```python
+from anyfile_to_ai.image_processor import process_images
+from anyfile_to_ai.progress_tracker import CancellationToken, OperationCancelledError
+
+token = CancellationToken()
+
+try:
+    results = process_images(
+        ["img1.jpg", "img2.jpg", "img3.jpg"],
+        cancel_token=token
+    )
+except OperationCancelledError:
+    print("Batch processing cancelled")
+```
+
+### Key Features
+
+- **Cooperative cancellation**: Check at iteration boundaries
+- **Partial results**: Yield completed results before raising
+- **Resource cleanup**: Clean up resources before raising
+- **Backward compatible**: Optional parameter, existing code works unchanged
+
+See module READMEs for detailed cancellation examples:
+- [`pdf_extractor/README.md`](anyfile_to_ai/pdf_extractor/README.md#cancellation-support)
+- [`image_processor/README.md`](anyfile_to_ai/image_processor/README.md#cancellation-support)
+- [`audio_processor/README.md`](anyfile_to_ai/audio_processor/README.md#cancellation-support)
+
 ## Status
 
 🚧 **Work in Progress** - This is an evolving experiment. Modules are functional but the overall vision continues to develop.

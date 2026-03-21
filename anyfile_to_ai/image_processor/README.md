@@ -402,3 +402,84 @@ Check programmatically:
 from anyfile_to_ai.image_processor import get_supported_formats
 print(get_supported_formats())  # ['bmp', 'gif', 'jpeg', 'png', 'webp']
 ```
+
+## Cancellation Support
+
+The image processor supports cooperative cancellation for batch and streaming operations:
+
+### Batch Processing with Cancellation
+
+```python
+from anyfile_to_ai.image_processor import process_images, create_config
+from anyfile_to_ai.progress_tracker import CancellationToken, OperationCancelledError
+
+# Create cancellation token
+token = CancellationToken()
+config = create_config(description_style="detailed")
+
+# Process images with cancellation support
+try:
+    results = process_images(
+        ["image1.jpg", "image2.jpg", "image3.jpg"],
+        config=config,
+        cancel_token=token
+    )
+    print(f"Processed {results.successful_count} images")
+except OperationCancelledError as e:
+    print(f"Processing cancelled: {e.message}")
+```
+
+### Streaming with Cancellation
+
+```python
+from anyfile_to_ai.image_processor import process_images_streaming, create_config
+from anyfile_to_ai.progress_tracker import CancellationToken, OperationCancelledError
+
+token = CancellationToken()
+config = create_config(description_style="brief")
+
+processed = []
+try:
+    for result in process_images_streaming(
+        ["img1.jpg", "img2.jpg", "img3.jpg"],
+        config=config,
+        cancel_token=token
+    ):
+        if result.success:
+            processed.append(result)
+            print(f"Processed: {result.image_path}")
+        
+        # Cancel after 2 images
+        if len(processed) >= 2:
+            token.cancel()
+except OperationCancelledError:
+    print(f"Cancelled after processing {len(processed)} images")
+```
+
+### Best Practices
+
+1. **Check at iteration boundaries**: Cancellation is checked before processing each image
+2. **Clean up VLM resources**: Resources are cleaned up before raising `OperationCancelledError`
+3. **Handle partial results**: Process completed results before cancellation
+
+```python
+from anyfile_to_ai.image_processor import process_images_streaming
+from anyfile_to_ai.progress_tracker import CancellationToken, OperationCancelledError
+
+def process_with_limit(image_paths, max_images=None):
+    """Process images with optional limit via cancellation."""
+    token = CancellationToken()
+    results = []
+    
+    try:
+        for result in process_images_streaming(image_paths, cancel_token=token):
+            results.append(result)
+            
+            # Cancel if limit reached
+            if max_images and len(results) >= max_images:
+                token.cancel()
+    except OperationCancelledError:
+        print(f"Cancelled after {len(results)} images")
+    
+    return results
+```

@@ -248,3 +248,55 @@ if info['is_large_file']:
 
 - Roll back locally with `ANYFILE_OUTPUT_FORMATTER_PDF_SHARED=0`.
 - Legacy formatter internals are deprecated and will be removed after migration gates.
+
+## Cancellation Support
+
+The PDF extractor supports cooperative cancellation for long-running operations:
+
+### Streaming with Cancellation
+
+```python
+from anyfile_to_ai.pdf_extractor import extract_text_streaming
+from anyfile_to_ai.progress_tracker import CancellationToken, OperationCancelledError
+
+# Create cancellation token
+token = CancellationToken()
+
+# Process PDF pages with cancellation support
+try:
+    for page_result in extract_text_streaming("document.pdf", cancel_token=token):
+        print(f"Page {page_result.page_number}: {page_result.char_count} chars")
+        # Cancel after 10 pages
+        if page_result.page_number >= 10:
+            token.cancel()
+except OperationCancelledError:
+    print("PDF extraction was cancelled")
+```
+
+### Best Practices
+
+1. **Check at iteration boundaries**: Cancellation is checked at each page boundary
+2. **Yield partial results**: Completed pages are yielded before cancellation
+3. **Handle cleanup**: Resources are cleaned up before raising `OperationCancelledError`
+
+```python
+from anyfile_to_ai.pdf_extractor import extract_text_streaming, ExtractionConfig
+from anyfile_to_ai.progress_tracker import CancellationToken, OperationCancelledError
+
+def process_large_pdf(file_path, max_pages=None):
+    """Process PDF with optional page limit via cancellation."""
+    token = CancellationToken()
+    results = []
+    
+    try:
+        for page_result in extract_text_streaming(file_path, cancel_token=token):
+            results.append(page_result)
+            
+            # Cancel if page limit reached
+            if max_pages and page_result.page_number >= max_pages:
+                token.cancel()
+    except OperationCancelledError:
+        print(f"Cancelled after {len(results)} pages")
+    
+    return results
+```

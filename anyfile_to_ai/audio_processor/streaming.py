@@ -12,9 +12,10 @@ from anyfile_to_ai.audio_processor.models import (
 from anyfile_to_ai.audio_processor.exceptions import ValidationError
 from anyfile_to_ai.audio_processor.processor import process_audio
 from anyfile_to_ai.audio_processor.progress import ProgressTracker
+from anyfile_to_ai.progress_tracker import CancellationToken, OperationCancelledError
 
 
-def process_audio_batch(file_paths: list[str], config: TranscriptionConfig | None = None, include_metadata: bool = False) -> ProcessingResult:
+def process_audio_batch(file_paths: list[str], config: TranscriptionConfig | None = None, include_metadata: bool = False, cancel_token: CancellationToken | None = None) -> ProcessingResult:
     """
     Process multiple audio files in batch.
 
@@ -22,12 +23,14 @@ def process_audio_batch(file_paths: list[str], config: TranscriptionConfig | Non
         file_paths: List of audio file paths
         config: Processing configuration (uses defaults if not provided)
         include_metadata: Include source file and processing metadata in output
+        cancel_token: Optional cancellation token for graceful termination
 
     Returns:
         ProcessingResult: Aggregate results with statistics
 
     Raises:
         ValidationError: If file_paths is empty
+        OperationCancelledError: If cancellation is requested during processing
     """
     # Validate input
     if not file_paths:
@@ -49,7 +52,11 @@ def process_audio_batch(file_paths: list[str], config: TranscriptionConfig | Non
     progress = ProgressTracker(len(file_paths), config.progress_callback)
 
     # Process each file
-    for file_path in file_paths:
+    for idx, file_path in enumerate(file_paths):
+        # Check for cancellation at iteration boundary
+        if cancel_token and cancel_token.is_cancelled:
+            raise OperationCancelledError(f"Audio batch processing cancelled at file {idx + 1}")
+
         try:
             # Process audio file
             result = process_audio(file_path, config, include_metadata)
@@ -60,6 +67,9 @@ def process_audio_batch(file_paths: list[str], config: TranscriptionConfig | Non
                 error_type = _categorize_error(result.error_message)
                 error_counts[error_type] += 1
 
+        except OperationCancelledError:
+            # Re-raise cancellation without wrapping
+            raise
         except Exception as e:
             # Create failed result for unhandled exceptions
             failed_result = TranscriptionResult(

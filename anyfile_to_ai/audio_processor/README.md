@@ -407,6 +407,87 @@ from anyfile_to_ai.audio_processor import get_supported_formats
 print(get_supported_formats())  # ['m4a', 'mp3', 'wav']
 ```
 
+## Cancellation Support
+
+The audio processor supports cooperative cancellation for batch processing:
+
+### Batch Processing with Cancellation
+
+```python
+from anyfile_to_ai.audio_processor import process_audio_batch, create_config
+from anyfile_to_ai.progress_tracker import CancellationToken, OperationCancelledError
+
+# Create cancellation token
+token = CancellationToken()
+config = create_config(model="medium")
+
+# Process audio files with cancellation support
+try:
+    results = process_audio_batch(
+        ["audio1.mp3", "audio2.wav", "audio3.m4a"],
+        config=config,
+        cancel_token=token
+    )
+    print(f"Processed {results.successful_count} files")
+except OperationCancelledError as e:
+    print(f"Processing cancelled: {e.message}")
+```
+
+### Best Practices
+
+1. **Check at iteration boundaries**: Cancellation is checked before processing each file
+2. **Handle partial results**: Completed files are included in results before cancellation
+3. **Clean up resources**: Whisper model resources are cleaned up before raising
+
+```python
+from anyfile_to_ai.audio_processor import process_audio_batch, create_config
+from anyfile_to_ai.progress_tracker import CancellationToken, OperationCancelledError
+
+def process_with_limit(audio_paths, max_files=None):
+    """Process audio files with optional limit via cancellation."""
+    token = CancellationToken()
+    config = create_config(model="medium")
+    
+    try:
+        results = process_audio_batch(audio_paths, config=config, cancel_token=token)
+        
+        # Cancel if limit reached (checked before next file)
+        if max_files and results.successful_count >= max_files:
+            token.cancel()
+        
+        return results
+    except OperationCancelledError:
+        print(f"Cancelled during processing")
+        return None
+```
+
+### Integration Example
+
+```python
+from anyfile_to_ai.audio_processor import process_audio_batch
+from anyfile_to_ai.progress_tracker import CancellationToken, OperationCancelledError
+
+# Process with timeout via cancellation
+import threading
+
+token = CancellationToken()
+
+def cancel_after_timeout(seconds):
+    import time
+    time.sleep(seconds)
+    token.cancel()
+
+# Start timeout thread
+timer = threading.Thread(target=cancel_after_timeout, args=(300,))
+timer.daemon = True
+timer.start()
+
+try:
+    results = process_audio_batch(audio_files, cancel_token=token)
+except OperationCancelledError:
+    print("Processing timed out after 5 minutes")
+```
+
 ## Performance Notes
 
 - **MLX Optimization**: 10x faster than CPU Whisper on Apple Silicon

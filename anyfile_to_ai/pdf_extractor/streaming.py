@@ -6,21 +6,25 @@ from collections.abc import Generator
 import pdfplumber
 from .models import PageResult, ExtractionConfig
 from .exceptions import PDFNotFoundError, PDFCorruptedError
+from anyfile_to_ai.progress_tracker import CancellationToken, OperationCancelledError
 
 
-def extract_text_streaming(file_path: str, config: ExtractionConfig | None = None) -> Generator[PageResult, None, None]:
+def extract_text_streaming(file_path: str, config: ExtractionConfig | None = None, cancel_token: CancellationToken | None = None) -> Generator[PageResult, None, None]:
     """
     Stream text extraction page by page (generator).
 
     Args:
         file_path: Path to PDF file
         config: Extraction configuration
+        cancel_token: Optional cancellation token for graceful termination
 
     Yields:
         PageResult for each processed page
 
     Raises:
-        Same exceptions as extract_text()
+        PDFNotFoundError: If file does not exist
+        PDFCorruptedError: If PDF is corrupted
+        OperationCancelledError: If cancellation is requested during processing
     """
     config = config or ExtractionConfig()
 
@@ -33,6 +37,10 @@ def extract_text_streaming(file_path: str, config: ExtractionConfig | None = Non
             total_pages = len(pdf.pages)
 
             for page_num, page in enumerate(pdf.pages, 1):
+                # Check for cancellation at iteration boundary
+                if cancel_token and cancel_token.is_cancelled:
+                    raise OperationCancelledError(f"PDF extraction cancelled at page {page_num}")
+
                 page_start = time.time()
                 text = page.extract_text() or ""
                 page_time = time.time() - page_start
@@ -45,5 +53,8 @@ def extract_text_streaming(file_path: str, config: ExtractionConfig | None = Non
 
                 yield page_result
 
+    except OperationCancelledError:
+        # Re-raise cancellation without wrapping
+        raise
     except Exception as e:
         raise PDFCorruptedError(file_path, str(e))

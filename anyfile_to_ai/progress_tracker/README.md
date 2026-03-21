@@ -31,6 +31,115 @@ emitter.complete()
 - **Exception Safe**: Consumer errors caught and logged, processing continues
 - **Indeterminate Progress**: Support for unknown totals with spinners
 - **Dynamic Totals**: Update total mid-process as items are discovered
+- **Cancellation Support**: Cooperative cancellation for long-running operations
+
+## Cancellation
+
+The progress_tracker module provides cancellation support for long-running operations:
+
+### CancellationToken
+
+A simple mutable token for cooperative cancellation:
+
+```python
+from anyfile_to_ai.progress_tracker import CancellationToken
+
+# Create token
+token = CancellationToken()
+
+# Check if cancelled
+if token.is_cancelled:
+    print("Operation cancelled")
+
+# Request cancellation
+token.cancel()
+
+# Reset for reuse
+token.reset()
+```
+
+### OperationCancelledError
+
+Exception raised when an operation is cancelled:
+
+```python
+from anyfile_to_ai.progress_tracker import OperationCancelledError
+
+try:
+    # Long-running operation
+    for item in items:
+        if cancel_token and cancel_token.is_cancelled:
+            raise OperationCancelledError("Operation cancelled")
+        process(item)
+except OperationCancelledError as e:
+    print(f"Cancelled: {e.message}")
+```
+
+### Usage with Streaming Operations
+
+```python
+from anyfile_to_ai.progress_tracker import CancellationToken, OperationCancelledError
+from anyfile_to_ai.pdf_extractor.streaming import extract_text_streaming
+
+# Create cancellation token
+token = CancellationToken()
+
+# Process PDF pages with cancellation support
+try:
+    for page_result in extract_text_streaming("document.pdf", cancel_token=token):
+        print(f"Page {page_result.page_number}: {page_result.char_count} chars")
+        # Cancel after 10 pages
+        if page_result.page_number >= 10:
+            token.cancel()
+except OperationCancelledError:
+    print("PDF extraction was cancelled")
+```
+
+### Usage with Batch Processing
+
+```python
+from anyfile_to_ai.progress_tracker import CancellationToken, OperationCancelledError
+from anyfile_to_ai.image_processor.streaming import StreamingProcessor
+
+# Create cancellation token
+token = CancellationToken()
+
+# Process images with cancellation support
+processor = StreamingProcessor(...)
+try:
+    result = processor.process_batch(
+        ["image1.jpg", "image2.jpg", "image3.jpg"],
+        config=config,
+        cancel_token=token
+    )
+except OperationCancelledError:
+    print("Image processing was cancelled")
+```
+
+### Best Practices
+
+1. **Check at iteration boundaries**: Always check `is_cancelled` at the start of each iteration
+2. **Yield partial results**: For streaming operations, yield completed results before raising
+3. **Clean up resources**: Release resources in `finally` blocks or before raising
+4. **Re-raise cancellation**: Always re-raise `OperationCancelledError` without wrapping
+
+```python
+def streaming_operation(items, cancel_token=None):
+    results = []
+    try:
+        for item in items:
+            # Check at iteration boundary
+            if cancel_token and cancel_token.is_cancelled:
+                yield from results  # Yield partial results
+                raise OperationCancelledError("Operation cancelled")
+            
+            result = process(item)
+            results.append(result)
+            yield result
+    finally:
+        # Clean up resources
+        cleanup()
+```
 
 ## API Reference
 
