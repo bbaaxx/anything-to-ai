@@ -16,6 +16,8 @@ class VLMConfig:
     auto_download: bool = True
     validate_before_load: bool = True
     cache_dir: str | None = None
+    enable_token_fallback: bool = True
+    token_fallback_levels: list[int] | None = None
 
 
 def validate_vision_model_env() -> str:
@@ -31,12 +33,12 @@ def validate_vision_model_env() -> str:
     model_name = os.getenv("VISION_MODEL")
 
     if not model_name:
-        msg = "VISION_MODEL environment variable not set. Please configure a VLM model (e.g., export VISION_MODEL=google/gemma-3-4b)"
-        raise ValidationError(msg, "VISION_MODEL")
+        model_name = "mlx-community/GLM-4.6V-Flash-4bit"
+        os.environ["VISION_MODEL"] = model_name
 
     if not model_name.strip():
-        msg = "VISION_MODEL environment variable is empty"
-        raise ValidationError(msg, "VISION_MODEL")
+        model_name = "mlx-community/GLM-4.6V-Flash-4bit"
+        os.environ["VISION_MODEL"] = model_name
 
     return model_name.strip()
 

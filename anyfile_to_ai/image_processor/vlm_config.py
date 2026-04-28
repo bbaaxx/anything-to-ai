@@ -32,7 +32,7 @@ def load_vlm_configuration() -> ModelConfiguration:
 
     except Exception as e:
         msg = f"Failed to load VLM configuration: {e!s}"
-        raise VLMConfigurationError(msg, config_field="VISION_MODEL", suggested_fix="Set VISION_MODEL environment variable (e.g., export VISION_MODEL=google/gemma-3-4b)")
+        raise VLMConfigurationError(msg, config_field="VISION_MODEL", suggested_fix="Set VISION_MODEL environment variable (e.g., export VISION_MODEL=mlx-community/GLM-4.6V-Flash-4bit)")
 
 
 def validate_vlm_environment() -> bool:

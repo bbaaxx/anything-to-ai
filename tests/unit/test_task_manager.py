@@ -2,7 +2,7 @@
 
 import json
 import tempfile
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, UTC
 from pathlib import Path
 
 import pytest
@@ -478,7 +478,7 @@ class TestTaskManagerCleanup:
 
         # Manually age the task file
         task_file = storage_dir / "test-123.json"
-        old_time = (datetime.now(timezone.utc) - timedelta(days=10)).timestamp()
+        old_time = (datetime.now(UTC) - timedelta(days=10)).timestamp()
         import os
 
         os.utime(task_file, (old_time, old_time))
@@ -501,7 +501,7 @@ class TestTaskManagerCleanup:
 
         # Manually age the task file
         task_file = storage_dir / "test-123.json"
-        old_time = (datetime.now(timezone.utc) - timedelta(days=100)).timestamp()
+        old_time = (datetime.now(UTC) - timedelta(days=100)).timestamp()
         import os
 
         os.utime(task_file, (old_time, old_time))
@@ -529,7 +529,7 @@ class TestTaskManagerAtomicWrites:
 
     def test_atomic_write_creates_valid_json(self, task_manager: TaskManager) -> None:
         """Test that atomic write creates valid JSON file."""
-        task = task_manager.create_task("test-123", "/file.pdf", 10)
+        task_manager.create_task("test-123", "/file.pdf", 10)
 
         # Read the file directly
         task_file = task_manager._get_task_path("test-123")
@@ -571,7 +571,7 @@ class TestTaskManagerFileLocking:
         task_manager.checkpoint("test-123", 1)
 
         # Lock file should be cleaned up
-        lock_file = task_manager._get_task_path("test-123").with_suffix(".json.lock")
+        task_manager._get_task_path("test-123").with_suffix(".json.lock")
         # Lock file may or may not exist, but should not be locked
         # This is a basic sanity check
         assert task_manager.task_exists("test-123")

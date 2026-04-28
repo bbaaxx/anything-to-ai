@@ -10,7 +10,7 @@ Provides JSON-based persistence for task state with:
 import json
 import os
 import tempfile
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, UTC
 from pathlib import Path
 from typing import Any
 
@@ -105,7 +105,7 @@ class TaskManager:
             # Store lock file handle for later release
             self._lock_files = getattr(self, "_lock_files", {})
             self._lock_files[str(file_path)] = lock_file
-        except (IOError, OSError) as e:
+        except OSError as e:
             raise TaskLockError(
                 operation="acquire",
                 task_id=None,
@@ -124,14 +124,14 @@ class TaskManager:
             try:
                 fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
                 lock_file.close()
-            except (IOError, OSError):
+            except OSError:
                 pass  # Ignore errors during unlock
 
             # Remove lock file
             lock_path = file_path.with_suffix(file_path.suffix + ".lock")
             try:
                 lock_path.unlink(missing_ok=True)
-            except (IOError, OSError):
+            except OSError:
                 pass  # Ignore errors during lock file removal
 
     def _atomic_write(self, file_path: Path, content: str) -> None:
@@ -156,13 +156,13 @@ class TaskManager:
                 f.write(content)
 
             # Atomic rename
-            os.replace(temp_path, file_path)
-        except (IOError, OSError) as e:
+            temp_path.replace(file_path)
+        except OSError as e:
             # Clean up temp file if it exists
             if temp_path and temp_path.exists():
                 try:
                     temp_path.unlink()
-                except (IOError, OSError):
+                except OSError:
                     pass
             raise TaskIOError(
                 operation="write",
@@ -206,14 +206,14 @@ class TaskManager:
             return 0
 
         removed_count = 0
-        cutoff = datetime.now(timezone.utc) - timedelta(days=self.ttl_days)
+        cutoff = datetime.now(UTC) - timedelta(days=self.ttl_days)
 
         for task_file in self.storage_dir.glob("*.json"):
             try:
                 # Use file modification time for cleanup
                 file_mtime = datetime.fromtimestamp(
                     task_file.stat().st_mtime,
-                    tz=timezone.utc,
+                    tz=UTC,
                 )
 
                 # Remove if expired
@@ -225,7 +225,7 @@ class TaskManager:
                 try:
                     task_file.unlink()
                     removed_count += 1
-                except (IOError, OSError):
+                except OSError:
                     pass
 
         return removed_count
@@ -256,8 +256,9 @@ class TaskManager:
 
         # Check if task already exists
         if task_path.exists():
+            msg = f"Task already exists: {task_id}"
             raise TaskStateError(
-                f"Task already exists: {task_id}",
+                msg,
                 task_id=task_id,
                 file_path=task_path,
             )
@@ -300,8 +301,7 @@ class TaskManager:
         # Read and parse
         try:
             content = task_path.read_text()
-            task = TaskState.from_json(content)
-            return task
+            return TaskState.from_json(content)
         except json.JSONDecodeError as e:
             raise TaskCorruptError(
                 task_id=task_id,
@@ -314,7 +314,7 @@ class TaskManager:
                 reason=str(e),
                 file_path=task_path,
             ) from e
-        except (IOError, OSError) as e:
+        except OSError as e:
             raise TaskIOError(
                 operation="read",
                 task_id=task_id,
@@ -334,7 +334,7 @@ class TaskManager:
         task_path = self._get_task_path(task.task_id)
 
         # Update timestamp
-        task.updated_at = datetime.now(timezone.utc).isoformat()
+        task.updated_at = datetime.now(UTC).isoformat()
 
         # Persist to disk
         self._atomic_write(task_path, task.to_json())
@@ -407,7 +407,7 @@ class TaskManager:
 
         try:
             task_path.unlink()
-        except (IOError, OSError) as e:
+        except OSError as e:
             raise TaskIOError(
                 operation="delete",
                 task_id=task_id,

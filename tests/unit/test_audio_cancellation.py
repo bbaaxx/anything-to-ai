@@ -30,6 +30,7 @@ class TestAudioProcessorCancellation:
             quantization="int8",
             detected_language="en",
             success=True,
+            error_message=None,
         )
 
     def test_batch_without_cancel_token(self, config, mock_result):
@@ -139,6 +140,7 @@ class TestAudioProcessorCancellation:
             quantization="int8",
             detected_language="en",
             success=True,
+            error_message=None,
         )
 
         with patch("anyfile_to_ai.audio_processor.streaming.process_audio") as mock_process:

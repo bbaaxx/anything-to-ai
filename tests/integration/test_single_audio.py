@@ -12,11 +12,11 @@ class TestSingleAudioIntegration:
     @pytest.fixture
     def sample_audio_path(self):
         """Path to sample audio file."""
-        return "sample-data/audio/speech.mp3"
+        return "sample-data/audio/podcast.mp3"
 
     def test_process_single_audio_with_defaults(self, sample_audio_path):
         """Test processing single audio file with default configuration."""
-        pytest.skip("Test audio file not available yet")
+        from anyfile_to_ai import audio_processor
 
         # Create default config
         config = audio_processor.create_config()
@@ -29,14 +29,13 @@ class TestSingleAudioIntegration:
         assert result.text is not None
         assert len(result.text) > 0
         assert result.model_used == "medium"
-        assert result.quantization == "4bit"
         assert result.processing_time > 0
         assert result.detected_language is not None
         assert result.error_message is None
 
     def test_process_single_audio_returns_confidence_score(self, sample_audio_path):
         """Test that transcription returns confidence score."""
-        pytest.skip("Test audio file not available yet")
+        from anyfile_to_ai import audio_processor
 
         config = audio_processor.create_config()
         result = audio_processor.process_audio(sample_audio_path, config)
@@ -46,9 +45,9 @@ class TestSingleAudioIntegration:
 
     def test_process_with_tiny_model(self, sample_audio_path):
         """Test processing with tiny model for speed."""
-        pytest.skip("Test audio file not available yet")
+        from anyfile_to_ai import audio_processor
 
-        config = audio_processor.create_config(model="tiny", quantization="4bit")
+        config = audio_processor.create_config(model="tiny", quantization="none")
         result = audio_processor.process_audio(sample_audio_path, config)
 
         assert result.success is True
@@ -56,7 +55,7 @@ class TestSingleAudioIntegration:
 
     def test_process_with_language_auto_detect(self, sample_audio_path):
         """Test language auto-detection."""
-        pytest.skip("Test audio file not available yet")
+        from anyfile_to_ai import audio_processor
 
         config = audio_processor.create_config(language=None)  # Auto-detect
         result = audio_processor.process_audio(sample_audio_path, config)

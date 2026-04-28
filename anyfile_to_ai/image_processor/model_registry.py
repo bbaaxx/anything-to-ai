@@ -55,29 +55,23 @@ class VLMModelRegistry:
             model_name: VLM model identifier
 
         Returns:
-            bool: True if model available, False otherwise
+            bool: True if model name format is valid
         """
         # Check cache first
         if model_name in self.validation_cache:
             return self.validation_cache[model_name]
 
-        # For now, implement basic validation
-        # In real implementation, this would check MLX VLM model availability
         try:
             # Basic validation - check if model name format is reasonable
+            # Accept any valid HuggingFace-style model identifier (org/model-name)
             if not model_name or "/" not in model_name:
                 self.validation_cache[model_name] = False
                 return False
 
-            # Accept google/gemma models and mlx-community models
-            if model_name.startswith(("google/gemma", "mlx-community/")):
-                self.validation_cache[model_name] = True
-                return True
-
-            # For other models, assume validation would check actual availability
-            # This would involve checking MLX VLM model repositories
-            self.validation_cache[model_name] = False
-            return False
+            # Accept any properly formatted model name
+            # Actual availability will be checked at load time (may trigger download)
+            self.validation_cache[model_name] = True
+            return True
 
         except Exception:
             self.validation_cache[model_name] = False
@@ -136,14 +130,19 @@ class VLMModelRegistry:
 
     def get_available_models(self) -> list[str]:
         """
-        Get list of available VLM models.
+        Get list of known VLM models.
 
         Returns:
-            List[str]: Available model identifiers
+            List[str]: Known model identifiers (MLX-compatible vision models)
         """
-        # For testing purposes, return some mock models
-        # In real implementation, this would query MLX VLM repositories
-        return ["google/gemma-3-4b", "google/gemma-3-8b", "meta/llama-vision-7b"]
+        import os
+
+        configured_model = os.getenv("VISION_MODEL")
+        default_models = ["mlx-community/GLM-4.6V-Flash-4bit"]
+
+        if configured_model and configured_model not in default_models:
+            return [configured_model, *default_models]
+        return default_models
 
     def cleanup_models(self) -> None:
         """Clean up all loaded models."""

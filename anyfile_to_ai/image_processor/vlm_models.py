@@ -14,6 +14,8 @@ class ModelConfiguration:
     auto_download: bool = True
     validation_enabled: bool = True
     cache_dir: str | None = None
+    enable_token_fallback: bool = True
+    token_fallback_levels: list[int] | None = None
 
     def __post_init__(self):
         """Validate configuration after initialization."""
@@ -46,7 +48,16 @@ class ModelConfiguration:
 
     def to_dict(self) -> dict[str, Any]:
         """Convert configuration to dictionary."""
-        return {"model_name": self.model_name, "timeout_seconds": self.timeout_seconds, "timeout_behavior": self.timeout_behavior, "auto_download": self.auto_download, "validation_enabled": self.validation_enabled, "cache_dir": self.cache_dir}
+        return {
+            "model_name": self.model_name,
+            "timeout_seconds": self.timeout_seconds,
+            "timeout_behavior": self.timeout_behavior,
+            "auto_download": self.auto_download,
+            "validation_enabled": self.validation_enabled,
+            "cache_dir": self.cache_dir,
+            "enable_token_fallback": self.enable_token_fallback,
+            "token_fallback_levels": self.token_fallback_levels,
+        }
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ModelConfiguration":
@@ -58,4 +69,6 @@ class ModelConfiguration:
             auto_download=data.get("auto_download", True),
             validation_enabled=data.get("validation_enabled", True),
             cache_dir=data.get("cache_dir"),
+            enable_token_fallback=data.get("enable_token_fallback", True),
+            token_fallback_levels=data.get("token_fallback_levels"),
         )

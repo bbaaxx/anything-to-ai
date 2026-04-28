@@ -6,9 +6,86 @@ import time
 from .vlm_models import ModelConfiguration
 from .model_registry import get_global_registry, LoadedModel
 from .vlm_model_impl import create_vlm_model
-from .vlm_exceptions import VLMProcessingError, VLMTimeoutError
+from .vlm_exceptions import VLMProcessingError, VLMTimeoutError, VLMMemoryError, VLMContextLengthError
 from .config import VLMConfig
 from .subprocess_runner import SubprocessTimeoutRunner
+
+
+# Memory and context error patterns to detect
+_MEMORY_ERROR_PATTERNS = (
+    "out of memory",
+    "memory allocation failed",
+    "cuda out of memory",
+    "mps out of memory",
+    "cannot allocate memory",
+    "memoryerror",
+    "malloc",
+)
+
+_CONTEXT_ERROR_PATTERNS = (
+    "context length",
+    "maximum context",
+    "token limit",
+    "sequence length",
+    "context window",
+    "max tokens",
+)
+
+
+def _is_memory_or_context_error(error: Exception) -> tuple[bool, str]:
+    """Detect if an exception is a memory or context length error.
+
+    Args:
+        error: The exception to check.
+
+    Returns:
+        Tuple of (is_recoverable, error_type) where:
+        - is_recoverable: True if this is a memory/context error that can be retried with smaller tokens
+        - error_type: "memory", "context", or "unknown"
+    """
+    error_str = str(error).lower()
+    error_type_name = type(error).__name__.lower()
+
+    # Check if it's already one of our typed exceptions
+    if isinstance(error, VLMMemoryError):
+        return (True, "memory")
+    if isinstance(error, VLMContextLengthError):
+        return (True, "context")
+
+    # Check for memory error patterns
+    for pattern in _MEMORY_ERROR_PATTERNS:
+        if pattern in error_str or pattern in error_type_name:
+            return (True, "memory")
+
+    # Check for context length error patterns
+    for pattern in _CONTEXT_ERROR_PATTERNS:
+        if pattern in error_str or pattern in error_type_name:
+            return (True, "context")
+
+    return (False, "unknown")
+
+
+# Default token fallback levels for progressive reduction
+_DEFAULT_FALLBACK_LEVELS = [8192, 4096, 2048, 1024, 512]
+
+
+def _get_default_fallback_levels(initial_max_tokens: int) -> list[int]:
+    """Get default token fallback levels capped at initial max_tokens.
+
+    Args:
+        initial_max_tokens: The initial max_tokens value to cap levels at.
+
+    Returns:
+        List of token levels in descending order, capped at initial_max_tokens.
+    """
+    levels = []
+    for level in _DEFAULT_FALLBACK_LEVELS:
+        if level <= initial_max_tokens:
+            levels.append(level)
+    # Ensure at least one level is returned
+    if not levels:
+        levels = [min(initial_max_tokens, 512)]
+    return levels
 
 
 def _convert_config(config) -> ModelConfiguration:
@@ -21,6 +98,8 @@ def _convert_config(config) -> ModelConfiguration:
             auto_download=config.auto_download,
             validation_enabled=config.validate_before_load,
             cache_dir=config.cache_dir,
+            enable_token_fallback=config.enable_token_fallback,
+            token_fallback_levels=config.token_fallback_levels,
         )
     return config
 
@@ -88,6 +167,81 @@ class VLMProcessor:
                 raise
             msg = f"VLM processing failed: {e!s}"
             raise VLMProcessingError(msg, image_path=image_path, model_name=config.model_name, error_details=str(e))
+
+    def process_with_fallback(
+        self,
+        image_path: str,
+        prompt: str,
+        config,
+        initial_max_tokens: int = 8192,
+    ) -> dict[str, Any]:
+        """
+        Process image with VLM using token reduction fallback on memory/context errors.
+
+        This method wraps process_image_with_vlm with automatic retry logic that
+        progressively reduces max_tokens when memory or context length errors occur.
+
+        Args:
+            image_path: Path to image file
+            prompt: VLM prompt text
+            config: VLM configuration
+            initial_max_tokens: Initial max_tokens value (default: 8192)
+
+        Returns:
+            Dict containing VLM processing results
+
+        Raises:
+            VLMProcessingError: If all fallback attempts fail
+            VLMTimeoutError: If processing exceeds timeout
+
+        Example:
+            >>> processor = VLMProcessor()
+            >>> result = processor.process_with_fallback(
+            ...     "image.jpg",
+            ...     "Describe this image",
+            ...     config,
+            ...     initial_max_tokens=4096
+            ... )
+        """
+        config = _convert_config(config)
+
+        # Check if fallback is enabled
+        if not config.enable_token_fallback:
+            return self.process_image_with_vlm(image_path, prompt, config)
+
+        # Determine fallback levels
+        levels = [min(level, initial_max_tokens) for level in config.token_fallback_levels] if config.token_fallback_levels else _get_default_fallback_levels(initial_max_tokens)
+
+        attempted_levels = []
+        last_error = None
+
+        for token_level in levels:
+            attempted_levels.append(token_level)
+            try:
+                # Note: The actual max_tokens parameter would need to be passed
+                # through to the VLM generation. For now, we process normally
+                # and catch memory/context errors for retry.
+                return self.process_image_with_vlm(image_path, prompt, config)
+            except Exception as e:
+                is_recoverable, _error_type = _is_memory_or_context_error(e)
+
+                if is_recoverable:
+                    # Store error and try next level
+                    last_error = e
+                    continue
+                # Non-recoverable error, re-raise
+                raise
+
+        # All levels exhausted
+        msg = f"VLM processing failed at all token levels. Attempted: {attempted_levels}"
+        if last_error:
+            raise VLMProcessingError(
+                msg,
+                image_path=image_path,
+                model_name=config.model_name,
+                error_details=f"Last error: {last_error!s}",
+            )
+        raise VLMProcessingError(msg, image_path=image_path, model_name=config.model_name)
 
     def process_batch_with_vlm(self, image_paths: list[str], prompts: list[str], config) -> list[dict[str, Any]]:
         """

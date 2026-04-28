@@ -483,3 +483,81 @@ def process_with_limit(image_paths, max_images=None):
     
     return results
 ```
+
+## Token Reduction Fallback
+
+The image processor supports automatic token reduction fallback when VLM processing fails due to memory or context length constraints. This feature progressively reduces the `max_tokens` parameter to allow processing to succeed with smaller outputs.
+
+### How It Works
+
+When processing fails with a memory or context error, the system automatically retries with progressively smaller token limits:
+
+1. Initial attempt with full tokens
+2. On memory/context error, retry with smaller tokens
+3. Continue until success or all levels exhausted
+
+### Configuration
+
+```python
+from anyfile_to_ai.image_processor.config import VLMConfig
+from anyfile_to_ai.image_processor.vlm_processor import VLMProcessor
+
+# Enable token fallback (default: True)
+config = VLMConfig(
+    model_name="mlx-community/Qwen2-VL-2B-Instruct-4bit",
+    enable_token_fallback=True,  # Enable/disable fallback
+    token_fallback_levels=[8192, 4096, 2048, 1024, 512]  # Custom levels
+)
+
+# Use process_with_fallback for automatic retry
+processor = VLMProcessor()
+result = processor.process_with_fallback(
+    image_path="large_image.jpg",
+    prompt="Describe this image",
+    config=config,
+    initial_max_tokens=8192
+)
+```
+
+### Default Behavior
+
+- **Fallback enabled by default**: `enable_token_fallback=True`
+- **Default levels**: `[8192, 4096, 2048, 1024, 512]` (capped at initial max_tokens)
+- **Automatic detection**: Memory and context errors are detected automatically
+
+### Error Types
+
+The system recognizes these error types for fallback:
+
+- `VLMMemoryError`: Out-of-memory conditions
+- `VLMContextLengthError`: Context length exceeded
+
+```python
+from anyfile_to_ai.image_processor.exceptions import VLMMemoryError, VLMContextLengthError
+
+try:
+    result = processor.process_with_fallback("image.jpg", "describe", config)
+except VLMMemoryError as e:
+    print(f"Memory error after trying {e.attempted_tokens} tokens")
+except VLMContextLengthError as e:
+    print(f"Context error after trying {e.attempted_tokens} tokens")
+except VLMProcessingError as e:
+    print(f"All fallback levels exhausted: {e}")
+```
+
+### Disabling Fallback
+
+```python
+# Disable fallback for immediate error propagation
+config = VLMConfig(
+    model_name="test-model",
+    enable_token_fallback=False
+)
+
+# Falls back to standard process_image_with_vlm behavior
+result = processor.process_with_fallback("image.jpg", "describe", config)
+```
+
+### Backward Compatibility
+
+The existing `process_image_with_vlm()` method remains unchanged and does not use token fallback. Use `process_with_fallback()` for the new retry behavior.

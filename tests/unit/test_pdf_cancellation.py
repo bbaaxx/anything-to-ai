@@ -98,19 +98,16 @@ class TestPDFExtractorCancellation:
         token = CancellationToken()
         results = []
 
-        def cancel_after_third_page(*args):
-            if len(results) == 3:
-                token.cancel()
-            return mock_pdf
-
-        with patch("anyfile_to_ai.pdf_extractor.streaming.pdfplumber.open", side_effect=cancel_after_third_page):
+        with patch("anyfile_to_ai.pdf_extractor.streaming.pdfplumber.open", return_value=mock_pdf):
+            # Cancel after processing 3 pages by triggering in the iteration
             with pytest.raises(OperationCancelledError):
-                for result in extract_text_streaming(str(test_pdf), cancel_token=token):
+                for i, result in enumerate(extract_text_streaming(str(test_pdf), cancel_token=token)):
                     results.append(result)
+                    if len(results) == 3:
+                        token.cancel()
 
-        # Should have processed some pages before cancellation
-        # Note: The exact number depends on when cancellation is checked
-        assert len(results) >= 0
+        # Should have processed exactly 3 pages before cancellation raised
+        assert len(results) == 3
 
     def test_streaming_cancel_token_none_works(self, tmp_path):
         """Test that passing None as cancel_token works."""

@@ -14,30 +14,29 @@ class TestBatchAudioProcessing:
     def sample_audio_files(self):
         """List of sample audio files."""
         return [
-            "sample-data/audio/speech.mp3",
-            "sample-data/audio/spanish.m4a",
-            "sample-data/audio/long.mp3",
+            "sample-data/audio/podcast.mp3",
+            "sample-data/audio/silence.mp3",
         ]
 
     def test_batch_process_multiple_files(self, sample_audio_files):
         """Test batch processing multiple audio files."""
-        pytest.skip("Test audio files not available yet")
+        from anyfile_to_ai import audio_processor
 
         config = audio_processor.create_config()
         result = audio_processor.process_audio_batch(sample_audio_files, config)
 
         assert result.success is True
-        assert result.total_files == 3
+        assert result.total_files == 2
         assert result.successful_count >= 0
         assert result.failed_count >= 0
         assert result.successful_count + result.failed_count == result.total_files
-        assert len(result.results) == 3
+        assert len(result.results) == 2
         assert result.total_processing_time > 0
         assert result.average_processing_time > 0
 
     def test_batch_process_with_progress_callback(self, sample_audio_files):
         """Test batch processing with progress callback."""
-        pytest.skip("Test audio files not available yet")
+        from anyfile_to_ai import audio_processor
 
         progress_calls = []
 
@@ -64,13 +63,13 @@ class TestBatchAudioProcessing:
 
     def test_batch_process_handles_mixed_success_failure(self):
         """Test batch processing with mix of successful and failed files."""
-        pytest.skip("Test audio files not available yet")
+        from anyfile_to_ai import audio_processor
 
         # Include non-existent file
         files = [
-            "sample-data/audio/speech.mp3",
+            "sample-data/audio/podcast.mp3",
             "sample-data/audio/nonexistent.mp3",
-            "sample-data/audio/spanish.m4a",
+            "sample-data/audio/silence.mp3",
         ]
 
         config = audio_processor.create_config()

@@ -47,3 +47,35 @@ class VLMModelNotFoundError(VLMConfigurationError):
         super().__init__(message, **kwargs)
         self.model_name = model_name
         self.available_models = available_models or []
+
+
+class VLMMemoryError(VLMProcessingError):
+    """Exception raised when VLM processing fails due to memory constraints."""
+
+    def __init__(
+        self,
+        message: str,
+        image_path: str | None = None,
+        model_name: str | None = None,
+        error_details: str | None = None,
+        attempted_tokens: int | None = None,
+        **kwargs,
+    ):
+        super().__init__(message, image_path=image_path, model_name=model_name, error_details=error_details, **kwargs)
+        self.attempted_tokens = attempted_tokens
+
+
+class VLMContextLengthError(VLMProcessingError):
+    """Exception raised when VLM processing fails due to context length limits."""
+
+    def __init__(
+        self,
+        message: str,
+        image_path: str | None = None,
+        model_name: str | None = None,
+        error_details: str | None = None,
+        attempted_tokens: int | None = None,
+        **kwargs,
+    ):
+        super().__init__(message, image_path=image_path, model_name=model_name, error_details=error_details, **kwargs)
+        self.attempted_tokens = attempted_tokens

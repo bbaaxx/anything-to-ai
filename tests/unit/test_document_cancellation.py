@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from anyfile_to_ai.document_converter.converter import convert_document
-from anyfile_to_ai.document_converter.models import ConversionRoute
+from anyfile_to_ai.document_converter.models import ConversionRoute, ConversionResult
 from anyfile_to_ai.document_converter.exceptions import DocumentConversionError
 from anyfile_to_ai.progress_tracker import CancellationToken, OperationCancelledError
 
@@ -18,14 +18,15 @@ class TestDocumentConverterCancellation:
         with patch("anyfile_to_ai.document_converter.converter.determine_route") as mock_route:
             with patch("anyfile_to_ai.document_converter.converter._convert_with_pdf_extractor") as mock_convert:
                 mock_route.return_value = ConversionRoute.PDF
-                mock_convert.return_value = MagicMock(
-                    text="Test content",
+                mock_convert.return_value = ConversionResult(
+                    source="test.pdf",
+                    route=ConversionRoute.PDF,
+                    content="Test content",
                     metadata={},
-                    success=True,
                 )
                 result = convert_document("test.pdf")
 
-        assert result.success is True
+        assert result.content == "Test content"
 
     def test_convert_with_cancel_token_not_cancelled(self):
         """Test that conversion works when token is not cancelled."""
@@ -34,14 +35,15 @@ class TestDocumentConverterCancellation:
         with patch("anyfile_to_ai.document_converter.converter.determine_route") as mock_route:
             with patch("anyfile_to_ai.document_converter.converter._convert_with_pdf_extractor") as mock_convert:
                 mock_route.return_value = ConversionRoute.PDF
-                mock_convert.return_value = MagicMock(
-                    text="Test content",
+                mock_convert.return_value = ConversionResult(
+                    source="test.pdf",
+                    route=ConversionRoute.PDF,
+                    content="Test content",
                     metadata={},
-                    success=True,
                 )
                 result = convert_document("test.pdf", cancel_token=token)
 
-        assert result.success is True
+        assert result.content == "Test content"
 
     def test_convert_cancelled_before_start(self):
         """Test that cancellation before starting raises immediately."""
@@ -72,14 +74,15 @@ class TestDocumentConverterCancellation:
         with patch("anyfile_to_ai.document_converter.converter.determine_route") as mock_route:
             with patch("anyfile_to_ai.document_converter.converter._convert_with_image_processor") as mock_convert:
                 mock_route.return_value = ConversionRoute.IMAGE
-                mock_convert.return_value = MagicMock(
-                    text="Image description",
+                mock_convert.return_value = ConversionResult(
+                    source="test.jpg",
+                    route=ConversionRoute.IMAGE,
+                    content="Image description",
                     metadata={},
-                    success=True,
                 )
                 result = convert_document("test.jpg", cancel_token=token)
 
-        assert result.success is True
+        assert result.content == "Image description"
 
     def test_convert_with_audio_route(self):
         """Test that cancellation works with audio route."""
@@ -88,14 +91,15 @@ class TestDocumentConverterCancellation:
         with patch("anyfile_to_ai.document_converter.converter.determine_route") as mock_route:
             with patch("anyfile_to_ai.document_converter.converter._convert_with_audio_processor") as mock_convert:
                 mock_route.return_value = ConversionRoute.AUDIO
-                mock_convert.return_value = MagicMock(
-                    text="Audio transcription",
+                mock_convert.return_value = ConversionResult(
+                    source="test.mp3",
+                    route=ConversionRoute.AUDIO,
+                    content="Audio transcription",
                     metadata={},
-                    success=True,
                 )
                 result = convert_document("test.mp3", cancel_token=token)
 
-        assert result.success is True
+        assert result.content == "Audio transcription"
 
     def test_convert_with_markitdown_route(self):
         """Test that cancellation works with markitdown route."""
@@ -104,14 +108,15 @@ class TestDocumentConverterCancellation:
         with patch("anyfile_to_ai.document_converter.converter.determine_route") as mock_route:
             with patch("anyfile_to_ai.document_converter.converter._convert_with_markitdown") as mock_convert:
                 mock_route.return_value = ConversionRoute.MARKITDOWN
-                mock_convert.return_value = MagicMock(
-                    text="Markdown content",
+                mock_convert.return_value = ConversionResult(
+                    source="test.docx",
+                    route=ConversionRoute.MARKITDOWN,
+                    content="Markdown content",
                     metadata={},
-                    success=True,
                 )
                 result = convert_document("test.docx", cancel_token=token)
 
-        assert result.success is True
+        assert result.content == "Markdown content"
 
     def test_convert_cancelled_re_raises_without_wrapping(self):
         """Test that OperationCancelledError is re-raised without wrapping."""
@@ -128,14 +133,15 @@ class TestDocumentConverterCancellation:
         with patch("anyfile_to_ai.document_converter.converter.determine_route") as mock_route:
             with patch("anyfile_to_ai.document_converter.converter._convert_with_pdf_extractor") as mock_convert:
                 mock_route.return_value = ConversionRoute.PDF
-                mock_convert.return_value = MagicMock(
-                    text="Test content",
+                mock_convert.return_value = ConversionResult(
+                    source="test.pdf",
+                    route=ConversionRoute.PDF,
+                    content="Test content",
                     metadata={"pages": 1},
-                    success=True,
                 )
                 result = convert_document("test.pdf", include_metadata=True, cancel_token=token)
 
-        assert result.success is True
+        assert result.content == "Test content"
         mock_convert.assert_called_once()
 
     def test_convert_cancel_token_none_works(self):
@@ -143,11 +149,12 @@ class TestDocumentConverterCancellation:
         with patch("anyfile_to_ai.document_converter.converter.determine_route") as mock_route:
             with patch("anyfile_to_ai.document_converter.converter._convert_with_pdf_extractor") as mock_convert:
                 mock_route.return_value = ConversionRoute.PDF
-                mock_convert.return_value = MagicMock(
-                    text="Test content",
+                mock_convert.return_value = ConversionResult(
+                    source="test.pdf",
+                    route=ConversionRoute.PDF,
+                    content="Test content",
                     metadata={},
-                    success=True,
                 )
                 result = convert_document("test.pdf", cancel_token=None)
 
-        assert result.success is True
+        assert result.content == "Test content"

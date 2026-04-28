@@ -124,8 +124,10 @@ class MLXVLMModel(BaseVLMModel):
             processor = self._model_instance["processor"]
 
             # Generate description using MLX VLM
-            # Gemma-3 requires explicit image token in the prompt
-            formatted_prompt = f"<start_of_image>{prompt}"
+            # Different models have different prompt formats:
+            # - Gemma models require <start_of_image> token
+            # - GLM models use the processor to handle images
+            formatted_prompt = f"<start_of_image>{prompt}" if "gemma" in self.model_name.lower() else prompt
 
             result = mlx_vlm.generate(model=model, processor=processor, prompt=formatted_prompt, image=image_path, max_tokens=100, temperature=0.0)
 

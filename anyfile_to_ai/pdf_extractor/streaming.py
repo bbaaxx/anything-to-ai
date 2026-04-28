@@ -39,7 +39,8 @@ def extract_text_streaming(file_path: str, config: ExtractionConfig | None = Non
             for page_num, page in enumerate(pdf.pages, 1):
                 # Check for cancellation at iteration boundary
                 if cancel_token and cancel_token.is_cancelled:
-                    raise OperationCancelledError(f"PDF extraction cancelled at page {page_num}")
+                    msg = f"PDF extraction cancelled at page {page_num}"
+                    raise OperationCancelledError(msg)
 
                 page_start = time.time()
                 text = page.extract_text() or ""

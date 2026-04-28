@@ -114,10 +114,7 @@ class TestCancellationTokenIntegration:
         token.cancel()
 
         # Simulate operation that checks before starting
-        if token.is_cancelled:
-            result = "cancelled"
-        else:
-            result = "proceed"
+        result = "cancelled" if token.is_cancelled else "proceed"
 
         assert result == "cancelled"
 
@@ -145,7 +142,8 @@ class TestCancellationTokenIntegration:
         def process_items(items, cancel_token=None):
             for item in items:
                 if cancel_token and cancel_token.is_cancelled:
-                    raise OperationCancelledError(f"Cancelled at item {item}")
+                    msg = f"Cancelled at item {item}"
+                    raise OperationCancelledError(msg)
                 processed.append(item)
 
         # Process without cancellation
@@ -168,7 +166,8 @@ class TestCancellationTokenIntegration:
             for item in items:
                 if cancel_token and cancel_token.is_cancelled:
                     yield from results  # Yield partial results
-                    raise OperationCancelledError(f"Cancelled at item {item}")
+                    msg = f"Cancelled at item {item}"
+                    raise OperationCancelledError(msg)
                 results.append(item * 2)
                 yield results[-1]
 
