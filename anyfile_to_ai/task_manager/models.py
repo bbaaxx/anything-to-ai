@@ -1,7 +1,7 @@
 """Data models for task state persistence."""
 
 from dataclasses import dataclass, field, asdict
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from typing import Any
 import json
 
@@ -27,8 +27,8 @@ class TaskState:
     total_pages: int
     processed_pages: list[int] = field(default_factory=list)
     status: str = "pending"
-    created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
-    updated_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
+    updated_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     error_message: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
 
@@ -41,12 +41,14 @@ class TaskState:
         if self.total_pages < 0:
             raise ValueError("total_pages cannot be negative")
         if self.status not in ("pending", "in_progress", "completed", "failed"):
-            raise ValueError(f"Invalid status: {self.status}")
+            msg = f"Invalid status: {self.status}"
+            raise ValueError(msg)
 
         # Ensure processed_pages contains valid page numbers
         for page in self.processed_pages:
             if page < 1 or page > self.total_pages:
-                raise ValueError(f"Invalid page number {page} for total_pages {self.total_pages}")
+                msg = f"Invalid page number {page} for total_pages {self.total_pages}"
+                raise ValueError(msg)
 
     @property
     def progress_percent(self) -> float:
@@ -85,12 +87,14 @@ class TaskState:
         try:
             data = json.loads(json_str)
         except json.JSONDecodeError as e:
-            raise ValueError(f"Invalid JSON: {e}") from e
+            msg = f"Invalid JSON: {e}"
+            raise ValueError(msg) from e
 
         required_fields = {"task_id", "source_file", "total_pages"}
         missing = required_fields - set(data.keys())
         if missing:
-            raise ValueError(f"Missing required fields: {missing}")
+            msg = f"Missing required fields: {missing}"
+            raise ValueError(msg)
 
         return cls(
             task_id=data["task_id"],
@@ -98,8 +102,8 @@ class TaskState:
             total_pages=data["total_pages"],
             processed_pages=data.get("processed_pages", []),
             status=data.get("status", "pending"),
-            created_at=data.get("created_at", datetime.now(timezone.utc).isoformat()),
-            updated_at=data.get("updated_at", datetime.now(timezone.utc).isoformat()),
+            created_at=data.get("created_at", datetime.now(UTC).isoformat()),
+            updated_at=data.get("updated_at", datetime.now(UTC).isoformat()),
             error_message=data.get("error_message"),
             metadata=data.get("metadata", {}),
         )
@@ -124,8 +128,8 @@ class TaskState:
             total_pages=data["total_pages"],
             processed_pages=data.get("processed_pages", []),
             status=data.get("status", "pending"),
-            created_at=data.get("created_at", datetime.now(timezone.utc).isoformat()),
-            updated_at=data.get("updated_at", datetime.now(timezone.utc).isoformat()),
+            created_at=data.get("created_at", datetime.now(UTC).isoformat()),
+            updated_at=data.get("updated_at", datetime.now(UTC).isoformat()),
             error_message=data.get("error_message"),
             metadata=data.get("metadata", {}),
         )

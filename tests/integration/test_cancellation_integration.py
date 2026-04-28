@@ -63,7 +63,8 @@ class TestCancellationIntegration:
             for item in items:
                 if token and token.is_cancelled:
                     yield from results
-                    raise OperationCancelledError(f"Cancelled at item {item}")
+                    msg = f"Cancelled at item {item}"
+                    raise OperationCancelledError(msg)
                 results.append(item * 2)
                 yield results[-1]
 
@@ -169,7 +170,8 @@ class TestCancellationIntegration:
             for i, item in enumerate(items):
                 # Check cancellation at iteration boundary
                 if token and token.is_cancelled:
-                    raise OperationCancelledError(f"Cancelled at item {i}")
+                    msg = f"Cancelled at item {i}"
+                    raise OperationCancelledError(msg)
                 processed_items.append(item)
                 # Cancel after processing 2 items
                 if i == 1:

@@ -55,7 +55,8 @@ def process_audio_batch(file_paths: list[str], config: TranscriptionConfig | Non
     for idx, file_path in enumerate(file_paths):
         # Check for cancellation at iteration boundary
         if cancel_token and cancel_token.is_cancelled:
-            raise OperationCancelledError(f"Audio batch processing cancelled at file {idx + 1}")
+            msg = f"Audio batch processing cancelled at file {idx + 1}"
+            raise OperationCancelledError(msg)
 
         try:
             # Process audio file

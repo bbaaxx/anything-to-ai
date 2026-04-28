@@ -49,7 +49,8 @@ class StreamingProcessor:
             if cancel_token and cancel_token.is_cancelled:
                 # Clean up VLM resources before raising
                 self._cleanup_vlm()
-                raise OperationCancelledError(f"Image batch processing cancelled at image {_i + 1}")
+                msg = f"Image batch processing cancelled at image {_i + 1}"
+                raise OperationCancelledError(msg)
 
             try:
                 # Validate and process each image
@@ -117,7 +118,8 @@ class StreamingProcessor:
             for idx, file_path in enumerate(file_paths):
                 # Check for cancellation at iteration boundary
                 if cancel_token and cancel_token.is_cancelled:
-                    raise OperationCancelledError(f"Image streaming processing cancelled at image {idx + 1}")
+                    msg = f"Image streaming processing cancelled at image {idx + 1}"
+                    raise OperationCancelledError(msg)
 
                 try:
                     # Validate and process each image

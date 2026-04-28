@@ -12,12 +12,12 @@ This implementation provides:
 - Batch processing with automatic memory cleanup
 
 Environment Configuration:
-    VISION_MODEL: Required - VLM model identifier (e.g., google/gemma-3-4b)
+    VISION_MODEL: Optional - VLM model identifier (defaults to mlx-community/GLM-4.6V-Flash-4bit)
     VLM_TIMEOUT_BEHAVIOR: Optional - Timeout behavior (error/fallback/continue)
     VLM_AUTO_DOWNLOAD: Optional - Auto-download models (true/false)
 
 Example:
-    export VISION_MODEL=google/gemma-3-4b
+    export VISION_MODEL=mlx-community/GLM-4.6V-Flash-4bit
     python -m image_processor image.jpg --format json
 """
 
@@ -35,6 +35,8 @@ from .exceptions import (
     VLMProcessingError,
     VLMTimeoutError,
     VLMModelNotFoundError,
+    VLMMemoryError,
+    VLMContextLengthError,
 )
 
 # Import VLM model validation functions
@@ -173,6 +175,8 @@ __all__ = [
     "UnsupportedFormatError",
     # VLM-specific exceptions
     "VLMConfigurationError",
+    "VLMContextLengthError",
+    "VLMMemoryError",
     "VLMModelLoadError",
     "VLMModelNotFoundError",
     "VLMProcessingError",

@@ -23,19 +23,15 @@ class TestModuleAPIContract:
     """Test the module API contract for VLM integration."""
 
     def test_create_config_requires_vision_model_env(self):
-        """Test that create_config reads from VISION_MODEL environment variable."""
-        # This should FAIL initially - no VLM environment handling yet
+        """Test that create_config uses VISION_MODEL environment variable or default."""
         with patch.dict(os.environ, {}, clear=True):
-            # Remove VISION_MODEL if set
             os.environ.pop("VISION_MODEL", None)
 
-            # Should raise configuration error when no VISION_MODEL is set.
-            from anyfile_to_ai.image_processor.vlm_exceptions import VLMConfigurationError
+            # Should now use default model instead of raising error
+            config = create_config()
 
-            with pytest.raises((ValidationError, VLMConfigurationError)) as exc_info:
-                create_config()
-
-            assert "VISION_MODEL" in str(exc_info.value)
+            assert hasattr(config, "model_name")
+            assert config.model_name == "mlx-community/GLM-4.6V-Flash-4bit"
 
     def test_create_config_with_vision_model_env(self):
         """Test create_config with VISION_MODEL environment variable set."""
@@ -148,26 +144,23 @@ class TestModuleAPIContract:
         assert config.batch_size == 4
 
     def test_environment_variable_contract(self):
-        """Test environment variable handling contract."""
-        # This should FAIL initially - no VLM environment handling
-
-        # Test that we can check for VISION_MODEL requirement
+        """Test environment variable handling contract with default model."""
+        # Test that we can check for VISION_MODEL and get default if not set
         with patch.dict(os.environ, {}, clear=True):
             os.environ.pop("VISION_MODEL", None)
 
-            # Should be able to detect missing environment variable
-            try:
-                # This should eventually check environment and fail appropriately
-                from anyfile_to_ai.image_processor.config import (
-                    validate_vision_model_env,
-                )
+            # Should return default model when env var not set
+            from anyfile_to_ai.image_processor.config import (
+                validate_vision_model_env,
+            )
 
-                validate_vision_model_env()
-                pytest.fail("Should have raised ValidationError for missing VISION_MODEL")
-            except ValidationError:
-                pass  # Expected
-            except (ImportError, AttributeError):
-                pytest.fail("VLM configuration module not implemented")
+            model_name = validate_vision_model_env()
+            assert model_name == "mlx-community/GLM-4.6V-Flash-4bit"
+
+        # Test that custom model is used when set
+        with patch.dict(os.environ, {"VISION_MODEL": "custom/model"}):
+            model_name = validate_vision_model_env()
+            assert model_name == "custom/model"
 
     def test_error_hierarchy_extended(self):
         """Test that VLM-specific exceptions are available."""
