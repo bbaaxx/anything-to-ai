@@ -160,7 +160,7 @@ def get_image_info(file_path: str) -> dict:
     return {"file_path": image_doc.file_path, "format": image_doc.format, "width": image_doc.width, "height": image_doc.height, "file_size": image_doc.file_size, "is_large_image": image_doc.is_large_image}
 
 
-__version__ = "0.1.0"
+__version__ = "0.1.2"
 __all__ = [
     "CorruptedImageError",
     "DescriptionResult",

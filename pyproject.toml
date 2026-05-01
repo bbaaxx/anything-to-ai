@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "anyfile_to_ai"
-version = "0.1.1"
+version = "0.1.2"
 description = "Universal file processor with AI-powered text extraction, image analysis, audio transcription, and text summarization"
 readme = "README.md"
 requires-python = ">=3.11"

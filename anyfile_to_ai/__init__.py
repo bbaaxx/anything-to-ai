@@ -11,7 +11,7 @@ This package provides unified access to:
 - Progress tracking
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.2"
 __author__ = "AnyFile to AI Contributors"
 __email__ = "contributors@anything-to-ai.org"
 
