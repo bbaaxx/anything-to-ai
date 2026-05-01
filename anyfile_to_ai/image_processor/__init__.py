@@ -12,12 +12,12 @@ This implementation provides:
 - Batch processing with automatic memory cleanup
 
 Environment Configuration:
-    VISION_MODEL: Optional - VLM model identifier (defaults to mlx-community/GLM-4.6V-Flash-4bit)
+    VISION_MODEL: Optional - VLM model identifier (defaults to mlx-community/Qwen2-VL-2B-Instruct-4bit)
     VLM_TIMEOUT_BEHAVIOR: Optional - Timeout behavior (error/fallback/continue)
     VLM_AUTO_DOWNLOAD: Optional - Auto-download models (true/false)
 
 Example:
-    export VISION_MODEL=mlx-community/GLM-4.6V-Flash-4bit
+    export VISION_MODEL=mlx-community/Qwen2-VL-2B-Instruct-4bit
     python -m image_processor image.jpg --format json
 """
 

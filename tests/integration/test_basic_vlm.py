@@ -109,16 +109,13 @@ class TestBasicVLMIntegration:
                 assert img_result.model_used
 
     def test_vlm_processing_without_environment_variable(self, sample_image):
-        """Test that VLM processing fails appropriately without VISION_MODEL."""
-        # This should FAIL initially - environment validation not integrated
+        """Test that VLM processing defaults model when VISION_MODEL is not set."""
         with patch.dict(os.environ, {}, clear=True):
             os.environ.pop("VISION_MODEL", None)
 
-            with pytest.raises((ValidationError, VLMConfigurationError)) as exc_info:
-                config = create_config()
-                process_image(sample_image, config)
-
-            assert "VISION_MODEL" in str(exc_info.value)
+            config = create_config()
+            assert config.model_name is not None
+            assert len(config.model_name) > 0
 
     def test_vlm_processing_with_different_styles(self, sample_image):
         """Test VLM processing with different description styles."""

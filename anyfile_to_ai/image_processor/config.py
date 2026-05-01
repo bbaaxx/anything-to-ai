@@ -3,6 +3,7 @@
 import os
 from dataclasses import dataclass
 
+from provider_env import DEFAULT_VISION_MODEL
 from .exceptions import ValidationError
 
 
@@ -33,11 +34,11 @@ def validate_vision_model_env() -> str:
     model_name = os.getenv("VISION_MODEL")
 
     if not model_name:
-        model_name = "mlx-community/GLM-4.6V-Flash-4bit"
+        model_name = DEFAULT_VISION_MODEL
         os.environ["VISION_MODEL"] = model_name
 
     if not model_name.strip():
-        model_name = "mlx-community/GLM-4.6V-Flash-4bit"
+        model_name = DEFAULT_VISION_MODEL
         os.environ["VISION_MODEL"] = model_name
 
     return model_name.strip()

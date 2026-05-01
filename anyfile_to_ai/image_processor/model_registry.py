@@ -5,6 +5,7 @@ from typing import Any
 import time
 import threading
 
+from provider_env import DEFAULT_VISION_MODEL
 from .vlm_exceptions import VLMModelLoadError, VLMModelNotFoundError
 from .vlm_models import ModelConfiguration
 
@@ -138,7 +139,7 @@ class VLMModelRegistry:
         import os
 
         configured_model = os.getenv("VISION_MODEL")
-        default_models = ["mlx-community/GLM-4.6V-Flash-4bit"]
+        default_models = [DEFAULT_VISION_MODEL]
 
         if configured_model and configured_model not in default_models:
             return [configured_model, *default_models]

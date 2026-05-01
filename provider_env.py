@@ -79,6 +79,14 @@ def mlx_available() -> bool:
     return importlib.util.find_spec("mlx_vlm") is not None
 
 
+def whisper_available() -> bool:
+    return importlib.util.find_spec("lightning_whisper_mlx") is not None
+
+
+def mlx_platform_available() -> bool:
+    return mlx_available() and whisper_available()
+
+
 def _httpx_get(url: str, timeout: float = 5.0):
     import httpx
 
